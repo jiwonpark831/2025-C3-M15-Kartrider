@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
+
+    @Binding var path: NavigationPath
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("홈화면이고요여기썸네일이들어가겠죠?눌러보세요").onTapGesture {
+            path.append(Route.intro)
+        }
     }
 }
 
 #Preview {
-    HomeView()
+    HomeView(path: .constant(NavigationPath()))
 }
