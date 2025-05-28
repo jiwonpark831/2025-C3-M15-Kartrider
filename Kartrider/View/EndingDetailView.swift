@@ -15,3 +15,7 @@ struct EndingDetailView: View {
         Text("EndingDetailView")
     }
 }
+
+#Preview {
+    EndingDetailView(path: .constant(NavigationPath()))
+}
