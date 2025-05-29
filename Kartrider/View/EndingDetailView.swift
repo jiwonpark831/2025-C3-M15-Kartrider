@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct EndingDetailView: View {
-    
-    @Binding var path: NavigationPath
-    
+
+    @EnvironmentObject private var coordinator: NavigationCoordinator
+
     var body: some View {
         Text("EndingDetailView")
     }
 }
 
 #Preview {
-    EndingDetailView(path: .constant(NavigationPath()))
+    EndingDetailView()
 }

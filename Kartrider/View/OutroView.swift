@@ -9,18 +9,18 @@ import SwiftUI
 
 struct OutroView: View {
 
-    @Binding var path: NavigationPath
+    @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
         VStack {
             Text("결말페이지")
             Text("홈으로").onTapGesture {
-                path.removeLast(path.count)
+                coordinator.popToRoot()
             }
         }
     }
 }
 
 #Preview {
-    OutroView(path: .constant(NavigationPath()))
+    OutroView()
 }

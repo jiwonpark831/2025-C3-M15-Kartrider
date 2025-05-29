@@ -8,8 +8,24 @@
 import SwiftUI
 
 struct AppNavigationView: View {
+
+    @ObservedObject private var coordinator = NavigationCoordinator()
+
     var body: some View {
-        Text("ContentView에 있는 NavgationStack 관련된 거 다 여기로 옮겨주세요.")
+        NavigationStack(path: $coordinator.paths) {
+            HomeView().navigationDestination(for: Route.self) {
+                route in
+                switch route {
+                case .home: HomeView()
+                case .intro: IntroView()
+                case .story: StoryView()
+                case .outro: OutroView()
+                case .storage: StorageView()
+                case .ending: EndingView()
+                case .endingDetail: EndingDetailView()
+                }
+            }
+        }.environmentObject(coordinator)
     }
 }
 

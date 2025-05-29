@@ -8,17 +8,18 @@
 import SwiftUI
 
 struct StorageView: View {
-    
-    @Binding var path: NavigationPath
-    
+
+    @EnvironmentObject private var coordinator: NavigationCoordinator
+
     var body: some View {
         Text("[[이야기 1]]").onTapGesture {
-            path.append(Route.ending)
+            coordinator.push(.ending)
+
         }
         Text("이야기 2")
     }
 }
 
 #Preview {
-    StorageView(path: .constant(NavigationPath()))
+    StorageView()
 }

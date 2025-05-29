@@ -9,14 +9,14 @@ import SwiftUI
 
 struct HomeView: View {
 
-    @Binding var path: NavigationPath
+    @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
         VStack {
             HStack {
                 Spacer()
                 Button {
-                    path.append(Route.storage)
+                    coordinator.push(.storage)
                 } label: {
                     Image(systemName: "book")
                         .font(.title)
@@ -26,7 +26,7 @@ struct HomeView: View {
             }
             Spacer()
             Text("[[대표 스토리 썸네일]]").onTapGesture {
-                path.append(Route.intro)
+                coordinator.push(.intro)
             }
             Spacer()
         }
@@ -34,5 +34,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(path: .constant(NavigationPath()))
+    HomeView()
 }

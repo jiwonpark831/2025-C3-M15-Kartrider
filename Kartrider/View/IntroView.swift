@@ -9,18 +9,18 @@ import SwiftUI
 
 struct IntroView: View {
 
-    @Binding var path: NavigationPath
+    @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
         VStack {
             Text("인트로페이지")
             Text("시작하기").onTapGesture {
-                path.append(Route.story)
+                coordinator.push(.story)
             }
         }
     }
 }
 
 #Preview {
-    IntroView(path: .constant(NavigationPath()))
+    IntroView()
 }
