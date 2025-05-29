@@ -36,7 +36,7 @@ enum StoryJSONParser {
             let story = Story(startNodeId: storyJSON.story.startNodeId, meta: meta)
             context.insert(story)
             
-            print("[Debug] Story 저장됨: startNode = \(story.startNodeId)")
+            print("[DEBUG] Story 저장됨: startNode = \(story.startNodeId)")
             
             // Nodes
             for nodeData in storyJSON.story.nodes {
@@ -78,8 +78,8 @@ enum StoryJSONParser {
         try context.save()
         
         // Debug 출력
-        print("[Debug] 저장된 Story 수: \(try context.fetch(FetchDescriptor<Story>()).count)")
-        print("[Debug] 저장된 StoryNode 수: \(try context.fetch(FetchDescriptor<StoryNode>()).count)")
-        print("[Debug] 저장된 ContentMeta 수: \(try context.fetch(FetchDescriptor<ContentMeta>()).count)")
+        print("[DEBUG] 저장된 Story 수: \(try context.fetch(FetchDescriptor<Story>()).count)")
+        print("[DEBUG] 저장된 StoryNode 수: \(try context.fetch(FetchDescriptor<StoryNode>()).count)")
+        print("[DEBUG] 저장된 ContentMeta 수: \(try context.fetch(FetchDescriptor<ContentMeta>()).count)")
     }
 }
