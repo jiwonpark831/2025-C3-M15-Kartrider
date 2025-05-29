@@ -8,19 +8,20 @@
 import SwiftUI
 
 struct EndingView: View {
-    
-    @Binding var path: NavigationPath
+
+    @EnvironmentObject private var coordinator: NavigationCoordinator
+
     var body: some View {
         Text("[[전체 이야기 보기]]").onTapGesture {
-            path.append(Route.endingDetail)
+            coordinator.push(.endingDetail)
         }
         Text("[[다른 결말 시도(소개 화면)]]").onTapGesture {
-            path.removeLast(path.count)
-            path.append(Route.intro)
+            coordinator.push(.intro)
+
         }
     }
 }
 
 #Preview {
-    EndingView(path: .constant(NavigationPath()))
+    EndingView()
 }

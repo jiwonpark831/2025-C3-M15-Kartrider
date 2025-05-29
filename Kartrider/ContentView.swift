@@ -10,26 +10,9 @@ import SwiftUI
 
 struct ContentView: View {
 
-    @State private var path = NavigationPath()
-
     var body: some View {
-        NavigationStack(path: $path) {
-            HomeView(path: $path).navigationDestination(for: Route.self) {
-                route in
-                switch route {
-                case .home: HomeView(path: $path)
-                case .intro: IntroView(path: $path)
-                case .story: StoryView(path: $path)
-                case .outro: OutroView(path: $path)
-                case .storage: StorageView(path: $path)
-                case .ending: EndingView(path: $path)
-                case .endingDetail: EndingDetailView(path: $path)
-                }
-            }
-        }
-
+        Text("네비게이션 스택 옮기기 완료")
     }
-
 }
 
 #Preview {
