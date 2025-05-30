@@ -24,6 +24,7 @@ struct NodeData: Decodable {
     let type: StoryNodeType
     let nextId: String?
     let endingIndex: Int?
+    let title: String?
     let choiceA: ChoiceData?
     let choiceB: ChoiceData?
 }

@@ -46,6 +46,7 @@ enum StoryJSONParser {
                     type: nodeData.type,
                     nextId: nodeData.nextId,
                     endingIndex: nodeData.endingIndex,
+                    title: nodeData.title,
                     story: story
                 )
                 

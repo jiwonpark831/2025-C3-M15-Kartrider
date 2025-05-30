@@ -15,25 +15,22 @@ class StoryNode {
     var type: StoryNodeType
     var nextId: String?
     var endingIndex: Int?
+    var title: String?
     
     @Relationship(inverse: \Story.nodes) var story: Story
     @Relationship(deleteRule: .cascade) var choiceA: StoryChoice?
     @Relationship(deleteRule: .cascade) var choiceB: StoryChoice?
     
-    init(
-        id: String,
-        text: String,
-        type: StoryNodeType,
-        nextId: String? = nil,
-        endingIndex: Int? = nil,
-        story: Story
-    ) {
+    init(id: String, text: String, type: StoryNodeType, nextId: String? = nil, endingIndex: Int? = nil, title: String? = nil, story: Story, choiceA: StoryChoice? = nil, choiceB: StoryChoice? = nil) {
         self.id = id
         self.text = text
         self.type = type
         self.nextId = nextId
         self.endingIndex = endingIndex
+        self.title = title
         self.story = story
+        self.choiceA = choiceA
+        self.choiceB = choiceB
     }
 }
 

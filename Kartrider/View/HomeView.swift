@@ -6,23 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
-
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
         VStack {
             HStack {
-                Button {
-                    UserDefaults.standard.removeObject(forKey: "hasSeededStories")
-                    print("[SUCCESS] 시딩 상태 초기화 완료 (hasSeededStories 제거됨)")
-                } label: {
-                    Text("시딩 리셋")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .padding(8)
-                }
                 Spacer()
                 Button {
                     coordinator.push(.storage)

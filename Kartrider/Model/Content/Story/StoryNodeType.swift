@@ -10,6 +10,7 @@ import Foundation
 enum StoryNodeType : String, Codable {
     case exposition
     case decision
+    case ending
 }
 
 
