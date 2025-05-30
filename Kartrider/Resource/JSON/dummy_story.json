@@ -148,32 +148,37 @@
         {
           "id": "lostroom_end1",
           "text": "당신은 결말 1에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 1
+          "type": "ending",
+          "endingIndex": 1,
+          "title": "잃어버린 방 결말 1"
         },
         {
           "id": "lostroom_end2",
           "text": "당신은 결말 2에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 2
+          "type": "ending",
+          "endingIndex": 2,
+          "title": "잃어버린 방 결말 2"
         },
         {
           "id": "lostroom_end3",
           "text": "당신은 결말 3에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 3
+          "type": "ending",
+          "endingIndex": 3,
+          "title": "잃어버린 방 결말 3"
         },
         {
           "id": "lostroom_end4",
           "text": "당신은 결말 4에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 4
+          "type": "ending",
+          "endingIndex": 4,
+          "title": "잃어버린 방 결말 4"
         },
         {
           "id": "lostroom_end5",
           "text": "당신은 결말 5에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 5
+          "type": "ending",
+          "endingIndex": 5,
+          "title": "잃어버린 방 결말 5"
         }
       ],
       "endingConditions": [
@@ -649,32 +654,37 @@
         {
           "id": "snowpath_end1",
           "text": "당신은 결말 1에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 1
+          "type": "ending",
+          "endingIndex": 1,
+          "title": "눈길 결말 1"
         },
         {
           "id": "snowpath_end2",
           "text": "당신은 결말 2에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 2
+          "type": "ending",
+          "endingIndex": 2,
+          "title": "눈길 결말 2"
         },
         {
           "id": "snowpath_end3",
           "text": "당신은 결말 3에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 3
+          "type": "ending",
+          "endingIndex": 3,
+          "title": "눈길 결말 3"
         },
         {
           "id": "snowpath_end4",
           "text": "당신은 결말 4에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 4
+          "type": "ending",
+          "endingIndex": 4,
+          "title": "눈길 결말 4"
         },
         {
           "id": "snowpath_end5",
           "text": "당신은 결말 5에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 5
+          "type": "ending",
+          "endingIndex": 5,
+          "title": "눈길 결말 5"
         }
       ],
       "endingConditions": [
@@ -1150,32 +1160,38 @@
         {
           "id": "miragelab_end1",
           "text": "당신은 결말 1에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 1
+          "type": "ending",
+          "endingIndex": 1,
+          "title": "실험실 결말 1",
+          
         },
         {
           "id": "miragelab_end2",
           "text": "당신은 결말 2에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 2
+          "type": "ending",
+          "endingIndex": 2,
+          "title": "실험실 결말 2",
         },
         {
           "id": "miragelab_end3",
           "text": "당신은 결말 3에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 3
+          "type": "ending",
+          "endingIndex": 3,
+          "title": "실험실 결말 3",
         },
         {
           "id": "miragelab_end4",
           "text": "당신은 결말 4에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 4
+          "type": "ending",
+          "endingIndex": 4,
+          "title": "실험실 결말 4",
         },
         {
           "id": "miragelab_end5",
           "text": "당신은 결말 5에 도달했습니다. 선택의 결과입니다.",
-          "type": "exposition",
-          "endingIndex": 5
+          "type": "ending",
+          "endingIndex": 5,
+          "title": "실험실 결말 5",
         }
       ],
       "endingConditions": [

@@ -24,8 +24,9 @@ struct KartriderApp: App {
             StoryStep.self,
             TournamentStep.self
         ])
+        
         let modelConfiguration = ModelConfiguration(
-            schema: schema, isStoredInMemoryOnly: false)
+            schema: schema, isStoredInMemoryOnly: true)
 
         do {
             return try ModelContainer(
@@ -44,7 +45,6 @@ struct KartriderApp: App {
 //                    await StorySeeder.deleteAll(context: context)
 //                    await StorySeeder.seed(context: context)
                     await StorySeeder.seedIfNeeded(context: sharedModelContainer.mainContext)
-                    print("[SUCCESS] 시딩 완료")
                     #endif
                 }
         }
