@@ -12,10 +12,21 @@ struct EndingDetailView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        Text("EndingDetailView")
+        
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.timeline(title: "임의-타임라인"),
+            onTapLeft: { coordinator.pop() }
+        ) {
+            VStack {
+                Spacer()
+                Text("EndingDetailView")
+                Spacer()
+            }
+        }
     }
 }
 
 #Preview {
     EndingDetailView()
+        .environmentObject(NavigationCoordinator())
 }
