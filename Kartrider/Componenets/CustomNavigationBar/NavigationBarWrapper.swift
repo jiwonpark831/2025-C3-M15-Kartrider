@@ -29,6 +29,7 @@ struct NavigationBarWrapper<Content: View>: View {
             CustomNavigationBar(style: navStyle, onTapLeft: onTapLeft, onTapRight: onTapRight)
             content
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }

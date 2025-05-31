@@ -8,7 +8,6 @@
 import Foundation
 import SwiftData
 
-@MainActor
 class HomeViewModel: ObservableObject {
     
     @Published var contents: [ContentMeta] = []
@@ -19,14 +18,12 @@ class HomeViewModel: ObservableObject {
         self.contentRepository = repository
     }
     
+    @MainActor
     func loadContents(context: ModelContext) {
         do {
             contents = try contentRepository.fetchAllContents(context: context)
-            for content in contents {
-            }
         } catch {
             print("[ERROR] 컨텐츠 로딩 실패 : \(error)")
         }
     }
-    
 }
