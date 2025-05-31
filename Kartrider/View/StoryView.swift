@@ -12,10 +12,18 @@ struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        VStack {
-            Text("스토리진행페이지")
-            Text("임의로 결말페이지로 가는 버튼").onTapGesture {
-                coordinator.push(.outro)
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.play(title: "임의 - 스토리 진행"),
+            onTapLeft: { coordinator.pop() }
+        ) {
+            VStack {
+                Spacer()
+                Text("스토리 진행 페이지")
+                Text("임의로 결말페이지로 가는 버튼")
+                    .onTapGesture {
+                        coordinator.push(Route.outro)
+                    }
+                Spacer()
             }
         }
     }
@@ -23,4 +31,5 @@ struct StoryView: View {
 
 #Preview {
     StoryView()
+        .environmentObject(NavigationCoordinator())
 }

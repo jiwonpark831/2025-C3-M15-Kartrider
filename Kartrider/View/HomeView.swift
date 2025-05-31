@@ -12,27 +12,23 @@ struct HomeView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        VStack {
-            HStack {
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.home,
+            onTapRight: { coordinator.push(Route.storage) }
+        ) {
+            VStack {
                 Spacer()
-                Button {
-                    coordinator.push(.storage)
-                } label: {
-                    Image(systemName: "book")
-                        .font(.title)
-                        .foregroundColor(.black)
-                        .padding()
-                }
+                Text("[썸네일 예시]")
+                    .onTapGesture {
+                        coordinator.push(Route.intro)
+                    }
+                Spacer()
             }
-            Spacer()
-            Text("[[대표 스토리 썸네일]]").onTapGesture {
-                coordinator.push(.intro)
-            }
-            Spacer()
         }
     }
 }
 
 #Preview {
     HomeView()
+        .environmentObject(NavigationCoordinator())
 }

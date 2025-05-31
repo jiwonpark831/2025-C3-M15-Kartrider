@@ -12,14 +12,23 @@ struct StorageView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        Text("[[이야기 1]]").onTapGesture {
-            coordinator.push(.ending)
-
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.archive,
+            onTapLeft: { coordinator.pop() }
+        ) {
+            VStack {
+                Spacer()
+                Text("[[ 스토리1 ]]")
+                    .onTapGesture {
+                        coordinator.push(Route.ending)
+                    }
+                Spacer()
+            }
         }
-        Text("이야기 2")
     }
 }
 
 #Preview {
     StorageView()
+        .environmentObject(NavigationCoordinator())
 }

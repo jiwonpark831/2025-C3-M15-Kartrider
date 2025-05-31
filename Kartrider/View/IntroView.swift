@@ -12,10 +12,17 @@ struct IntroView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        VStack {
-            Text("인트로페이지")
-            Text("시작하기").onTapGesture {
-                coordinator.push(.story)
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.intro,
+            onTapLeft: { coordinator.pop() }
+        ) {
+            VStack {
+                Spacer()
+                Text("인트로페이지")
+                Text("시작하기").onTapGesture {
+                    coordinator.push(Route.story)
+                }
+                Spacer()
             }
         }
     }
@@ -23,4 +30,5 @@ struct IntroView: View {
 
 #Preview {
     IntroView()
+        .environmentObject(NavigationCoordinator())
 }

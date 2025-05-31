@@ -31,6 +31,8 @@ struct CustomNavigationBar: View {
                         onTapRight?()
                     } label: {
                         Image(systemName: right.type.iconName)
+                            .resizable()
+                            .frame(width: 20, height: 20)
                             .foregroundStyle(right.color)
                     }
                 } else {

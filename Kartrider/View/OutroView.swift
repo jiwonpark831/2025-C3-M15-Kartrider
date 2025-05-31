@@ -12,10 +12,14 @@ struct OutroView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        VStack {
-            Text("결말페이지")
-            Text("홈으로").onTapGesture {
-                coordinator.popToRoot()
+        NavigationBarWrapper(
+            navStyle: NavigationBarStyle.play(title: "임의 - 결말 페이지"),
+            onTapLeft: { coordinator.popToRoot() }
+        ) {
+            VStack {
+                Spacer()
+                Text("결말 페이지")
+                Spacer()
             }
         }
     }
@@ -23,4 +27,5 @@ struct OutroView: View {
 
 #Preview {
     OutroView()
+        .environmentObject(NavigationCoordinator())
 }
