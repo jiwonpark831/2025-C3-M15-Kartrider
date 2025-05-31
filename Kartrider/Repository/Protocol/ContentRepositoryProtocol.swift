@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import SwiftData
 
 protocol ContentRepositoryProtocol {
-    func fetchAllContents() throws -> [ContentMeta]
-    func fetchContent(by id: UUID) throws -> ContentMeta?
+    func fetchAllContents(context: ModelContext) throws -> [ContentMeta]
+    func fetchContent(by id: UUID, context: ModelContext) throws -> ContentMeta?
     
-    func fetchStory(by id: UUID) throws -> Story?
-    func fetchTournament(by id: UUID) throws -> Tournament?
+//    func fetchStory(by id: UUID) throws -> Story?
+//    func fetchTournament(by id: UUID) throws -> Tournament?
 }

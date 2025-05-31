@@ -10,6 +10,11 @@ import SwiftUI
 struct IntroView: View {
 
     @EnvironmentObject private var coordinator: NavigationCoordinator
+    @StateObject private var viewModel: IntroViewModel
+    
+    init(content: ContentMeta) {
+        _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
+    }
 
     var body: some View {
         NavigationBarWrapper(
@@ -19,8 +24,9 @@ struct IntroView: View {
             VStack {
                 Spacer()
                 Text("인트로페이지")
+                Text("제목 : \(viewModel.content.title)")
                 Text("시작하기").onTapGesture {
-                    coordinator.push(Route.story)
+                    coordinator.push(Route.story(viewModel.content))
                 }
                 Spacer()
             }
@@ -29,6 +35,6 @@ struct IntroView: View {
 }
 
 #Preview {
-    IntroView()
-        .environmentObject(NavigationCoordinator())
+//    IntroView()
+//        .environmentObject(NavigationCoordinator())
 }

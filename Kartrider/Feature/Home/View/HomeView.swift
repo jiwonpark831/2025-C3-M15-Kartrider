@@ -10,6 +10,9 @@ import SwiftData
 
 struct HomeView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
+    @Environment(\.modelContext) private var context
+    
+    @StateObject private var viewModel = HomeViewModel()
 
     var body: some View {
         NavigationBarWrapper(
@@ -18,12 +21,21 @@ struct HomeView: View {
         ) {
             VStack {
                 Spacer()
-                Text("[썸네일 예시]")
-                    .onTapGesture {
-                        coordinator.push(Route.intro)
-                    }
+                List(viewModel.contents, id: \.id) { content in
+                    Text(content.title)
+                        .onTapGesture {
+                            coordinator.push(Route.intro(content))
+                        }
+                }
+//                Text("[썸네일 예시]")
+//                    .onTapGesture {
+//                        coordinator.push(Route.intro())
+//                    }
                 Spacer()
             }
+        }
+        .task {
+            viewModel.loadContents(context: context)
         }
     }
 }
