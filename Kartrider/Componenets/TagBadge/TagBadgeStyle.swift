@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum TagBadgeStyle {
+    case primary
+    case secondary
+}
