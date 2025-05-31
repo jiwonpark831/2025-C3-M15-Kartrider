@@ -11,8 +11,9 @@ import SwiftData
 struct HomeView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
-    
     @StateObject private var viewModel = HomeViewModel()
+    
+    @State private var selectedIndex: Int = 0
 
     var body: some View {
         NavigationBarWrapper(
@@ -24,8 +25,14 @@ struct HomeView: View {
             VStack(spacing: 12) {
                 headerSection
                 
-                ContentCarouselView(contents: viewModel.contents) { selectedContent in
-                    coordinator.push(Route.intro(selectedContent))
+                ContentCarouselView(
+                    contents: viewModel.contents,
+                    initialIndex: selectedIndex
+                ) { selected in
+                    if let index = viewModel.contents.firstIndex(of: selected) {
+                        selectedIndex = index
+                    }
+                    coordinator.push(Route.intro(selected))
                 }
                 
             }

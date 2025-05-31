@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentCarouselView: View {
     let contents: [ContentMeta]
+    let initialIndex: Int
     var onTap: (ContentMeta) -> Void
     
     @GestureState private var translation: CGFloat = 0
@@ -52,20 +53,20 @@ struct ContentCarouselView: View {
             )
         }
         .frame(height: 500)
-        // Page Indicator
-        PageIndicatorView(
-            totalCount: contents.count,
-            currentIndex: currentIndex
-        )
-        
         .onAppear {
-            currentIndex = contents.count / 2
+            currentIndex = initialIndex
         }
         .onChange(of: contents) { newValue in
             if !newValue.isEmpty {
                 currentIndex = newValue.count / 2
             }
         }
+        
+        // Page Indicator
+        PageIndicatorView(
+            totalCount: contents.count,
+            currentIndex: currentIndex
+        )
     }
 }
 
@@ -94,7 +95,7 @@ struct ContentCarouselView: View {
         )
     ]
     
-    return ContentCarouselView(contents: dummyContents) { selected in
+    return ContentCarouselView(contents: dummyContents, initialIndex: 0) { selected in
         print("선택된 콘텐츠: \(selected.title)")
     }
 }
