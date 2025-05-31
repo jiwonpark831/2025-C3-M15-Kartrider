@@ -40,9 +40,14 @@ struct ContentCarouselView: View {
                         state = value.translation.width
                     }
                     .onEnded { value in
-                        let offset = value.translation.width / totalSpacing
-                        let newIndex = (CGFloat(currentIndex) - offset).rounded()
-                        currentIndex = max(0, min(contents.count - 1, Int(newIndex)))
+                        let threshold: CGFloat = 4 // 4pt 이상이면 이동
+                        let dragDistance = value.translation.width
+
+                        if dragDistance > threshold {
+                            currentIndex = max(0, currentIndex - 1) // 오른쪽으로 드래그 → 이전 카드
+                        } else if dragDistance < -threshold {
+                            currentIndex = min(contents.count - 1, currentIndex + 1) // 왼쪽으로 드래그 → 다음 카드
+                        }
                     }
             )
         }

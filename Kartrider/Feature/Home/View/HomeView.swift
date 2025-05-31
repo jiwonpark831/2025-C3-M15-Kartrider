@@ -61,14 +61,21 @@ struct HomeView_Previews: PreviewProvider {
                     title: "눈 떠보니 내가 T1 페이커?!",
                     summary: "오늘이 MSI 결승인데, 아이언인 내가 페이커 몸에 들어와버림",
                     type: .story,
-                    hashtags: ["빙의", "LOL"],
+                    hashtags: ["페이커", "빙의", "큰일남"],
                     thumbnailName: nil
                 ),
                 ContentMeta(
                     title: "마법학교 입학 통지서",
-                    summary: "부엉이가 입학하래",
+                    summary: "갑자기 부엉이가 날아와 입학하래",
                     type: .story,
                     hashtags: ["마법", "학원물"],
+                    thumbnailName: nil
+                ),
+                ContentMeta(
+                    title: "아쉬워 벌써 12시",
+                    summary: "아쉬워 벌써 12시네",
+                    type: .story,
+                    hashtags: ["절대 집에 가", "청하", "메아리"],
                     thumbnailName: nil
                 )
             ]
