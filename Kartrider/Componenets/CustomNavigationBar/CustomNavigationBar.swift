@@ -48,7 +48,6 @@ struct CustomNavigationBar: View {
             }
         }
         .frame(height: 56)
-        .background(Color.red)
     }
 }
 
