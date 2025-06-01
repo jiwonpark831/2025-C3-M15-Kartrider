@@ -47,7 +47,7 @@ struct CustomNavigationBar: View {
                     .bold()
             }
         }
-        .frame(height: 44)
+        .frame(height: 56)
     }
 }
 
