@@ -10,12 +10,12 @@ import SwiftUI
 struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
-    @StateObject private var viewModel: StoryViewModel
+    @StateObject private var storyViewModel: StoryViewModel
     @StateObject private var ttsViewModel = TTSViewModel()
     let title: String
 
     init(title: String, id: String) {
-        _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
+        _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
 
@@ -25,13 +25,13 @@ struct StoryView: View {
             onTapLeft: { coordinator.pop() }
         ) {
             Group {
-                if viewModel.isLoading {
+                if storyViewModel.isLoading {
                     Spacer()
                     ProgressView()
                     Spacer()
-                } else if let errorMessage = viewModel.errorMessage {
+                } else if let errorMessage = storyViewModel.errorMessage {
                     Text(errorMessage)
-                } else if let storyNode = viewModel.currentNode {
+                } else if let storyNode = storyViewModel.currentNode {
                     VStack {
                         Divider()
                         Spacer().frame(height: 28)
@@ -58,23 +58,23 @@ struct StoryView: View {
                     .onTapGesture {
                         if storyNode.type == .exposition {
                             ttsViewModel.stop()
-                            viewModel.goToNextNode(from: storyNode)
+                            storyViewModel.goToNextNode(from: storyNode)
                         }
                     }
                 }
             }
         }
         .task {
-            await viewModel.loadInitialNode(context: context)
+            await storyViewModel.loadInitialNode(context: context)
         }
-        .onChange(of: viewModel.currentNode) { oldNode, newNode in
+        .onChange(of: storyViewModel.currentNode) { oldNode, newNode in
             guard let storyNode = newNode else { return }
             let id = storyNode.id
 
             ttsViewModel.onFinish = {
-                guard viewModel.currentNode?.id == id else { return }
+                guard storyViewModel.currentNode?.id == id else { return }
                 if storyNode.type != .decision {
-                    viewModel.goToNextNode(from: storyNode)
+                    storyViewModel.goToNextNode(from: storyNode)
                 }
             }
 
@@ -95,13 +95,13 @@ struct StoryView: View {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
                     Button {
                         ttsViewModel.reset()
-                        viewModel.selectChoice(toId: choiceA.toId)
+                        storyViewModel.selectChoice(toId: choiceA.toId)
                     } label: {
                         DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
                     }
                     Button {
                         ttsViewModel.reset()
-                        viewModel.selectChoice(toId: choiceB.toId)
+                        storyViewModel.selectChoice(toId: choiceB.toId)
                     } label: {
                         DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
                     }
