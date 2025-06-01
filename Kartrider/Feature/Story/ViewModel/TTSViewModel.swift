@@ -11,6 +11,9 @@ import Foundation
 final class TTSViewModel: ObservableObject {
     @Published private(set) var isSpeaking = false
     @Published private(set) var isPaused = false
+    
+    private var currentContinuation: CheckedContinuation<Void, Never>?
+
 
     var onFinish: (() -> Void)?
 
@@ -20,7 +23,10 @@ final class TTSViewModel: ObservableObject {
         ttsManager.didFinishSpeaking = { [unowned self] in
             self.isSpeaking = false
             self.isPaused = false
-            self.onFinish?()
+
+            let callback = self.onFinish
+            self.onFinish = nil
+            callback?()
         }
     }
 
@@ -28,17 +34,42 @@ final class TTSViewModel: ObservableObject {
         ttsManager.speak(text)
         syncState()
     }
+    
+    func speakSequentially(_ text: String) async {
+        await withCheckedContinuation { continuation in
+            self.currentContinuation = continuation
+
+            self.onFinish = {
+                continuation.resume()
+                self.currentContinuation = nil
+            }
+
+            self.speak(text)
+        }
+    }
+
 
     func stop() {
-        ttsManager.stop()
         onFinish = nil
-        syncState()
+
+        if let continuation = currentContinuation {
+            continuation.resume()
+            currentContinuation = nil
+        }
+
+        ttsManager.stop()
+        isSpeaking = false
+        isPaused = false
     }
+
+
 
     func pause() {
         ttsManager.pause()
-        syncState()
+        isSpeaking = false
+        isPaused = true
     }
+
 
     func resume() {
         ttsManager.resume()

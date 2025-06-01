@@ -69,18 +69,23 @@ struct StoryView: View {
         }
         .onChange(of: storyViewModel.currentNode) { oldNode, newNode in
             guard let storyNode = newNode else { return }
-            let id = storyNode.id
-
-            ttsViewModel.onFinish = {
-                guard storyViewModel.currentNode?.id == id else { return }
-                if storyNode.type != .decision {
-                    storyViewModel.goToNextNode(from: storyNode)
-                }
-            }
 
             Task {
-                try? await Task.sleep(for: .milliseconds(500))
-                ttsViewModel.speak(storyNode.text)
+                try? await Task.sleep(for: .milliseconds(300))
+
+                await ttsViewModel.speakSequentially(storyNode.text)
+
+                if storyNode.type == .decision,
+                   let a = storyNode.choiceA, let b = storyNode.choiceB {
+                    await ttsViewModel.speakSequentially("A")
+                    await ttsViewModel.speakSequentially(a.text)
+                    await ttsViewModel.speakSequentially("B")
+                    await ttsViewModel.speakSequentially(b.text)
+                }
+
+                if storyNode.type == .exposition {
+                    storyViewModel.goToNextNode(from: storyNode)
+                }
             }
         }
     }
