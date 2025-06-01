@@ -9,17 +9,13 @@ import SwiftUI
 
 struct ContentCardView: View {
     let content: ContentMeta
+    var showsTags: Bool = true
     
     private var thumbnailImage: Image {
         guard let name = content.thumbnailName, UIImage(named: name) != nil else {
             return Image("default_thumbnail")
         }
         return Image(name)
-//        Image("default_thumbnail")
-//            .resizable()
-//            .scaledToFill()
-//            .frame(width: 240, height: 320)
-//            .background(Color.secondary)
     }
     
     var body: some View {
@@ -34,12 +30,14 @@ struct ContentCardView: View {
                         .stroke(Color.divider, lineWidth: 1)
                 )
             
-            HStack(spacing: 8) {
-                ForEach(content.hashtags, id:\.self ) { tag in
-                    TagBadgeView(text: tag, style: .primary)
+            if showsTags {
+                HStack(spacing: 8) {
+                    ForEach(content.hashtags, id:\.self ) { tag in
+                        TagBadgeView(text: tag, style: .primary)
+                    }
                 }
+                .padding(16)
             }
-            .padding(16)
         }
         .padding()
     }
