@@ -13,6 +13,9 @@ struct StoryView: View {
     @StateObject private var viewModel: StoryViewModel
     let title: String
     
+    @StateObject private var ttsManager = TTSManager()
+    @State private var isTransitioning = false
+    
     init(title: String, id: String){
         _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
@@ -41,11 +44,40 @@ struct StoryView: View {
                         Image(systemName: "pause.fill")
                             .font(.system(size: 36))
                     }
+                    .gesture(
+                        TapGesture().onEnded {
+                            if case .success(let storyNode) = viewModel.state {
+                                if !isTransitioning {
+                                    isTransitioning = true
+                                    ttsManager.stop()
+                                    viewModel.goToNextNode(from: storyNode)
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
         .task {
-            viewModel.loadStoryNode(context: context)
+            await viewModel.loadStoryNode(context: context)
+        }
+        .onChange(of: viewModel.state) {
+            if case .success(let storyNode) = viewModel.state {
+                isTransitioning = false
+                
+                ttsManager.onFinish = {
+                    if !isTransitioning {
+                        isTransitioning = true
+                        viewModel.goToNextNode(from: storyNode)
+                    }
+                }
+                
+                Task {
+                    try await Task.sleep(for: .milliseconds(500))
+                    ttsManager.speak(storyNode.text)
+                }
+                
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ class StoryViewModel: ObservableObject {
     }
     
     @MainActor
-    func loadStoryNode(context: ModelContext) {
+    func loadStoryNode(context: ModelContext) async {
         do {
             if let story = try contentRepository.fetchStory(by: title, context: context), let storyNode = story.nodes.first(where: { $0.id == id }){
                 state = .success(storyNode)
@@ -31,6 +31,16 @@ class StoryViewModel: ObservableObject {
             }
         } catch {
             print("[ERROR] 스토리 로딩 실패 (id: \(id)")
+        }
+    }
+    
+    func goToNextNode(from: StoryNode) {
+        let nextNodeId = from.nextId
+        if let nextNode = from.story.nodes.first(where: { $0.id == nextNodeId }) {
+            state = .success(nextNode)
+        } else {
+            state = .failure("다음 스토리 노드를 찾을 수 없습니다")
+            print("[ERROR] 다음 노드 이동 실패 (nextNodeId: \(String(describing: nextNodeId))")
         }
     }
 }
