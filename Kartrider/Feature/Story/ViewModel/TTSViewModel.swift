@@ -6,40 +6,53 @@
 //
 
 import Foundation
-import Combine
 
 @MainActor
 final class TTSViewModel: ObservableObject {
-    @Published private(set) var isSpeaking: Bool = false
-    @Published private(set) var isPaused: Bool = false
-
-    private let ttsManager = TTSManager()
-    private var cancellables = Set<AnyCancellable>()
+    @Published private(set) var isSpeaking = false
+    @Published private(set) var isPaused = false
 
     var onFinish: (() -> Void)?
 
-    init() {
-        ttsManager.$isSpeaking.assign(to: &$isSpeaking)
-        ttsManager.$isPaused.assign(to: &$isPaused)
+    private let ttsManager = TTSManager()
 
-        ttsManager.onFinish = { [weak self] in
-            self?.onFinish?()
+    init() {
+        ttsManager.didFinishSpeaking = { [unowned self] in
+            self.isSpeaking = false
+            self.isPaused = false
+            self.onFinish?()
         }
     }
 
     func speak(_ text: String) {
         ttsManager.speak(text)
+        syncState()
     }
 
     func stop() {
         ttsManager.stop()
+        onFinish = nil
+        syncState()
     }
 
     func pause() {
         ttsManager.pause()
+        syncState()
     }
 
     func resume() {
         ttsManager.resume()
+        syncState()
+    }
+
+    func reset() {
+        stop()
+        onFinish = nil
+    }
+
+    private func syncState() {
+        isSpeaking = ttsManager.isSpeaking
+        isPaused = ttsManager.isPaused
     }
 }
+

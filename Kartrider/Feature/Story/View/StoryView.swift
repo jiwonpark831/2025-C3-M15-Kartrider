@@ -67,16 +67,16 @@ struct StoryView: View {
         .task {
             await viewModel.loadInitialNode(context: context)
         }
-        .onChange(of: viewModel.currentNode) { storyNode in
-            guard let storyNode else { return }
+        .onChange(of: viewModel.currentNode) { oldNode, newNode in
+            guard let storyNode = newNode else { return }
+            let id = storyNode.id
 
-            ttsViewModel.onFinish = { [weak viewModel] in
-                guard let node = viewModel?.currentNode else { return }
-                if node.id == storyNode.id && node.type != .decision {
-                    viewModel?.goToNextNode(from: node)
+            ttsViewModel.onFinish = {
+                guard viewModel.currentNode?.id == id else { return }
+                if storyNode.type != .decision {
+                    viewModel.goToNextNode(from: storyNode)
                 }
             }
-
 
             Task {
                 try? await Task.sleep(for: .milliseconds(500))
@@ -93,13 +93,17 @@ struct StoryView: View {
         case .decision:
             VStack(spacing: 12) {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
-                    DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId) { toId in
-                        ttsViewModel.stop()
-                        viewModel.selectChoice(toId: toId)
+                    Button {
+                        ttsViewModel.reset()
+                        viewModel.selectChoice(toId: choiceA.toId)
+                    } label: {
+                        DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
                     }
-                    DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId) { toId in
-                        ttsViewModel.stop()
-                        viewModel.selectChoice(toId: toId)
+                    Button {
+                        ttsViewModel.reset()
+                        viewModel.selectChoice(toId: choiceB.toId)
+                    } label: {
+                        DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
                     }
                 }
             }
