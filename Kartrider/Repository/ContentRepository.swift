@@ -19,4 +19,10 @@ class ContentRepository: ContentRepositoryProtocol {
         let descriptor = FetchDescriptor<ContentMeta>(predicate: predicate)
         return try context.fetch(descriptor).first
     }
+    
+    func fetchStory(by title: String, context: ModelContext) throws -> Story? {
+        let predicate = #Predicate<Story> { $0.meta.title == title }
+        let descriptor = FetchDescriptor<Story>(predicate: predicate)
+        return try context.fetch(descriptor).first
+    }
 }

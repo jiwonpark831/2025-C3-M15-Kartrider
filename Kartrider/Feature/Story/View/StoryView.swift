@@ -8,32 +8,51 @@
 import SwiftUI
 
 struct StoryView: View {
-
-    let content: ContentMeta
-    
     @EnvironmentObject private var coordinator: NavigationCoordinator
+    @Environment(\.modelContext) private var context
+    @StateObject private var viewModel: StoryViewModel
+    let title: String
+    
+    init(title: String, id: String){
+        _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
+        self.title = title
+    }
 
     var body: some View {
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.play(title: "임의 - 스토리 진행"),
+            navStyle: NavigationBarStyle.play(title: title),
             onTapLeft: { coordinator.pop() }
         ) {
-            VStack {
-                Spacer()
-                Text("선택된 컨텐츠 제목 : \(content.title)")
-                Text("임의로 결말페이지로 가는 버튼")
-                    .onTapGesture {
-                        coordinator.push(Route.outro)
+            Group {
+                switch viewModel.state {
+                case .loading:
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                case .failure(let errorMessage):
+                    Text("\(errorMessage)")
+                case .success(let storyNode):
+                    VStack {
+                        Divider()
+                        Spacer()
+                            .frame(height: 28)
+                        TextBoxView(text: storyNode.text)
+                        Spacer()
+                        Image(systemName: "pause.fill")
+                            .font(.system(size: 36))
                     }
-                Spacer()
+                }
             }
+        }
+        .task {
+            viewModel.loadStoryNode(context: context)
         }
     }
 }
 
-#Preview {
-    let dummyContent = ContentMeta(title: "예시 제목", summary: "이건 요약입니다.", type: ContentType.story, hashtags: ["니카", "제이", "지지"])
-    
-    StoryView(content: dummyContent)
-        .environmentObject(NavigationCoordinator())
-}
+//#Preview {
+//    let dummyContent = ContentMeta(title: "예시 제목", summary: "이건 요약입니다.", type: ContentType.story, hashtags: ["니카", "제이", "지지"])
+//    
+//    StoryView(content: dummyContent)
+//        .environmentObject(NavigationCoordinator())
+//}
