@@ -31,7 +31,7 @@ struct TagBadgeView: View {
     
     var body: some View {
         Text("#\(text)")
-            .font(.caption)
+            .font(.caption2.bold())
             .padding(.horizontal, 7)
             .padding(.vertical, 5)
             .background(backgroundColor)

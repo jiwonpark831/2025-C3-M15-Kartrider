@@ -9,37 +9,40 @@ import SwiftUI
 
 struct ContentCardView: View {
     let content: ContentMeta
+    var showsTags: Bool = true
+    var imageHeight: CGFloat = 480
+    var aspectRatio: CGFloat = 300.0 / 480.0
     
     private var thumbnailImage: Image {
         guard let name = content.thumbnailName, UIImage(named: name) != nil else {
             return Image("default_thumbnail")
         }
         return Image(name)
-//        Image("default_thumbnail")
-//            .resizable()
-//            .scaledToFill()
-//            .frame(width: 240, height: 320)
-//            .background(Color.secondary)
     }
     
     var body: some View {
+        let imageWidth = imageHeight * aspectRatio
+        
         ZStack(alignment: .topLeading) {
             thumbnailImage
                 .resizable()
                 .scaledToFill()
-                .frame(width: 300, height: 480)
+                .frame(width: imageWidth, height: imageHeight)
+                .frame(height: imageHeight)
                 .cornerRadius(16)
                 .overlay (
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color.divider, lineWidth: 1)
                 )
             
-            HStack(spacing: 8) {
-                ForEach(content.hashtags, id:\.self ) { tag in
-                    TagBadgeView(text: tag, style: .primary)
+            if showsTags {
+                HStack(spacing: 8) {
+                    ForEach(content.hashtags, id:\.self ) { tag in
+                        TagBadgeView(text: tag, style: .primary)
+                    }
                 }
+                .padding(16)
             }
-            .padding(16)
         }
         .padding()
     }
