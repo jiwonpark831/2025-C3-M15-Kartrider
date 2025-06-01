@@ -12,10 +12,10 @@ struct StoryView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel: StoryViewModel
     let title: String
-    
+
     @StateObject private var ttsManager = TTSManager()
     @State private var isTransitioning = false
-    
+
     init(title: String, id: String){
         _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
@@ -33,58 +33,57 @@ struct StoryView: View {
                     ProgressView()
                     Spacer()
                 case .failure(let errorMessage):
-                    Text("\(errorMessage)")
+                    Text(errorMessage)
                 case .success(let storyNode):
                     VStack {
                         Divider()
-                        Spacer()
-                            .frame(height: 28)
+                        Spacer().frame(height: 28)
+
                         TextBoxView(text: storyNode.text)
+
                         Spacer()
-                        Image(systemName: "pause.fill")
-                            .font(.system(size: 36))
-                    }
-                    .gesture(
-                        TapGesture().onEnded {
-                            if case .success(let storyNode) = viewModel.state {
-                                if !isTransitioning {
-                                    isTransitioning = true
-                                    ttsManager.stop()
-                                    viewModel.goToNextNode(from: storyNode)
-                                }
+
+                        Button(action: {
+                            if ttsManager.isSpeaking {
+                                ttsManager.pause()
+                            } else {
+                                ttsManager.resume()
                             }
+                        }) {
+                            Image(systemName: ttsManager.isSpeaking ? "pause.fill" : "play.fill")
+                                .font(.system(size: 36))
                         }
-                    )
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if !isTransitioning {
+                            isTransitioning = true
+                            ttsManager.stop()
+                            viewModel.goToNextNode(from: storyNode)
+                        }
+                    }
                 }
             }
         }
         .task {
             await viewModel.loadStoryNode(context: context)
         }
-        .onChange(of: viewModel.state) {
-            if case .success(let storyNode) = viewModel.state {
-                isTransitioning = false
-                
-                ttsManager.onFinish = {
-                    if !isTransitioning {
-                        isTransitioning = true
-                        viewModel.goToNextNode(from: storyNode)
-                    }
+        .onChange(of: viewModel.state) { newState in
+            guard case .success(let storyNode) = newState else { return }
+
+            isTransitioning = false
+
+            ttsManager.onFinish = {
+                if !isTransitioning {
+                    isTransitioning = true
+                    viewModel.goToNextNode(from: storyNode)
                 }
-                
-                Task {
-                    try await Task.sleep(for: .milliseconds(500))
-                    ttsManager.speak(storyNode.text)
-                }
-                
+            }
+
+            Task {
+                try await Task.sleep(for: .milliseconds(500))
+                ttsManager.speak(storyNode.text)
             }
         }
     }
 }
-
-//#Preview {
-//    let dummyContent = ContentMeta(title: "예시 제목", summary: "이건 요약입니다.", type: ContentType.story, hashtags: ["니카", "제이", "지지"])
-//    
-//    StoryView(content: dummyContent)
-//        .environmentObject(NavigationCoordinator())
-//}
