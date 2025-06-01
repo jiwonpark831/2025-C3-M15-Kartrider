@@ -42,4 +42,15 @@ class StoryViewModel: ObservableObject {
         }
         state = .success(nextNode)
     }
+    
+    func selectChoice(toId: String) {
+        guard case .success(let currentNode) = state,
+              let nextNode = currentNode.story.nodes.first(where: { $0.id == toId }) else {
+            state = .failure("다음 스토리 노드를 찾을 수 없습니다")
+            return
+        }
+
+        state = .success(nextNode)
+    }
+
 }

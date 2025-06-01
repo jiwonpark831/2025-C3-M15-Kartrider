@@ -60,7 +60,7 @@ struct StoryView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if !isTransitioning {
+                        if !isTransitioning && storyNode.type == .exposition {
                             isTransitioning = true
                             ttsManager.stop()
                             viewModel.goToNextNode(from: storyNode)
@@ -76,12 +76,13 @@ struct StoryView: View {
             guard case .success(let storyNode) = viewModel.state else { return }
 
             isTransitioning = false
-            ttsManager.stop()
 
             ttsManager.onFinish = {
                 if !isTransitioning {
-                    isTransitioning = true
-                    viewModel.goToNextNode(from: storyNode)
+                    if storyNode.type != .decision {
+                        isTransitioning = true
+                        viewModel.goToNextNode(from: storyNode)
+                    }
                 }
             }
 
@@ -102,16 +103,30 @@ struct StoryView: View {
 
         case .decision:
             VStack(spacing: 12) {
-                DecisionBoxView(
-                    text: storyNode.choiceA?.text ?? "",
-                    storyChoiceOption: .a,
-                    toId: storyNode.choiceA?.toId ?? ""
-                )
-                DecisionBoxView(
-                    text: storyNode.choiceB?.text ?? "",
-                    storyChoiceOption: .b,
-                    toId: storyNode.choiceB?.toId ?? ""
-                )
+                if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
+                    DecisionBoxView(
+                        text: choiceA.text,
+                        storyChoiceOption: .a,
+                        toId: choiceA.toId
+                    ) { toId in
+                        if !isTransitioning {
+                            isTransitioning = true
+                            ttsManager.stop()
+                            viewModel.selectChoice(toId: toId)
+                        }
+                    }
+                    DecisionBoxView(
+                        text: choiceB.text,
+                        storyChoiceOption: .b,
+                        toId: choiceB.toId
+                    ) { toId in
+                        if !isTransitioning {
+                            isTransitioning = true
+                            ttsManager.stop()
+                            viewModel.selectChoice(toId: toId)
+                        }
+                    }
+                }
             }
 
         case .ending:
