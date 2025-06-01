@@ -4,7 +4,6 @@
 //
 //  Created by jiwon on 5/27/25.
 //
-
 import SwiftUI
 
 struct StoryView: View {
@@ -16,7 +15,7 @@ struct StoryView: View {
     @StateObject private var ttsManager = TTSManager()
     @State private var isTransitioning = false
 
-    init(title: String, id: String){
+    init(title: String, id: String) {
         _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
@@ -32,26 +31,31 @@ struct StoryView: View {
                     Spacer()
                     ProgressView()
                     Spacer()
+
                 case .failure(let errorMessage):
                     Text(errorMessage)
+
                 case .success(let storyNode):
                     VStack {
                         Divider()
                         Spacer().frame(height: 28)
 
-                        TextBoxView(text: storyNode.text)
+                        DescriptionBoxView(text: storyNode.text)
+
+                        nodeTypeView(for: storyNode)
 
                         Spacer()
 
-                        Button(action: {
+                        Button {
                             if ttsManager.isSpeaking {
                                 ttsManager.pause()
                             } else {
                                 ttsManager.resume()
                             }
-                        }) {
+                        } label: {
                             Image(systemName: ttsManager.isSpeaking ? "pause.fill" : "play.fill")
                                 .font(.system(size: 36))
+                                .foregroundColor(.textPrimary)
                         }
                     }
                     .contentShape(Rectangle())
@@ -68,10 +72,11 @@ struct StoryView: View {
         .task {
             await viewModel.loadStoryNode(context: context)
         }
-        .onChange(of: viewModel.state) { newState in
-            guard case .success(let storyNode) = newState else { return }
+        .onChange(of: viewModel.state) {
+            guard case .success(let storyNode) = viewModel.state else { return }
 
             isTransitioning = false
+            ttsManager.stop()
 
             ttsManager.onFinish = {
                 if !isTransitioning {
@@ -82,8 +87,37 @@ struct StoryView: View {
 
             Task {
                 try await Task.sleep(for: .milliseconds(500))
-                ttsManager.speak(storyNode.text)
+                if !ttsManager.isSpeaking {
+                    ttsManager.speak(storyNode.text)
+                }
             }
         }
     }
+
+    @ViewBuilder
+    private func nodeTypeView(for storyNode: StoryNode) -> some View {
+        switch storyNode.type {
+        case .exposition:
+            EmptyView()
+
+        case .decision:
+            VStack(spacing: 12) {
+                DecisionBoxView(
+                    text: storyNode.choiceA?.text ?? "",
+                    storyChoiceOption: .a,
+                    toId: storyNode.choiceA?.toId ?? ""
+                )
+                DecisionBoxView(
+                    text: storyNode.choiceB?.text ?? "",
+                    storyChoiceOption: .b,
+                    toId: storyNode.choiceB?.toId ?? ""
+                )
+            }
+
+        case .ending:
+            Text("엔딩입니다.")
+                .font(.title)
+        }
+    }
 }
+

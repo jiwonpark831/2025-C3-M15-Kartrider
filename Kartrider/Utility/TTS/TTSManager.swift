@@ -10,8 +10,6 @@ import Foundation
 @MainActor
 final class TTSManager: NSObject, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
-    private var utteranceQueue: [AVSpeechUtterance] = []
-
     var onFinish: (() -> Void)?
 
     @Published private(set) var isSpeaking: Bool = false
@@ -23,15 +21,10 @@ final class TTSManager: NSObject, ObservableObject {
     }
 
     func speak(_ text: String) {
-        Task {
-            synthesizer.stopSpeaking(at: .immediate)
-            
-            try await Task.sleep(for: .milliseconds(100))
-            
-            let utterance = AVSpeechUtterance(string: text)
-            utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
-            synthesizer.speak(utterance)
-        }
+        stop()
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
+        synthesizer.speak(utterance)
     }
 
     func stop() {
@@ -84,4 +77,3 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
         }
     }
 }
-

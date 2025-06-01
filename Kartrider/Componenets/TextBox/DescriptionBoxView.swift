@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextBoxView: View {
+struct DescriptionBoxView: View {
     let text: String
     
     var body: some View {
