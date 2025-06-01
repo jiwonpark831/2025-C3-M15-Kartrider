@@ -18,7 +18,7 @@ struct HomeView: View {
     var body: some View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.home,
-            onTapRight: { coordinator.push(Route.storage) }
+            onTapRight: { coordinator.push(Route.history) }
         ) {
             Divider()
             

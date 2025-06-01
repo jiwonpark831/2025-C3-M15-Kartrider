@@ -21,8 +21,8 @@ struct AppNavigationView: View {
                 case .story(let content): StoryView(content: content)
                 case .outro: OutroView()
                 case .storage: StorageView()
-                case .ending: EndingView()
-                case .endingDetail: EndingDetailView()
+                case .history: HistoryView()
+                case .historyTimeline: HistoryTimelineView()
                 }
             }
         }.environmentObject(coordinator)

@@ -13,6 +13,6 @@ enum Route: Hashable {
     case story(ContentMeta)
     case outro
     case storage
-    case ending
-    case endingDetail
+    case history
+    case historyTimeline
 }
