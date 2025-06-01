@@ -17,8 +17,8 @@ struct AppNavigationView: View {
                 route in
                 switch route {
                 case .home: HomeView()
-                case .intro: IntroView()
-                case .story: StoryView()
+                case .intro(let content): IntroView(content: content)
+                case .story(let content): StoryView(content: content)
                 case .outro: OutroView()
                 case .storage: StorageView()
                 case .ending: EndingView()

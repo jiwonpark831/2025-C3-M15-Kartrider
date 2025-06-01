@@ -9,6 +9,8 @@ import SwiftUI
 
 struct StoryView: View {
 
+    let content: ContentMeta
+    
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
@@ -18,7 +20,7 @@ struct StoryView: View {
         ) {
             VStack {
                 Spacer()
-                Text("스토리 진행 페이지")
+                Text("선택된 컨텐츠 제목 : \(content.title)")
                 Text("임의로 결말페이지로 가는 버튼")
                     .onTapGesture {
                         coordinator.push(Route.outro)
@@ -30,6 +32,8 @@ struct StoryView: View {
 }
 
 #Preview {
-    StoryView()
+    let dummyContent = ContentMeta(title: "예시 제목", summary: "이건 요약입니다.", type: ContentType.story, hashtags: ["니카", "제이", "지지"])
+    
+    StoryView(content: dummyContent)
         .environmentObject(NavigationCoordinator())
 }

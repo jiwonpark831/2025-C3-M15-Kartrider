@@ -21,10 +21,6 @@ struct EndingView: View {
                 Text("[[전체 이야기 보기]]").onTapGesture {
                     coordinator.push(.endingDetail)
                 }
-                Text("[[다른 결말 시도(소개 화면)]]").onTapGesture {
-                    coordinator.push(.intro)
-
-                }
                 Spacer()
             }
         }
