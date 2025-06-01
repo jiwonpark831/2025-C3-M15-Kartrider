@@ -4,6 +4,7 @@
 //
 //  Created by 박난 on 6/2/25.
 //
+
 import AVFoundation
 import Foundation
 
@@ -22,10 +23,13 @@ final class TTSManager: NSObject, ObservableObject {
 
     func speak(_ text: String) {
         stop()
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
-        synthesizer.speak(utterance)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
+            self.synthesizer.speak(utterance)
+        }
     }
+
 
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
@@ -73,7 +77,7 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
             self.updateState(isSpeaking: false, isPaused: false)
-            self.onFinish?()
+//            self.onFinish?()
         }
     }
 }

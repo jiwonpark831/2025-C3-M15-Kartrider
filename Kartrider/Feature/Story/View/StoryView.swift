@@ -4,16 +4,15 @@
 //
 //  Created by jiwon on 5/27/25.
 //
+
 import SwiftUI
 
 struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel: StoryViewModel
+    @StateObject private var ttsViewModel = TTSViewModel()
     let title: String
-
-    @StateObject private var ttsManager = TTSManager()
-    @State private var isTransitioning = false
 
     init(title: String, id: String) {
         _viewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
@@ -26,16 +25,13 @@ struct StoryView: View {
             onTapLeft: { coordinator.pop() }
         ) {
             Group {
-                switch viewModel.state {
-                case .loading:
+                if viewModel.isLoading {
                     Spacer()
                     ProgressView()
                     Spacer()
-
-                case .failure(let errorMessage):
+                } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
-
-                case .success(let storyNode):
+                } else if let storyNode = viewModel.currentNode {
                     VStack {
                         Divider()
                         Spacer().frame(height: 28)
@@ -47,22 +43,21 @@ struct StoryView: View {
                         Spacer()
 
                         Button {
-                            if ttsManager.isSpeaking {
-                                ttsManager.pause()
+                            if ttsViewModel.isSpeaking {
+                                ttsViewModel.pause()
                             } else {
-                                ttsManager.resume()
+                                ttsViewModel.resume()
                             }
                         } label: {
-                            Image(systemName: ttsManager.isSpeaking ? "pause.fill" : "play.fill")
+                            Image(systemName: ttsViewModel.isSpeaking ? "pause.fill" : "play.fill")
                                 .font(.system(size: 36))
                                 .foregroundColor(.textPrimary)
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if !isTransitioning && storyNode.type == .exposition {
-                            isTransitioning = true
-                            ttsManager.stop()
+                        if storyNode.type == .exposition {
+                            ttsViewModel.stop()
                             viewModel.goToNextNode(from: storyNode)
                         }
                     }
@@ -70,27 +65,22 @@ struct StoryView: View {
             }
         }
         .task {
-            await viewModel.loadStoryNode(context: context)
+            await viewModel.loadInitialNode(context: context)
         }
-        .onChange(of: viewModel.state) {
-            guard case .success(let storyNode) = viewModel.state else { return }
+        .onChange(of: viewModel.currentNode) { storyNode in
+            guard let storyNode else { return }
 
-            isTransitioning = false
-
-            ttsManager.onFinish = {
-                if !isTransitioning {
-                    if storyNode.type != .decision {
-                        isTransitioning = true
-                        viewModel.goToNextNode(from: storyNode)
-                    }
+            ttsViewModel.onFinish = { [weak viewModel] in
+                guard let node = viewModel?.currentNode else { return }
+                if node.id == storyNode.id && node.type != .decision {
+                    viewModel?.goToNextNode(from: node)
                 }
             }
 
+
             Task {
-                try await Task.sleep(for: .milliseconds(500))
-                if !ttsManager.isSpeaking {
-                    ttsManager.speak(storyNode.text)
-                }
+                try? await Task.sleep(for: .milliseconds(500))
+                ttsViewModel.speak(storyNode.text)
             }
         }
     }
@@ -100,39 +90,21 @@ struct StoryView: View {
         switch storyNode.type {
         case .exposition:
             EmptyView()
-
         case .decision:
             VStack(spacing: 12) {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
-                    DecisionBoxView(
-                        text: choiceA.text,
-                        storyChoiceOption: .a,
-                        toId: choiceA.toId
-                    ) { toId in
-                        if !isTransitioning {
-                            isTransitioning = true
-                            ttsManager.stop()
-                            viewModel.selectChoice(toId: toId)
-                        }
+                    DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId) { toId in
+                        ttsViewModel.stop()
+                        viewModel.selectChoice(toId: toId)
                     }
-                    DecisionBoxView(
-                        text: choiceB.text,
-                        storyChoiceOption: .b,
-                        toId: choiceB.toId
-                    ) { toId in
-                        if !isTransitioning {
-                            isTransitioning = true
-                            ttsManager.stop()
-                            viewModel.selectChoice(toId: toId)
-                        }
+                    DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId) { toId in
+                        ttsViewModel.stop()
+                        viewModel.selectChoice(toId: toId)
                     }
                 }
             }
-
         case .ending:
-            Text("엔딩입니다.")
-                .font(.title)
+            Text("엔딩입니다.").font(.title)
         }
     }
 }
-
