@@ -5,6 +5,7 @@
 //  Created by jiwon on 5/31/25.
 //
 
+import AVFoundation
 import SwiftUI
 
 struct WatchOutroView: View {
@@ -13,10 +14,8 @@ struct WatchOutroView: View {
 
     var body: some View {
         VStack {
+            TenSecTimer()
             Text("10초 후 다음 이야기가 재생됩니다.")
-            Text("홈버튼").onTapGesture {
-                coordinator.popToRoot()
-            }
         }
     }
 }
