@@ -12,7 +12,8 @@ struct WatchStartView: View {
 
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
 
-    @State private var isStart = false
+    //    @State private var isStart = false
+    @State private var isStart = true
     // isStart를 가져오는 코드가 필요해!
     private let synthesizer = AVSpeechSynthesizer()
 

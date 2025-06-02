@@ -26,7 +26,7 @@ struct TenSecTimer: View {
             _ in
             if time > 0 {
                 time -= 1
-                //                WKInterfaceDevice.current().play(.start)
+                WKInterfaceDevice.current().play(.start)
             } else {
                 timer?.invalidate()
                 print("time out")
