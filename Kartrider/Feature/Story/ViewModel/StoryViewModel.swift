@@ -16,6 +16,8 @@ class StoryViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var currentNode: StoryNode?
     @Published var isSequenceInProgress = false
+    @Published var selectedPath: [StoryChoiceOption] = []
+    @Published var endingId: String = ""
     
     var ttsManager = TTSManager()
     
@@ -60,26 +62,63 @@ class StoryViewModel: ObservableObject {
             errorMessage = "선택한 노드를 찾을 수 없습니다"
             return
         }
+        
+        if let choice = currentNode.choiceA, choice.toId == toId {
+            selectedPath.append(.a)
+        } else if let choice = currentNode.choiceB, choice.toId == toId {
+            selectedPath.append(.b)
+        }
+        print("[INFO] 선택한 길: \(selectedPath)")
+        
+        
         self.currentNode = nextNode
     }
     
-    func handleStoryNode(_ node: StoryNode) async {
+    @MainActor
+    func handleStoryNode(_ node: StoryNode, context: ModelContext) async {
         await ttsManager.speakSequentially(node.text)
-
+        
         if node.type == .decision {
             await ttsManager.speakSequentially("A")
             await ttsManager.speakSequentially(node.choiceA?.text ?? "")
             await ttsManager.speakSequentially("B")
             await ttsManager.speakSequentially(node.choiceB?.text ?? "")
+        } else if node.nextId == nil {
+            endingId = checkEndingCondition()
+            goToEndingNode(title: title, toId: endingId, context: context)
         } else if node.type == .exposition {
-            await MainActor.run {
-                self.goToNextNode(from: node)
+            self.goToNextNode(from: node)
+        }
+
+        self.isSequenceInProgress = false
+    }
+    
+    private func checkEndingCondition() -> String {
+        guard let story = currentNode?.story else { return "" }
+        
+        for condition in story.endingConditions {
+            if condition.path == selectedPath {
+                print("[INFO] 일치하는 엔딩 도달: \(condition.toId)")
+                return condition.toId
             }
         }
-        
-        await MainActor.run {
-            self.isSequenceInProgress = false
-        }
+        return ""
     }
+    
+    private func goToEndingNode(title: String, toId: String, context: ModelContext) {
+        isLoading = true
+        do {
+            if let story = try contentRepository.fetchStory(by: title, context: context),
+               let endingNode = story.nodes.first(where: { $0.id == toId }) {
+                currentNode = endingNode
+            } else {
+                errorMessage = "해당 결말을 찾을 수 없습니다"
+            }
+        } catch {
+            errorMessage = "스토리 로딩 실패: \(error.localizedDescription)"
+        }
+        isLoading = false
+    }
+
 
 }
