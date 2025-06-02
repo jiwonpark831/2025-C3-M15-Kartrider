@@ -10,9 +10,9 @@ import Foundation
 enum Route: Hashable {
     case home
     case intro(ContentMeta)
-    case story(ContentMeta)
+    case story(String, String)
     case outro
     case storage
-    case ending
-    case endingDetail
+    case history
+    case historyTimeline
 }

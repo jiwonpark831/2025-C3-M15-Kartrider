@@ -65,7 +65,9 @@ struct IntroView: View {
     
     private var actionSection: some View {
         OrangeButton(title: "이야기 시작하기") {
-            coordinator.push(Route.story(viewModel.content))
+            // FIXME: optional 처리
+            coordinator.push(Route.story(viewModel.content.title, viewModel.content.story?.startNodeId ?? "nil_storyNode_id"))
+            print("[INFO] title: \(viewModel.content.title), storyNode 진입 id: \(viewModel.content.story?.startNodeId ?? "nil")")
         }
         .padding(.vertical, 20)
     }

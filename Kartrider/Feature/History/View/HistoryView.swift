@@ -1,5 +1,5 @@
 //
-//  EndingDetailView.swift
+//  EndingView.swift
 //  Kartrider
 //
 //  Created by 박난 on 5/28/25.
@@ -7,26 +7,28 @@
 
 import SwiftUI
 
-struct EndingDetailView: View {
+struct HistoryView: View {
 
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
-        
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.timeline(title: "임의-타임라인"),
+            navStyle: NavigationBarStyle.historyDetail,
             onTapLeft: { coordinator.pop() }
         ) {
             VStack {
                 Spacer()
-                Text("EndingDetailView")
+                Text("[[전체 이야기 보기]]").onTapGesture {
+                    coordinator.push(.historyTimeline)
+                }
                 Spacer()
             }
         }
+        .background(Color.brown)
     }
 }
 
 #Preview {
-    EndingDetailView()
+    HistoryView()
         .environmentObject(NavigationCoordinator())
 }

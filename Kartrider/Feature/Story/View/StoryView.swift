@@ -4,36 +4,100 @@
 //
 //  Created by jiwon on 5/27/25.
 //
-
 import SwiftUI
 
 struct StoryView: View {
-
-    let content: ContentMeta
-    
     @EnvironmentObject private var coordinator: NavigationCoordinator
+    @Environment(\.modelContext) private var context
+    @StateObject private var storyViewModel: StoryViewModel
+    let title: String
+
+    init(title: String, id: String) {
+        _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
+        self.title = title
+    }
 
     var body: some View {
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.play(title: "임의 - 스토리 진행"),
-            onTapLeft: { coordinator.pop() }
+            navStyle: NavigationBarStyle.play(title: title),
+            onTapLeft: {
+                storyViewModel.ttsManager.stop()
+                coordinator.pop()
+            }
         ) {
-            VStack {
-                Spacer()
-                Text("선택된 컨텐츠 제목 : \(content.title)")
-                Text("임의로 결말페이지로 가는 버튼")
-                    .onTapGesture {
-                        coordinator.push(Route.outro)
+            Group {
+                if storyViewModel.isLoading {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                } else if let errorMessage = storyViewModel.errorMessage {
+                    Text(errorMessage)
+                } else if let storyNode = storyViewModel.currentNode {
+                    VStack {
+                        Divider()
+                        Spacer().frame(height: 28)
+
+                        DescriptionBoxView(text: storyNode.text)
+                        nodeTypeView(for: storyNode)
+
+                        Spacer()
+
+                        Button {
+                            if storyViewModel.ttsManager.isSpeaking {
+                                storyViewModel.ttsManager.pause()
+                            } else {
+                                storyViewModel.ttsManager.resume()
+                            }
+                        } label: {
+                            Image(systemName: storyViewModel.ttsManager.isSpeaking ? "pause.fill" : "play.fill")
+                                .font(.system(size: 36))
+                                .foregroundColor(.textPrimary)
+                        }
                     }
-                Spacer()
+                    .contentShape(Rectangle())
+                }
+            }
+        }
+        .task {
+            await storyViewModel.loadInitialNode(context: context)
+        }
+        .onChange(of: storyViewModel.currentNode) { _, newNode in
+            guard let storyNode = newNode else { return }
+            
+            storyViewModel.isSequenceInProgress = true
+            
+            Task {
+                try? await Task.sleep(for: .milliseconds(300))
+                await storyViewModel.handleStoryNode(storyNode)
             }
         }
     }
-}
 
-#Preview {
-    let dummyContent = ContentMeta(title: "예시 제목", summary: "이건 요약입니다.", type: ContentType.story, hashtags: ["니카", "제이", "지지"])
-    
-    StoryView(content: dummyContent)
-        .environmentObject(NavigationCoordinator())
+    @ViewBuilder
+    private func nodeTypeView(for storyNode: StoryNode) -> some View {
+        switch storyNode.type {
+        case .exposition:
+            EmptyView()
+        case .decision:
+            VStack(spacing: 12) {
+                if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
+                    Button {
+                        storyViewModel.selectChoice(toId: choiceA.toId)
+                    } label: {
+                        DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
+                    }
+                    .disabled(storyViewModel.isSequenceInProgress)
+
+                    Button {
+                        storyViewModel.selectChoice(toId: choiceB.toId)
+                    } label: {
+                        DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
+                    }
+                    .disabled(storyViewModel.isSequenceInProgress)
+                }
+            }
+        case .ending:
+            Text("엔딩입니다.").font(.title)
+        }
+    }
 }

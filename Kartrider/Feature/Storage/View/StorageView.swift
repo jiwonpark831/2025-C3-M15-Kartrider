@@ -20,7 +20,7 @@ struct StorageView: View {
                 Spacer()
                 Text("[[ 스토리1 ]]")
                     .onTapGesture {
-                        coordinator.push(Route.ending)
+                        coordinator.push(Route.history)
                     }
                 Spacer()
             }
