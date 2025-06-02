@@ -10,24 +10,34 @@ import SwiftUI
 struct DecisionBoxView: View {
     let text: String
     let storyChoiceOption: StoryChoiceOption
-    let toId: String
+    var isSelected: Bool = false // 선택 여부
+    var action: () -> Void
     
     var body: some View {
-        // TODO: 버튼일 때랑 버튼 아닐 때랑 나눠서 만들기
-        HStack {
-            Text("\(storyChoiceOption)")
-                .font(.title)
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Group {
+                    Text(storyChoiceOption.rawValue)
+                        .font(.title)
+                    Text(text)
+                        .font(.title3)
+                }
                 .bold()
-            Text(text)
-                .font(.body)
+                .foregroundColor(isSelected ? Color.white : Color.primaryOrange)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isSelected ? Color.primaryOrange : Color.backgroundOrangeLight)
+            )
+            .padding(.horizontal, 16)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(.primaryOrange)
-                .fill(.backgroundOrangeLight)
-        )
-        .padding(.horizontal, 16)
     }
+}
+
+#Preview {
+    DecisionBoxView(text: "어쩌구저쩌구어쩌구저쩌구어쩌구", storyChoiceOption: StoryChoiceOption.a, action: {})
+    DecisionBoxView(text: "어쩌구저쩌구어쩌구저쩌구어쩌구", storyChoiceOption: StoryChoiceOption.b, isSelected: true, action: {})
 }
