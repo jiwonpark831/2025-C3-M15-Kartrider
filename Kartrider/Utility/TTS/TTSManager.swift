@@ -48,6 +48,7 @@ final class TTSManager: NSObject {
             isPaused = false
         }
     }
+    
 }
 
 extension TTSManager: AVSpeechSynthesizerDelegate {

@@ -20,7 +20,7 @@ final class TTSViewModel: ObservableObject {
     private let ttsManager = TTSManager()
 
     init() {
-        ttsManager.didFinishSpeaking = { [unowned self] in
+        ttsManager.didFinishSpeaking = {
             self.isSpeaking = false
             self.isPaused = false
 
@@ -61,8 +61,6 @@ final class TTSViewModel: ObservableObject {
         isSpeaking = false
         isPaused = false
     }
-
-
 
     func pause() {
         ttsManager.pause()

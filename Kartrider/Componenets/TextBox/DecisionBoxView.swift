@@ -13,6 +13,7 @@ struct DecisionBoxView: View {
     let toId: String
     
     var body: some View {
+        // TODO: 버튼일 때랑 버튼 아닐 때랑 나눠서 만들기
         HStack {
             Text("\(storyChoiceOption)")
                 .font(.title)

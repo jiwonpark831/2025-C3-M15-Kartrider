@@ -12,6 +12,7 @@ struct StoryView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var storyViewModel: StoryViewModel
     @StateObject private var ttsViewModel = TTSViewModel()
+    @State private var ttsTask: Task<Void, Never>?
     let title: String
 
     init(title: String, id: String) {
@@ -23,8 +24,9 @@ struct StoryView: View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: title),
             onTapLeft: {
+                // TODO: 뒤로 가기 누르면 TTS 끊기
+                ttsTask?.cancel()
                 ttsViewModel.stop()
-                storyViewModel.currentNode?.id = ""
                 coordinator.pop()
             }
         ) {
@@ -59,12 +61,6 @@ struct StoryView: View {
                         }
                     }
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        if storyNode.type == .exposition {
-                            ttsViewModel.stop()
-                            storyViewModel.goToNextNode(from: storyNode)
-                        }
-                    }
                 }
             }
         }
@@ -73,8 +69,9 @@ struct StoryView: View {
         }
         .onChange(of: storyViewModel.currentNode) { oldNode, newNode in
             guard let storyNode = newNode else { return }
-
-            Task {
+            
+            ttsTask?.cancel()
+            ttsTask = Task {
                 try? await Task.sleep(for: .milliseconds(300))
 
                 await ttsViewModel.speakSequentially(storyNode.text)
@@ -103,17 +100,17 @@ struct StoryView: View {
             VStack(spacing: 12) {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
                     Button {
-                        ttsViewModel.reset()
                         storyViewModel.selectChoice(toId: choiceA.toId)
                     } label: {
                         DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
                     }
+                    .disabled(!ttsViewModel.isSpeaking)
                     Button {
-                        ttsViewModel.reset()
                         storyViewModel.selectChoice(toId: choiceB.toId)
                     } label: {
                         DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
                     }
+                    .disabled(!ttsViewModel.isSpeaking)
                 }
             }
         case .ending:
