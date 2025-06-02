@@ -5,19 +5,31 @@
 //  Created by jiwon on 5/31/25.
 //
 
+import AVFoundation
 import SwiftUI
 
 struct WatchStoryView: View {
 
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
+    @State private var storyNodeType = "decision"
 
     var body: some View {
-        Text("storyview네비게이션 확인용 버튼").onTapGesture {
-            coordinator.push(.outro)
+        switch storyNodeType {
+        case "exposition":
+            ExpositionView()
+        case "decision":
+            DecisionView()
+        case "ending":
+            WatchOutroView()
+        default:
+            VStack {
+                Text("default")
+            }
         }
     }
 }
 
-#Preview {
-    WatchStoryView()
-}
+//#Preview {
+//    WatchStoryView()
+//        .environmentObject(WatchNavigationCoordinator())
+//}
