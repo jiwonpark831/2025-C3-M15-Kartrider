@@ -1,28 +1,26 @@
 //
-//  WatchOutroView.swift
+//  TenSecTimer.swift
 //  Pickacha Watch App
 //
-//  Created by jiwon on 5/31/25.
+//  Created by jiwon on 6/1/25.
 //
 
-import AVFoundation
 import SwiftUI
 
-struct WatchOutroView: View {
+struct TenSecTimer: View {
 
-    @EnvironmentObject private var coordinator: WatchNavigationCoordinator
+//    let action: () -> Void
+
     @State private var timer: Timer?
     @State private var time = 10
 
     var body: some View {
-        VStack {
-            ZStack {
-                ProgressView().progressViewStyle(.circular)
-                Text("\(time)").onAppear { startTimer() }
-            }
-            Text("10초 후 다음 이야기가 재생됩니다.")
+        ZStack {
+            ProgressView().progressViewStyle(.circular)
+            Text("\(time)").onAppear { startTimer() }
         }
     }
+
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
@@ -37,6 +35,6 @@ struct WatchOutroView: View {
     }
 }
 
-#Preview {
-    WatchOutroView()
-}
+//#Preview {
+//    TenSecTimer()
+//}
