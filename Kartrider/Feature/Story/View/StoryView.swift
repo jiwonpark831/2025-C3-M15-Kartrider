@@ -61,9 +61,10 @@ struct StoryView: View {
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
             
-            storyViewModel.isSequenceInProgress = true
-            
             Task {
+                await MainActor.run {
+                    storyViewModel.isSequenceInProgress = true
+                }
                 try? await Task.sleep(for: .milliseconds(300))
                 await storyViewModel.handleStoryNode(storyNode)
             }
