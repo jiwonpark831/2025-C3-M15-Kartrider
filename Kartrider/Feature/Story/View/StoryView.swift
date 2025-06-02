@@ -63,6 +63,9 @@ struct StoryView: View {
         }
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
+            
+            storyViewModel.isSequenceInProgress = true
+            
             Task {
                 try? await Task.sleep(for: .milliseconds(300))
                 await storyViewModel.handleStoryNode(storyNode)
@@ -83,14 +86,14 @@ struct StoryView: View {
                     } label: {
                         DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
                     }
-                    .disabled(!storyViewModel.ttsManager.isSpeaking)
+                    .disabled(storyViewModel.isSequenceInProgress)
 
                     Button {
                         storyViewModel.selectChoice(toId: choiceB.toId)
                     } label: {
                         DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
                     }
-                    .disabled(!storyViewModel.ttsManager.isSpeaking)
+                    .disabled(storyViewModel.isSequenceInProgress)
                 }
             }
         case .ending:

@@ -15,8 +15,10 @@ class StoryViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var errorMessage: String?
     @Published var currentNode: StoryNode?
+    @Published var isSequenceInProgress = false
     
     var ttsManager = TTSManager()
+    
 
     init(repository: ContentRepositoryProtocol = ContentRepository(), title: String, id: String) {
         self.contentRepository = repository
@@ -73,6 +75,10 @@ class StoryViewModel: ObservableObject {
             await MainActor.run {
                 self.goToNextNode(from: node)
             }
+        }
+        
+        await MainActor.run {
+            self.isSequenceInProgress = false
         }
     }
 
