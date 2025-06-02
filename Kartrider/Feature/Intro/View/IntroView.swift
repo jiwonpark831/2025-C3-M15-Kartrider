@@ -65,9 +65,25 @@ struct IntroView: View {
     
     private var actionSection: some View {
         OrangeButton(title: "이야기 시작하기") {
-            // FIXME: optional 처리
-            coordinator.push(Route.story(viewModel.content.title, viewModel.content.story?.startNodeId ?? "nil_storyNode_id"))
-            print("[INFO] title: \(viewModel.content.title), storyNode 진입 id: \(viewModel.content.story?.startNodeId ?? "nil")")
+            
+            switch viewModel.content.type {
+            case .story:
+                if let startNodeId = viewModel.content.story?.startNodeId {
+                    coordinator.push(Route.story(viewModel.content.title, startNodeId))
+                } else {
+                    print("[ERROR] 스토리가 존재하지 않음")
+                }
+            case .tournament:
+                if let tournament = viewModel.content.tournament {
+                    // 코디네이터로 이동 처리
+                } else {
+                    print("[ERROR] 토너먼트가 존재하지 않음")
+                }
+            }
+            
+            
+//            coordinator.push(Route.story(viewModel.content.title, viewModel.content.story?.startNodeId ?? "nil_storyNode_id"))
+//            print("[INFO] title: \(viewModel.content.title), storyNode 진입 id: \(viewModel.content.story?.startNodeId ?? "nil")")
         }
         .padding(.vertical, 20)
     }
