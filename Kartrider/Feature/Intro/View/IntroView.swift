@@ -80,10 +80,6 @@ struct IntroView: View {
                     print("[ERROR] 토너먼트가 존재하지 않음")
                 }
             }
-            
-            
-//            coordinator.push(Route.story(viewModel.content.title, viewModel.content.story?.startNodeId ?? "nil_storyNode_id"))
-//            print("[INFO] title: \(viewModel.content.title), storyNode 진입 id: \(viewModel.content.story?.startNodeId ?? "nil")")
         }
         .padding(.vertical, 20)
     }
