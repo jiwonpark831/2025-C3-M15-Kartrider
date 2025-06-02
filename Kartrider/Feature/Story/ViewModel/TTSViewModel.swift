@@ -14,7 +14,6 @@ final class TTSViewModel: ObservableObject {
     
     private var currentContinuation: CheckedContinuation<Void, Never>?
 
-
     var onFinish: (() -> Void)?
 
     private let ttsManager = TTSManager()

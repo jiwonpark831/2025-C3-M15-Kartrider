@@ -15,6 +15,8 @@ class StoryViewModel: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var errorMessage: String?
     @Published var currentNode: StoryNode?
+    
+    var ttsManager = TTSManager()
 
     init(repository: ContentRepositoryProtocol = ContentRepository(), title: String, id: String) {
         self.contentRepository = repository
@@ -45,7 +47,9 @@ class StoryViewModel: ObservableObject {
             errorMessage = "다음 스토리 노드를 찾을 수 없습니다"
             return
         }
-        self.currentNode = nextNode
+        Task { @MainActor in
+            self.currentNode = nextNode
+        }
     }
 
     func selectChoice(toId: String) {
@@ -56,4 +60,20 @@ class StoryViewModel: ObservableObject {
         }
         self.currentNode = nextNode
     }
+    
+    func handleStoryNode(_ node: StoryNode) async {
+        await ttsManager.speakSequentially(node.text)
+
+        if node.type == .decision {
+            await ttsManager.speakSequentially("A")
+            await ttsManager.speakSequentially(node.choiceA?.text ?? "")
+            await ttsManager.speakSequentially("B")
+            await ttsManager.speakSequentially(node.choiceB?.text ?? "")
+        } else if node.type == .exposition {
+            await MainActor.run {
+                self.goToNextNode(from: node)
+            }
+        }
+    }
+
 }

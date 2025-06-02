@@ -4,14 +4,13 @@
 //
 //  Created by 박난 on 6/2/25.
 //
-
-import AVFoundation
 import Foundation
+import AVFoundation
 
-@MainActor
-final class TTSManager: NSObject {
+final class TTSManager: NSObject, @unchecked Sendable {
     private let synthesizer = AVSpeechSynthesizer()
 
+    private var currentContinuation: CheckedContinuation<Void, Never>?
     private(set) var isSpeaking = false
     private(set) var isPaused = false
 
@@ -23,14 +22,29 @@ final class TTSManager: NSObject {
     }
 
     func speak(_ text: String) {
-        stop()
+        synthesizer.stopSpeaking(at: .immediate)
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
         synthesizer.speak(utterance)
     }
 
+    func speakSequentially(_ text: String) async {
+        await withCheckedContinuation { continuation in
+            guard currentContinuation == nil else {
+                continuation.resume()
+                return
+            }
+
+            currentContinuation = continuation
+            speak(text)
+        }
+    }
+
+
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
+
+        currentContinuation = nil
         isSpeaking = false
         isPaused = false
     }
@@ -48,44 +62,40 @@ final class TTSManager: NSObject {
             isPaused = false
         }
     }
-    
 }
 
 extension TTSManager: AVSpeechSynthesizerDelegate {
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = false
-            self.isPaused = false
-            self.didFinishSpeaking?()
-        }
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        isSpeaking = true
+        isPaused = false
     }
 
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = true
-            self.isPaused = false
-        }
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
+        isSpeaking = false
+        isPaused = true
     }
 
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = false
-            self.isPaused = true
-        }
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
+        isSpeaking = true
+        isPaused = false
     }
 
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = true
-            self.isPaused = false
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        isSpeaking = false
+        isPaused = false
+
+        if let continuation = currentContinuation {
+            continuation.resume()
+            currentContinuation = nil
         }
+
+        didFinishSpeaking?()
+        didFinishSpeaking = nil
     }
 
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = false
-            self.isPaused = false
-        }
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        isSpeaking = false
+        isPaused = false
     }
 }
 

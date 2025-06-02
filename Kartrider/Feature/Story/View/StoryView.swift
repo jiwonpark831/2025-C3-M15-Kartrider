@@ -4,15 +4,12 @@
 //
 //  Created by jiwon on 5/27/25.
 //
-
 import SwiftUI
 
 struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var storyViewModel: StoryViewModel
-    @StateObject private var ttsViewModel = TTSViewModel()
-    @State private var ttsTask: Task<Void, Never>?
     let title: String
 
     init(title: String, id: String) {
@@ -24,9 +21,7 @@ struct StoryView: View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: title),
             onTapLeft: {
-                // TODO: 뒤로 가기 누르면 TTS 끊기
-                ttsTask?.cancel()
-                ttsViewModel.stop()
+                storyViewModel.ttsManager.stop()
                 coordinator.pop()
             }
         ) {
@@ -43,19 +38,18 @@ struct StoryView: View {
                         Spacer().frame(height: 28)
 
                         DescriptionBoxView(text: storyNode.text)
-
                         nodeTypeView(for: storyNode)
 
                         Spacer()
 
                         Button {
-                            if ttsViewModel.isSpeaking {
-                                ttsViewModel.pause()
+                            if storyViewModel.ttsManager.isSpeaking {
+                                storyViewModel.ttsManager.pause()
                             } else {
-                                ttsViewModel.resume()
+                                storyViewModel.ttsManager.resume()
                             }
                         } label: {
-                            Image(systemName: ttsViewModel.isSpeaking ? "pause.fill" : "play.fill")
+                            Image(systemName: storyViewModel.ttsManager.isSpeaking ? "pause.fill" : "play.fill")
                                 .font(.system(size: 36))
                                 .foregroundColor(.textPrimary)
                         }
@@ -67,26 +61,11 @@ struct StoryView: View {
         .task {
             await storyViewModel.loadInitialNode(context: context)
         }
-        .onChange(of: storyViewModel.currentNode) { oldNode, newNode in
+        .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
-            
-            ttsTask?.cancel()
-            ttsTask = Task {
+            Task {
                 try? await Task.sleep(for: .milliseconds(300))
-
-                await ttsViewModel.speakSequentially(storyNode.text)
-
-                if storyNode.type == .decision,
-                   let a = storyNode.choiceA, let b = storyNode.choiceB {
-                    await ttsViewModel.speakSequentially("A")
-                    await ttsViewModel.speakSequentially(a.text)
-                    await ttsViewModel.speakSequentially("B")
-                    await ttsViewModel.speakSequentially(b.text)
-                }
-
-                if storyNode.type == .exposition {
-                    storyViewModel.goToNextNode(from: storyNode)
-                }
+                await storyViewModel.handleStoryNode(storyNode)
             }
         }
     }
@@ -104,13 +83,14 @@ struct StoryView: View {
                     } label: {
                         DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
                     }
-                    .disabled(!ttsViewModel.isSpeaking)
+                    .disabled(!storyViewModel.ttsManager.isSpeaking)
+
                     Button {
                         storyViewModel.selectChoice(toId: choiceB.toId)
                     } label: {
                         DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
                     }
-                    .disabled(!ttsViewModel.isSpeaking)
+                    .disabled(!storyViewModel.ttsManager.isSpeaking)
                 }
             }
         case .ending:
