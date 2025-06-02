@@ -22,7 +22,11 @@ struct StoryView: View {
     var body: some View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: title),
-            onTapLeft: { coordinator.pop() }
+            onTapLeft: {
+                ttsViewModel.stop()
+                storyViewModel.currentNode?.id = ""
+                coordinator.pop()
+            }
         ) {
             Group {
                 if storyViewModel.isLoading {
