@@ -31,6 +31,7 @@ struct DecisionBoxView: View {
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(isSelected ? Color.primaryOrange : Color.backgroundOrangeLight)
+                    .stroke(Color.primaryOrange, lineWidth: 1)
             )
             .padding(.horizontal, 16)
         }
