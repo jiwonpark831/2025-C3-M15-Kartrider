@@ -11,12 +11,13 @@ struct StoryView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var storyViewModel: StoryViewModel
     let title: String
-
+    
     init(title: String, id: String) {
         _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
 
+    
     var body: some View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: title),
