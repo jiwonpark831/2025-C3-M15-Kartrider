@@ -16,7 +16,6 @@ struct StoryView: View {
         _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
-
     
     var body: some View {
         NavigationBarWrapper(
@@ -37,22 +36,19 @@ struct StoryView: View {
                     VStack {
                         Divider()
                         Spacer().frame(height: 28)
-
+                        
                         DescriptionBoxView(text: storyNode.text)
+                            
                         nodeTypeView(for: storyNode)
-
+                        
                         Spacer()
-
-                        Button {
-                            if storyViewModel.ttsManager.isSpeaking {
+                        
+                        TTSControlButton(isSpeaking: storyViewModel.ttsManager.isSpeaking) {
+                            if storyViewModel.ttsManager.isSpeaking { // TODO: - 현재 isSpeaking이 그냥 변수라서 button symbol이 바뀌지 않음
                                 storyViewModel.ttsManager.pause()
                             } else {
                                 storyViewModel.ttsManager.resume()
                             }
-                        } label: {
-                            Image(systemName: storyViewModel.ttsManager.isSpeaking ? "pause.fill" : "play.fill")
-                                .font(.system(size: 36))
-                                .foregroundColor(.textPrimary)
                         }
                     }
                     .contentShape(Rectangle())
@@ -73,7 +69,7 @@ struct StoryView: View {
             }
         }
     }
-
+    
     @ViewBuilder
     private func nodeTypeView(for storyNode: StoryNode) -> some View {
         switch storyNode.type {
@@ -82,18 +78,17 @@ struct StoryView: View {
         case .decision:
             VStack(spacing: 12) {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
-                    Button {
+                    DecisionBoxView(
+                        text: choiceA.text,
+                        storyChoiceOption: StoryChoiceOption.a,
+                        action: {
                         storyViewModel.selectChoice(toId: choiceA.toId)
-                    } label: {
-                        DecisionBoxView(text: choiceA.text, storyChoiceOption: .a, toId: choiceA.toId)
-                    }
+                    })
                     .disabled(storyViewModel.isSequenceInProgress)
 
-                    Button {
+                    DecisionBoxView(text: choiceB.text, storyChoiceOption: StoryChoiceOption.b, action: {
                         storyViewModel.selectChoice(toId: choiceB.toId)
-                    } label: {
-                        DecisionBoxView(text: choiceB.text, storyChoiceOption: .b, toId: choiceB.toId)
-                    }
+                    })
                     .disabled(storyViewModel.isSequenceInProgress)
                 }
             }
@@ -101,4 +96,9 @@ struct StoryView: View {
             Text("엔딩입니다.").font(.title)
         }
     }
+}
+
+
+#Preview {
+    StoryView(title: "임시 타이틀인데요", id: "")
 }
