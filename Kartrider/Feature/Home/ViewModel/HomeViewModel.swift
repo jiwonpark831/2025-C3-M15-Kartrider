@@ -21,7 +21,7 @@ class HomeViewModel: ObservableObject {
     @MainActor
     func loadContents(context: ModelContext) {
         do {
-            contents = try contentRepository.fetchAllContents(context: context)
+            contents = try contentRepository.fetchAllContents(context: context).shuffled()
         } catch {
             print("[ERROR] 컨텐츠 로딩 실패 : \(error)")
         }
