@@ -45,6 +45,7 @@ struct KartriderApp: App {
 //                    await StorySeeder.deleteAll(context: context)
 //                    await StorySeeder.seed(context: context)
                     await StorySeeder.seedIfNeeded(context: sharedModelContainer.mainContext)
+                    await TournamentSeeder.seedIfNeeded(context: sharedModelContainer.mainContext)
                     #endif
                 }
         }
