@@ -25,4 +25,10 @@ class ContentRepository: ContentRepositoryProtocol {
         let descriptor = FetchDescriptor<Story>(predicate: predicate)
         return try context.fetch(descriptor).first
     }
+    
+    func fetchTournament(by id: UUID, context: ModelContext) throws -> Tournament? {
+        let predicate = #Predicate<Tournament> { $0.id == id }
+        let descriptor = FetchDescriptor<Tournament>(predicate: predicate)
+        return try context.fetch(descriptor).first
+    }
 }
