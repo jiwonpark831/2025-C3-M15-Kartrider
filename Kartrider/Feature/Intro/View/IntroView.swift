@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct IntroView: View {
-
+    @Environment(\.modelContext) private var context
+    
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @StateObject private var viewModel: IntroViewModel
     
@@ -74,17 +75,15 @@ struct IntroView: View {
                     print("[ERROR] 스토리가 존재하지 않음")
                 }
             case .tournament:
-                if let tournament = viewModel.content.tournament {
-                    // 코디네이터로 이동 처리
-                } else {
-                    print("[ERROR] 토너먼트가 존재하지 않음")
-                }
+                if let id = viewModel.content.tournament?.id {
+                     coordinator.push(Route.tournament(viewModel.content.title, id))
+                 } else {
+                     print("[ERROR] 토너먼트가 존재하지 않음")
+                 }
             }
         }
         .padding(.vertical, 20)
     }
-    
-
 }
 
 #Preview {
