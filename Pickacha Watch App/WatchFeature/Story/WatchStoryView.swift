@@ -5,31 +5,21 @@
 //  Created by jiwon on 5/31/25.
 //
 
-import AVFoundation
 import SwiftUI
 
 struct WatchStoryView: View {
 
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-    @State private var storyNodeType = "decision"
+    @StateObject private var viewModel = WatchStoryViewModel()
 
     var body: some View {
-        switch storyNodeType {
-        case "exposition":
+        switch viewModel.storyNodeType {
+        case .exposition:
             ExpositionView()
-        case "decision":
+        case .decision:
             DecisionView()
-        case "ending":
+        case .ending:
             WatchOutroView()
-        default:
-            VStack {
-                Text("default")
-            }
         }
     }
 }
-
-//#Preview {
-//    WatchStoryView()
-//        .environmentObject(WatchNavigationCoordinator())
-//}
