@@ -32,6 +32,10 @@ struct TournamentView: View {
         .task {
             viewModel.loadTournament(context: context)
         }
+        .onChange(of: viewModel.isFinished) { isFinished in
+            guard isFinished else { return }
+            viewModel.finishTournamentAndSave(context: context)
+        }
     }
     
     @ViewBuilder

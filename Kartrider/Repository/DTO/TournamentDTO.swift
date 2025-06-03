@@ -48,4 +48,3 @@ struct CandidateData: Decodable {
     let name: String
 }
 
-
