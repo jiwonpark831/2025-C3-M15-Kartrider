@@ -6,9 +6,13 @@
 //
 
 import Foundation
+import SwiftData
 
 protocol PlayHistoryRepositoryProtocol {
-    func fetchAllHistories() throws -> [PlayHistory]
-    func fetchHistory(for contentId: UUID) throws -> PlayHistory?
-    func saveStoryHistory(for contentId: UUID, steps: [StoryStep]) throws
+    func saveTournamentHistory(
+        context: ModelContext,
+        tournamentId: UUID,
+        winner: Candidate,
+        matchHistory: [TournamentStepData]
+    ) throws
 }

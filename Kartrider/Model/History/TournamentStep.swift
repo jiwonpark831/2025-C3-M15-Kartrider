@@ -10,24 +10,20 @@ import SwiftData
 
 @Model
 class TournamentStep {
-    var round: Int
-    var candidateAId: UUID
-    var candidateBId: UUID
+    var round: Int // 몇 강인지 (8, 4, 2 == 결승 등)
+    var matchIndex: Int // 해당 라운드에서 몇 번째 경기인지
     var candidateAText: String
     var candidateBText: String
-    var selectedCandidateId: UUID
     var selectedText: String
     var timestamp: Date = Date()
 
     @Relationship var history: PlayHistory
 
-    init(round: Int, candidateAId: UUID, candidateBId: UUID, candidateAText: String, candidateBText: String, selectedCandidateId: UUID, selectedText: String, timestamp: Date, history: PlayHistory) {
+    init(round: Int, matchIndex: Int, candidateAText: String, candidateBText: String, selectedText: String, timestamp: Date, history: PlayHistory) {
         self.round = round
-        self.candidateAId = candidateAId
-        self.candidateBId = candidateBId
+        self.matchIndex = matchIndex
         self.candidateAText = candidateAText
         self.candidateBText = candidateBText
-        self.selectedCandidateId = selectedCandidateId
         self.selectedText = selectedText
         self.timestamp = timestamp
         self.history = history
