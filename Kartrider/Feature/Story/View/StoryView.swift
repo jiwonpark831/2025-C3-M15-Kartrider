@@ -43,13 +43,10 @@ struct StoryView: View {
                         
                         Spacer()
                         
-                        TTSControlButton(isSpeaking: storyViewModel.ttsManager.isSpeaking) {
-                            if storyViewModel.ttsManager.isSpeaking { // TODO: - 현재 isSpeaking이 그냥 변수라서 button symbol이 바뀌지 않음
-                                storyViewModel.ttsManager.pause()
-                            } else {
-                                storyViewModel.ttsManager.resume()
-                            }
+                        TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
+                            storyViewModel.toggleSpeaking()
                         }
+                        .disabled(storyViewModel.isTogglingTTS)
                     }
                     .contentShape(Rectangle())
                 }

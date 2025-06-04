@@ -18,15 +18,25 @@ class StoryViewModel: ObservableObject {
     @Published var isSequenceInProgress = false
     @Published var selectedPath: [StoryChoiceOption] = []
     @Published var endingId: String = ""
-    
+    @Published var isSpeaking = false
+    @Published var isTogglingTTS = false
+
     var ttsManager = TTSManager()
-    
 
     init(repository: ContentRepositoryProtocol = ContentRepository(), title: String, id: String) {
         self.contentRepository = repository
         self.title = title
         self.id = id
+        
+        ttsManager.didSpeakingStateChanged = { [weak self] speaking in
+            DispatchQueue.main.async {
+                self?.isSpeaking = speaking
+                self?.isTogglingTTS = false
+            }
+        }
+
     }
+
 
     @MainActor
     func loadInitialNode(context: ModelContext) async {
@@ -118,6 +128,24 @@ class StoryViewModel: ObservableObject {
             errorMessage = "스토리 로딩 실패: \(error.localizedDescription)"
         }
         isLoading = false
+    }
+    
+    func toggleSpeaking() {
+        guard !isTogglingTTS else { return }
+        isTogglingTTS = true
+
+        if isSpeaking {
+            ttsManager.pause()
+        } else {
+            ttsManager.resume()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if self.isTogglingTTS {
+                print("[INFO] TTS 상태 콜백 지연 – 강제 락 해제")
+                self.isTogglingTTS = false
+            }
+        }
     }
 
 
