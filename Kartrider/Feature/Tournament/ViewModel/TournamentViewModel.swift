@@ -14,7 +14,6 @@ class TournamentViewModel: ObservableObject {
     @Published var isFinished = false
     @Published var winner: Candidate?
     @Published var matchHistory: [TournamentStepData] = []
-    @Published var isSpeaking = false
     
     private let contentRepository: ContentRepositoryProtocol
     private let historyRepository: PlayHistoryRepositoryProtocol
@@ -24,8 +23,6 @@ class TournamentViewModel: ObservableObject {
     private var rounds: [[Candidate]] = []
     private var currentRoundIndex = 0 // 지금 몇 라운드인지 ex. 8강, 4강, 결승
     private var currentMatchIndex = 0 // 지금 라운드에서 몇번째 매치인지
-    
-    var ttsManager = TTSManager()
     
     var currentRoundDescription: String {
         guard rounds.indices.contains(currentRoundIndex) else { return "" }
@@ -44,11 +41,6 @@ class TournamentViewModel: ObservableObject {
         self.tournamentId = tournamentId
         self.contentRepository = contentRepository
         self.historyRepository = historyRepository
-        ttsManager.didSpeakingStateChanged = { [weak self] speaking in
-            DispatchQueue.main.async {
-                self?.isSpeaking = speaking
-            }
-        }
     }
     
     func loadTournament(context: ModelContext) {
@@ -132,6 +124,4 @@ class TournamentViewModel: ObservableObject {
             print("[ERROR] 토너먼트 히스토리 저장 실패 : \(error)")
         }
     }
-    
-    
 }
