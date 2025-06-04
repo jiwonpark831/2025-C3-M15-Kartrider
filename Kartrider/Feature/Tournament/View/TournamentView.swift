@@ -14,6 +14,8 @@ struct TournamentView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel: TournamentViewModel
     
+    @State private var selectedOption: StoryChoiceOption? = nil
+    
     let title: String
     let id: UUID
     
@@ -26,7 +28,8 @@ struct TournamentView: View {
     var body: some View {
         NavigationBarWrapper(
             navStyle: .play(title: title),
-            onTapLeft: { coordinator.pop() }
+            onTapLeft: {
+                coordinator.pop() }
         ) {
             VStack(spacing: 16) {
                 contentBody
@@ -43,6 +46,9 @@ struct TournamentView: View {
         .onChange(of: viewModel.isFinished) { isFinished in
             guard isFinished else { return }
             viewModel.finishTournamentAndSave(context: context)
+        }
+        .onChange(of: viewModel.currentCandidates?.0.id) { _ in
+            selectedOption = nil
         }
     }
     
@@ -65,9 +71,16 @@ struct TournamentView: View {
                 roundDescription: viewModel.currentRoundDescription,
                 a: a.name,
                 b: b.name,
-                onSelectA: { handleSelection(a) },
-                onSelectB: { handleSelection(b) },
-                buttonDisabled: ttsManager.isSpeaking
+                onSelectA: {
+                    selectedOption = .a
+                    handleSelection(a)
+                },
+                onSelectB: {
+                    selectedOption = .b
+                    handleSelection(b)
+                },
+                buttonDisabled: ttsManager.state == .playing,
+                selectedOption: selectedOption
             )
         } else {
             ProgressView()
@@ -75,7 +88,7 @@ struct TournamentView: View {
     }
     
     private var statusIndicator: some View {
-        Text(ttsManager.isSpeaking ? "읽는 중..." : "정지됨")
+        Text(ttsManager.state == .playing ? "읽는 중..." : "정지됨")
             .font(.caption)
             .foregroundColor(.gray)
     }
