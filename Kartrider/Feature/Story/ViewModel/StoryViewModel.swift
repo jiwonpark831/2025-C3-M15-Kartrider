@@ -11,6 +11,7 @@ class StoryViewModel: ObservableObject {
     let title: String
     let id: String
     private let contentRepository: ContentRepositoryProtocol
+    private var lastToggleTime: Date = .distantPast
 
     @Published var isLoading: Bool = true
     @Published var errorMessage: String?
@@ -18,15 +19,26 @@ class StoryViewModel: ObservableObject {
     @Published var isSequenceInProgress = false
     @Published var selectedPath: [StoryChoiceOption] = []
     @Published var endingId: String = ""
-    
+    @Published var isSpeaking = false
+    @Published var isTogglingTTS = false
+    @Published var isTransitioningTTS = false
+
     var ttsManager = TTSManager()
-    
 
     init(repository: ContentRepositoryProtocol = ContentRepository(), title: String, id: String) {
         self.contentRepository = repository
         self.title = title
         self.id = id
+        
+        ttsManager.didSpeakingStateChanged = { [weak self] speaking in
+            DispatchQueue.main.async {
+                self?.isSpeaking = speaking
+                self?.isTogglingTTS = false
+            }
+        }
+
     }
+
 
     @MainActor
     func loadInitialNode(context: ModelContext) async {
@@ -105,6 +117,7 @@ class StoryViewModel: ObservableObject {
         return ""
     }
     
+    @MainActor
     private func goToEndingNode(title: String, toId: String, context: ModelContext) {
         isLoading = true
         do {
@@ -119,6 +132,37 @@ class StoryViewModel: ObservableObject {
         }
         isLoading = false
     }
-
-
+    
+//    func toggleSpeaking() {
+//        guard !isTogglingTTS else { return }
+//        isTogglingTTS = true
+//        lastToggleTime = Date()
+//
+//        if isSpeaking {
+//            ttsManager.pause()
+//        } else {
+//            ttsManager.resume()
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//            if self.isTogglingTTS {
+//                print("[INFO] TTS 상태 콜백 지연 – 강제 락 해제")
+//                self.isTogglingTTS = false
+//            }
+//        }
+//    }
+    
+    func toggleSpeaking() {
+        if isTogglingTTS {
+            print("[INFO] 잠시 토글 비활성화중")
+            return
+        }
+        isTogglingTTS = true
+        
+        ttsManager.toggleSpeaking()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.isTogglingTTS = false
+        }
+    }
 }
