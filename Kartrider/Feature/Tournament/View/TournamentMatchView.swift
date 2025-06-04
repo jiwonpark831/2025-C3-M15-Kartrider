@@ -14,16 +14,28 @@ struct TournamentMatchView: View {
     let onSelectA: () -> Void
     let onSelectB: () -> Void
     var buttonDisabled: Bool = false
+    var selectedOption: StoryChoiceOption?
     
     var body: some View {
         VStack(spacing: 18) {
             DescriptionBoxView(text: roundDescription)
             
             VStack(spacing: 16) {
-                DecisionBoxView(text: a, storyChoiceOption: StoryChoiceOption.a, action: onSelectA)
-                    .disabled(buttonDisabled)
-                DecisionBoxView(text: b, storyChoiceOption: StoryChoiceOption.b, action: onSelectB)
-                    .disabled(buttonDisabled)
+                DecisionBoxView(
+                    text: a,
+                    storyChoiceOption: StoryChoiceOption.a,
+                    isSelected: selectedOption == .a,
+                    action: onSelectA
+                )
+                .disabled(buttonDisabled)
+                
+                DecisionBoxView(
+                    text: b,
+                    storyChoiceOption: StoryChoiceOption.b,
+                    isSelected: selectedOption == .b,
+                    action: onSelectB
+                )
+                .disabled(buttonDisabled)
             }
             
             Spacer()
