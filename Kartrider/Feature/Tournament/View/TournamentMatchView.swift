@@ -13,6 +13,7 @@ struct TournamentMatchView: View {
     let b: String
     let onSelectA: () -> Void
     let onSelectB: () -> Void
+    var buttonDisabled: Bool = false
     
     var body: some View {
         VStack(spacing: 18) {
@@ -20,16 +21,12 @@ struct TournamentMatchView: View {
             
             VStack(spacing: 16) {
                 DecisionBoxView(text: a, storyChoiceOption: StoryChoiceOption.a, action: onSelectA)
+                    .disabled(buttonDisabled)
                 DecisionBoxView(text: b, storyChoiceOption: StoryChoiceOption.b, action: onSelectB)
+                    .disabled(buttonDisabled)
             }
             
             Spacer()
-            
-            Text("다음 컨텐츠가 10초 후에 재생됩니다.")
-                .font(.callout)
-                .foregroundColor(Color.textSecondary)
-            
-            
         }
     }
 }

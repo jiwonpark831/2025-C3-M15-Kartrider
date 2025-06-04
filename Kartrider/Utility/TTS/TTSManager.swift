@@ -7,14 +7,15 @@
 import Foundation
 import AVFoundation
 
-final class TTSManager: NSObject, @unchecked Sendable {
+final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
 
     private var currentContinuation: CheckedContinuation<Void, Never>?
-    private(set) var isSpeaking = false
+    @Published var isSpeaking = false
     private(set) var isPaused = false
 
     var didFinishSpeaking: (() -> Void)?
+    var didSpeakingStateChanged: ((Bool) -> Void)?
 
     override init() {
         super.init()
@@ -68,16 +69,19 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         isSpeaking = true
         isPaused = false
+        didSpeakingStateChanged?(true)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
         isSpeaking = false
         isPaused = true
+        didSpeakingStateChanged?(false)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
         isSpeaking = true
         isPaused = false
+        didSpeakingStateChanged?(true)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
@@ -91,11 +95,12 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
 
         didFinishSpeaking?()
         didFinishSpeaking = nil
+        didSpeakingStateChanged?(false)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         isSpeaking = false
         isPaused = false
+        didSpeakingStateChanged?(false)
     }
 }
-
