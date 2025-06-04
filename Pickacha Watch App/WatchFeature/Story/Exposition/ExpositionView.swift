@@ -13,7 +13,7 @@ struct ExpositionView: View {
 
     var body: some View {
         VStack {
-            Image(systemName: viewModel.isPlay ? "pause.fill" : "play.fill")
+            Image(systemName: viewModel.isPlayTTS ? "pause.fill" : "play.fill")
                 .onTapGesture {
                     viewModel.toggleState()
                 }

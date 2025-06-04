@@ -10,7 +10,11 @@ import WatchKit
 
 class WatchOutroViewModel: ObservableObject {
     @Published var time = 10
+    @Published var progress: CGFloat = 0.0
+    @Published var isEndingPlay = false
+
     private var timer: Timer?
+    
 
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {

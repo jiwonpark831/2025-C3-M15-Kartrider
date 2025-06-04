@@ -18,6 +18,7 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     weak var watchOutroVM: WatchOutroViewModel?
 
     @Published var stage: String = ""
+    @Published var startContent: Bool = false
     @Published var timerStarted: Bool = false
     @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
@@ -52,16 +53,24 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
             switch stage {
             case .idle:
-                self.watchStartVM?.isStart = false
+                self.watchStartVM?.isStart = self.startContent
             case .exposition:
                 self.watchStoryVM?.storyNodeType = stage
+                self.watchExpositionVM?.isPlayTTS = self.isPlayTTS
             case .decision:
                 self.watchStoryVM?.storyNodeType = stage
+                self.watchDecisionVM?.isStartTimer = self.timerStarted
+                self.watchDecisionVM?.decisionIndex = self.decisionIndex
+                self.watchDecisionVM?.isInterrupt = self.isInterrupt
+                self.watchDecisionVM?.isFirstRequest = self.isFirstRequest
             case .ending:
                 self.watchStoryVM?.storyNodeType = stage
-
+                self.watchOutroVM?.isEndingPlay = true
             }
 
+            if let startContent = message["startContent"] as? Bool {
+                self.startContent = startContent
+            }
             if let timerStarted = message["timerStarted"] as? Bool {
                 self.timerStarted = timerStarted
             }

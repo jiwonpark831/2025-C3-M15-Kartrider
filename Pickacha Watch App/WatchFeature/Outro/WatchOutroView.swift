@@ -14,12 +14,38 @@ struct WatchOutroView: View {
     @StateObject private var viewModel = WatchOutroViewModel()
 
     var body: some View {
-        VStack {
+        if viewModel.isEndingPlay {
             ZStack {
-                ProgressView().progressViewStyle(.circular)
-                Text("\(viewModel.time)").onAppear { viewModel.startTimer() }
+                Circle()
+                    .trim(from: 0, to: viewModel.progress)
+                    .stroke(
+                        Color.orange,
+                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 165, height: 165)
+                    .animation(.linear(duration: 5), value: viewModel.progress)
+
+                VStack(spacing: 16) {
+                    Text("결말이\n재생중입니다")
+                        .font(.system(size: 20, weight: .bold))
+                        .multilineTextAlignment(.center)
+
+                }
             }
-            Text("10초 후 다음 이야기가 재생됩니다.")
+            .onAppear {
+                viewModel.progress = 1.0
+            }
+        } else {
+            VStack {
+                ZStack {
+                    ProgressView().progressViewStyle(.circular)
+                    Text("\(viewModel.time)").onAppear {
+                        viewModel.startTimer()
+                    }
+                }
+                Text("10초 후 다음 이야기가 재생됩니다.")
+            }
         }
     }
 }
