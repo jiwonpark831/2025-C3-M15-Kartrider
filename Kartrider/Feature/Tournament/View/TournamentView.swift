@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct TournamentView: View {
-    @EnvironmentObject private var ttsManager: TTSManager
+//    @EnvironmentObject private var ttsManager: TTSManager
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel: TournamentViewModel
@@ -56,9 +56,9 @@ struct TournamentView: View {
             }
             .task(id: viewModel.winner?.id) {
                 guard let name = viewModel.winner?.name else { return }
-                await ttsManager.stop()
+                viewModel.ttsManager.stop()
                 try? await Task.sleep(nanoseconds: 300_000_000)
-                await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
+                await viewModel.ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
             }
         } else if let (a, b) = viewModel.currentCandidates {
             TournamentMatchView(
@@ -67,7 +67,7 @@ struct TournamentView: View {
                 b: b.name,
                 onSelectA: { handleSelection(a) },
                 onSelectB: { handleSelection(b) },
-                buttonDisabled: ttsManager.isSpeaking
+                buttonDisabled: viewModel.isSpeaking
             )
         } else {
             ProgressView()
@@ -75,7 +75,7 @@ struct TournamentView: View {
     }
     
     private var statusIndicator: some View {
-        Text(ttsManager.isSpeaking ? "읽는 중..." : "정지됨")
+        Text(viewModel.isSpeaking ? "읽는 중..." : "정지됨")
             .font(.caption)
             .foregroundColor(.gray)
     }
@@ -91,7 +91,7 @@ extension TournamentView {
     private func handleSelection(_ candidate: Candidate) {
         
         Task {
-            await ttsManager.stop()
+            viewModel.ttsManager.stop()
             await speakSelectedChoice(candidate)
             try? await Task.sleep(nanoseconds: 200_000_000)
             
@@ -103,22 +103,22 @@ extension TournamentView {
     private func speakCurrentMatch() {
         guard let (a, b) = viewModel.currentCandidates else { return }
         Task {
-            await ttsManager.speakSequentially(viewModel.currentRoundDescription)
-            await ttsManager.speakSequentially("A. \(a.name)")
-            await ttsManager.speakSequentially("B. \(b.name)")
+            await viewModel.ttsManager.speakSequentially(viewModel.currentRoundDescription)
+            await viewModel.ttsManager.speakSequentially("A. \(a.name)")
+            await viewModel.ttsManager.speakSequentially("B. \(b.name)")
         }
     }
     
     private func speakOnlyChoices() {
         guard let (a, b) = viewModel.currentCandidates else { return }
         Task {
-            await ttsManager.speakSequentially("A. \(a.name)")
-            await ttsManager.speakSequentially("B. \(b.name)")
+            await viewModel.ttsManager.speakSequentially("A. \(a.name)")
+            await viewModel.ttsManager.speakSequentially("B. \(b.name)")
         }
     }
     
     private func speakSelectedChoice(_ candidate: Candidate) async {
-        await ttsManager.speakSequentially("\(candidate.name) 선택")
+        await viewModel.ttsManager.speakSequentially("\(candidate.name) 선택")
     }
 }
 
