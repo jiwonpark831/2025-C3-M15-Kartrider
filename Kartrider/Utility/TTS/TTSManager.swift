@@ -143,7 +143,6 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
             self.didSpeakingStateChanged?(true)
             print("[DEBUG] didContinue")
         }
-    }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in

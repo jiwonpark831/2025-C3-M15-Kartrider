@@ -10,6 +10,7 @@ import SwiftUI
 struct AppNavigationView: View {
 
     @ObservedObject private var coordinator = NavigationCoordinator()
+    @StateObject private var ttsManager = TTSManager()
 
     var body: some View {
         NavigationStack(path: $coordinator.paths) {
@@ -27,7 +28,9 @@ struct AppNavigationView: View {
                 case .historyTimeline: HistoryTimelineView()
                 }
             }
-        }.environmentObject(coordinator)
+        }
+        .environmentObject(coordinator)
+        .environmentObject(ttsManager)
     }
 }
 
