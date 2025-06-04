@@ -11,6 +11,7 @@ class StoryViewModel: ObservableObject {
     let title: String
     let id: String
     private let contentRepository: ContentRepositoryProtocol
+    private var lastToggleTime: Date = .distantPast
 
     @Published var isLoading: Bool = true
     @Published var errorMessage: String?
@@ -131,6 +132,10 @@ class StoryViewModel: ObservableObject {
     }
     
     func toggleSpeaking() {
+        let now = Date()
+        guard now.timeIntervalSince(lastToggleTime) > 0.3 else { return }
+        lastToggleTime = now
+        
         guard !isTogglingTTS else { return }
         isTogglingTTS = true
 

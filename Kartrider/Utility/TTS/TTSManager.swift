@@ -30,14 +30,20 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     }
 
     func speakSequentially(_ text: String) async {
-        await withCheckedContinuation { continuation in
-            guard currentContinuation == nil else {
-                continuation.resume()
-                return
-            }
+        if currentContinuation != nil {
+            stop()
+        }
 
+        await withCheckedContinuation { continuation in
             currentContinuation = continuation
             speak(text)
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                if self.currentContinuation != nil {
+                    print("[TTS] fallback timeout – forcing stop")
+                    self.stop()
+                }
+            }
         }
     }
 
@@ -52,8 +58,12 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
 
     func pause() {
         if synthesizer.pauseSpeaking(at: .word) {
-            isSpeaking = false
-            isPaused = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                if !self.synthesizer.isSpeaking {
+                    self.isSpeaking = false
+                    self.isPaused = true
+                }
+            }
         }
     }
 
