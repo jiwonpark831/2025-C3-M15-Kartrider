@@ -9,6 +9,7 @@ import Foundation
 import WatchConnectivity
 
 class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
+    static let shared = IosConnectManager()
 
     @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
@@ -17,7 +18,7 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
     var session: WCSession
 
-    init(session: WCSession = .default) {
+    private init(session: WCSession = .default) {
         self.session = session
         super.init()
         self.session.delegate = self
@@ -60,9 +61,12 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     }
 
     func sendStageIdle() {
+        let message: [String: Any] = [
+            "stage": "idle", "startContent": true,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(["stage": "idle"], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
