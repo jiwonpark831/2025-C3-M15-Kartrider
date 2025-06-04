@@ -14,12 +14,10 @@ struct WatchStoryView: View {
 
     var body: some View {
         switch viewModel.storyNodeType {
-        case .exposition:
-            ExpositionView()
-        case .decision:
-            DecisionView()
-        case .ending:
-            WatchOutroView()
+        case .exposition: ExpositionView()
+        case .decision: DecisionView()
+        case .ending: WatchOutroView()
+        default: Text("error")
         }
     }
 }

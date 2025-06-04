@@ -8,11 +8,15 @@
 import Foundation
 import WatchConnectivity
 
-enum Stage: String {
-    case idle, exposition, decision, ending
-}
-
 class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
+    static let shared = WatchConnectManager()
+
+    weak var watchStartVM: WatchStartViewModel?
+    weak var watchStoryVM: WatchStoryViewModel?
+    weak var watchExpositionVM: ExpositionViewModel?
+    weak var watchDecisionVM: DecisionViewModel?
+    weak var watchOutroVM: WatchOutroViewModel?
+
     @Published var stage: String = ""
     @Published var timerStarted: Bool = false
     @Published var isPlayTTS: Bool = true
@@ -21,12 +25,9 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     @Published var isInterrupt: Bool = false
 
     var session: WCSession
-    var coordinator: WatchNavigationCoordinator
 
-    init(session: WCSession = .default, coordinator: WatchNavigationCoordinator)
-    {
+    private init(session: WCSession = .default) {
         self.session = session
-        self.coordinator = coordinator
         super.init()
         self.session.delegate = self
         session.activate()
@@ -51,13 +52,14 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
             switch stage {
             case .idle:
-                self.coordinator.popToRoot()
+                self.watchStartVM?.isStart = false
             case .exposition:
-                self.coordinator.push(.story)
+                self.watchStoryVM?.storyNodeType = stage
             case .decision:
-                self.coordinator.push(.story)
+                self.watchStoryVM?.storyNodeType = stage
             case .ending:
-                self.coordinator.push(.outro)
+                self.watchStoryVM?.storyNodeType = stage
+
             }
 
             if let timerStarted = message["timerStarted"] as? Bool {

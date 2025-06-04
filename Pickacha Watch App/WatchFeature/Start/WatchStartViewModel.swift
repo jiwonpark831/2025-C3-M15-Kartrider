@@ -10,8 +10,7 @@ import Foundation
 
 class WatchStartViewModel: ObservableObject {
 
-    @Published var isStart = true  // true는 테스트용, false로 바꿔야함
-
+    @Published var isStart = false
     private let synthesizer = AVSpeechSynthesizer()
 
     func speak(_ text: String) {
