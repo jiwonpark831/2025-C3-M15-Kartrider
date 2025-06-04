@@ -11,6 +11,9 @@ import WatchConnectivity
 class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     static let shared = IosConnectManager()
 
+    weak var iosStoryVM: StoryViewModel?
+    weak var iosTournamentVM: TournamentViewModel?
+
     @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
     @Published var selectedChoice: String = ""
