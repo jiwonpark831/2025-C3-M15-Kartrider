@@ -7,6 +7,7 @@
 import Foundation
 import AVFoundation
 
+
 final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     private var currentContinuation: CheckedContinuation<Void, Never>?
@@ -113,8 +114,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
                     print("[WARN] toggleSpeaking - idle 상태이지만 마지막 텍스트 없음")
                 }
             case .finished:
-                print("[INFO] toggleSpeaking - finished 상태에서 재생")
-                
+                print("[INFO] toggleSpeaking - finished 상태")
             }
         }
     }
@@ -143,6 +143,7 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
             self.didSpeakingStateChanged?(true)
             print("[DEBUG] didContinue")
         }
+    }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in

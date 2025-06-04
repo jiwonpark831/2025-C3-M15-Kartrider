@@ -133,25 +133,6 @@ class StoryViewModel: ObservableObject {
         isLoading = false
     }
     
-//    func toggleSpeaking() {
-//        guard !isTogglingTTS else { return }
-//        isTogglingTTS = true
-//        lastToggleTime = Date()
-//
-//        if isSpeaking {
-//            ttsManager.pause()
-//        } else {
-//            ttsManager.resume()
-//        }
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//            if self.isTogglingTTS {
-//                print("[INFO] TTS 상태 콜백 지연 – 강제 락 해제")
-//                self.isTogglingTTS = false
-//            }
-//        }
-//    }
-    
     func toggleSpeaking() {
         if isTogglingTTS {
             print("[INFO] 잠시 토글 비활성화중")
