@@ -8,20 +8,25 @@
 import Foundation
 import WatchConnectivity
 
+enum Stage: String {
+    case idle, exposition, decision, ending
+}
+
 class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     @Published var stage: String = ""
     @Published var timerStarted: Bool = false
-    @Published var ttsStatus: String = ""
+    @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
-    @Published var selectedChoice: String = ""
     @Published var isFirstRequest: Bool = false
-    @Published var decisionCount: Int = 0
     @Published var isInterrupt: Bool = false
 
     var session: WCSession
+    var coordinator: WatchNavigationCoordinator
 
-    init(session: WCSession = .default) {
+    init(session: WCSession = .default, coordinator: WatchNavigationCoordinator)
+    {
         self.session = session
+        self.coordinator = coordinator
         super.init()
         self.session.delegate = self
         session.activate()
@@ -37,51 +42,74 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     func session(_ session: WCSession, didReceiveMessage message: [String: Any])
     {
         DispatchQueue.main.async {
-            if let newStage = message["stage"] as? String {
-                self.stage = newStage
-            }
-            if let newTimerStarted = message["timerStarted"] as? Bool {
-                self.timerStarted = newTimerStarted
-            }
-            if let newTtsStatus = message["ttsStatus"] as? String {
-                self.ttsStatus = newTtsStatus
-            }
-            if let newDecisionIndex = message["decisionIndex"] as? Int {
-                self.decisionIndex = newDecisionIndex
-            }
-            if let newSelectedChoice = message["selectedChoice"] as? String {
-                self.selectedChoice = newSelectedChoice
-            }
-            if let newIsFirstRequest = message["isFirstRequest"] as? Bool {
-                self.isFirstRequest = newIsFirstRequest
-            }
-            if let newIsInterrupt = message["isInterrupt"] as? Bool {
-                self.isInterrupt = newIsInterrupt
+            guard let stageType = message["stage"] as? String,
+                let stage = Stage(rawValue: stageType)
+            else {
+                print("error")
+                return
             }
 
+            switch stage {
+            case .idle:
+                self.coordinator.popToRoot()
+            case .exposition:
+                self.coordinator.push(.story)
+            case .decision:
+                self.coordinator.push(.story)
+            case .ending:
+                self.coordinator.push(.outro)
+            }
+
+            if let timerStarted = message["timerStarted"] as? Bool {
+                self.timerStarted = timerStarted
+            }
+            if let isPlayTTS = message["isPlayTTS"] as? Bool {
+                self.isPlayTTS = isPlayTTS
+            }
+            if let decisionIndex = message["decisionIndex"] as? Int {
+                self.decisionIndex = decisionIndex
+            }
+            if let isFirstRequest = message["isFirstRequest"] as? Bool {
+                self.isFirstRequest = isFirstRequest
+            }
+            if let isInterrupt = message["isInterrupt"] as? Bool {
+                self.isInterrupt = isInterrupt
+            }
+        }
+    }
+    func sendStageExpositionWithPause() {
+        let session = WCSession.default
+        if session.isReachable {
+            session.sendMessage(["isPlayTTS": false], replyHandler: nil)
         }
     }
 
-    func sendTtsStatus(_ ttsStatus: String) {
+    func sendStageExpositionWithResume() {
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(["ttsStatus": ttsStatus], replyHandler: nil)
+            session.sendMessage(["isPlayTTS": true], replyHandler: nil)
         }
     }
 
-    func sendSelectedChoice(_ selectedChoice: String) {
+    func sendFirstChoiceToIos(_ decisionIndex: Int, _ selectedChoice: String) {
+        let message: [String: Any] = [
+            "decisionIndex": decisionIndex, "selectedChoice": selectedChoice,
+            "decisionCount": 1,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["selectedChoice": selectedChoice], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
-    func sendDecisionCount(_ decisionCount: Int) {
+    func sendSecChoiceToIos(_ decisionIndex: Int, _ selectedChoice: String) {
+        let message: [String: Any] = [
+            "decisionIndex": decisionIndex, "selectedChoice": selectedChoice,
+            "decisionCount": 2,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["decisionCount": decisionCount], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 

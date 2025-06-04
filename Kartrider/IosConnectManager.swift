@@ -10,14 +10,10 @@ import WatchConnectivity
 
 class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
-    @Published var stage: String = ""
-    @Published var timerStarted: Bool = false
-    @Published var ttsStatus: String = ""
+    @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
     @Published var selectedChoice: String = ""
-    @Published var isFirstRequest: Bool = false
     @Published var decisionCount: Int = 0
-    @Published var isInterrupt: Bool = false
 
     var session: WCSession
 
@@ -47,68 +43,107 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     func session(_ session: WCSession, didReceiveMessage message: [String: Any])
     {
         DispatchQueue.main.async {
-            if let newTtsStatus = message["ttsStatus"] as? String {
-                self.ttsStatus = newTtsStatus
+            if let isPlayTTS = message["isPlayTTS"] as? Bool {
+                self.isPlayTTS = isPlayTTS
             }
-            if let newSelectedChoice = message["selectedChoice"] as? String {
-                self.selectedChoice = newSelectedChoice
+
+            if let decisionIndex = message["decisionIndex"] as? Int,
+                let selectedChoice = message["selectedChoice"] as? String,
+                let decisionCount = message["decisionCount"] as? Int
+            {
+                self.decisionIndex = decisionIndex
+                self.selectedChoice = selectedChoice
+                self.decisionCount = decisionCount
             }
-            if let newDecisionCount = message["decisionCount"] as? Int {
-                self.decisionCount = newDecisionCount
-            }
+
         }
     }
 
-    func sendStage(_ stage: String) {
+    func sendStageIdle() {
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(["stage": stage], replyHandler: nil)
-        }
-    }
-    func sendTimerStart(_ timerStarted: Bool) {
-        let session = WCSession.default
-        if session.isReachable {
-            session.sendMessage(
-                ["timerStarted": timerStarted], replyHandler: nil)
+            session.sendMessage(["stage": "idle"], replyHandler: nil)
         }
     }
 
-    func sendTtsStatus(_ ttsStatus: String) {
+    func sendStageExpositionWithPause() {
+        let message: [String: Any] = [
+            "stage": "exposition", "isPlayTTS": false,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(["ttsStatus": ttsStatus], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
-    func sendDecisionIndex(_ decisionIndex: Int) {
+    func sendStageExpositionWithResume() {
+        let message: [String: Any] = [
+            "stage": "exposition", "isPlayTTS": true,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["decisionIndex": decisionIndex], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
-    func sendSelectedChoice(_ selectedChoice: String) {
+    func sendStageDecisionWithFirstTTS(_ decisionIndex: Int) {
+        let message: [String: Any] = [
+            "stage": "decision", "timerStarted": false,
+            "decisionIndex": decisionIndex, "isFirstRequest": true,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["selectedChoice": selectedChoice], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
-    func sendIsFirstRequest(_ isFirstRequest: Bool) {
+    func sendStageDecisionWithFirstTimer(_ decisionIndex: Int) {
+        let message: [String: Any] = [
+            "stage": "decision", "timerStarted": true,
+            "decisionIndex": decisionIndex, "isFirstRequest": true,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["isFirstRequest": isFirstRequest], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
         }
     }
 
-    func sendIsInterrupt(_ isInterrupt: Bool) {
+    func sendStageDecisionWithSecTTS(_ decisionIndex: Int) {
+        let message: [String: Any] = [
+            "stage": "decision", "timerStarted": false,
+            "decisionIndex": decisionIndex, "isFirstRequest": false,
+        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(
-                ["isInterrupt": isInterrupt], replyHandler: nil)
+            session.sendMessage(message, replyHandler: nil)
+        }
+    }
+
+    func sendStageDecisionWithSecTimer(_ decisionIndex: Int) {
+        let message: [String: Any] = [
+            "stage": "decision", "timerStarted": true,
+            "decisionIndex": decisionIndex, "isFirstRequest": false,
+        ]
+        let session = WCSession.default
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil)
+        }
+    }
+
+    func sendChoiceInterrupt() {
+        let message: [String: Any] = [
+            "stage": "decision", "isInterrupt": true,
+        ]
+        let session = WCSession.default
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil)
+        }
+    }
+
+    func sendStageEnding() {
+        let session = WCSession.default
+        if session.isReachable {
+            session.sendMessage(["stage": "ending"], replyHandler: nil)
         }
     }
 }
