@@ -10,13 +10,14 @@ struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var storyViewModel: StoryViewModel
+
     let title: String
-    
+
     init(title: String, id: String) {
         _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
-    
+
     var body: some View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: title),
@@ -36,17 +37,17 @@ struct StoryView: View {
                     VStack {
                         Divider()
                         Spacer().frame(height: 28)
-                        
+
                         DescriptionBoxView(text: storyNode.text)
-                            
+
                         nodeTypeView(for: storyNode)
-                        
+
                         Spacer()
-                        
+
                         TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
                             storyViewModel.toggleSpeaking()
                         }
-                        .disabled(storyViewModel.isTogglingTTS)
+                        .disabled(storyViewModel.isTransitioningTTS || storyViewModel.isTogglingTTS)
                     }
                     .contentShape(Rectangle())
                 }
@@ -57,7 +58,7 @@ struct StoryView: View {
         }
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
-            
+
             Task {
                 await MainActor.run {
                     storyViewModel.isSequenceInProgress = true
@@ -67,7 +68,7 @@ struct StoryView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func nodeTypeView(for storyNode: StoryNode) -> some View {
         switch storyNode.type {
@@ -78,15 +79,20 @@ struct StoryView: View {
                 if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
                     DecisionBoxView(
                         text: choiceA.text,
-                        storyChoiceOption: StoryChoiceOption.a,
+                        storyChoiceOption: .a,
                         action: {
-                        storyViewModel.selectChoice(toId: choiceA.toId)
-                    })
+                            storyViewModel.selectChoice(toId: choiceA.toId)
+                        }
+                    )
                     .disabled(storyViewModel.isSequenceInProgress)
 
-                    DecisionBoxView(text: choiceB.text, storyChoiceOption: StoryChoiceOption.b, action: {
-                        storyViewModel.selectChoice(toId: choiceB.toId)
-                    })
+                    DecisionBoxView(
+                        text: choiceB.text,
+                        storyChoiceOption: .b,
+                        action: {
+                            storyViewModel.selectChoice(toId: choiceB.toId)
+                        }
+                    )
                     .disabled(storyViewModel.isSequenceInProgress)
                 }
             }

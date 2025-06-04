@@ -21,6 +21,7 @@ class StoryViewModel: ObservableObject {
     @Published var endingId: String = ""
     @Published var isSpeaking = false
     @Published var isTogglingTTS = false
+    @Published var isTransitioningTTS = false
 
     var ttsManager = TTSManager()
 
@@ -116,6 +117,7 @@ class StoryViewModel: ObservableObject {
         return ""
     }
     
+    @MainActor
     private func goToEndingNode(title: String, toId: String, context: ModelContext) {
         isLoading = true
         do {
@@ -131,27 +133,36 @@ class StoryViewModel: ObservableObject {
         isLoading = false
     }
     
+//    func toggleSpeaking() {
+//        guard !isTogglingTTS else { return }
+//        isTogglingTTS = true
+//        lastToggleTime = Date()
+//
+//        if isSpeaking {
+//            ttsManager.pause()
+//        } else {
+//            ttsManager.resume()
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//            if self.isTogglingTTS {
+//                print("[INFO] TTS 상태 콜백 지연 – 강제 락 해제")
+//                self.isTogglingTTS = false
+//            }
+//        }
+//    }
+    
     func toggleSpeaking() {
-        let now = Date()
-        guard now.timeIntervalSince(lastToggleTime) > 0.3 else { return }
-        lastToggleTime = now
-        
-        guard !isTogglingTTS else { return }
-        isTogglingTTS = true
-
-        if isSpeaking {
-            ttsManager.pause()
-        } else {
-            ttsManager.resume()
+        if isTogglingTTS {
+            print("[INFO] 잠시 토글 비활성화중")
+            return
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if self.isTogglingTTS {
-                print("[INFO] TTS 상태 콜백 지연 – 강제 락 해제")
-                self.isTogglingTTS = false
-            }
+        isTogglingTTS = true
+        
+        ttsManager.toggleSpeaking()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.isTogglingTTS = false
         }
     }
-
-
 }

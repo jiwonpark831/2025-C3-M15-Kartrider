@@ -9,12 +9,9 @@ import AVFoundation
 
 final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
-
     private var currentContinuation: CheckedContinuation<Void, Never>?
-    @Published var isSpeaking = false
-    private(set) var isPaused = false
 
-    var didFinishSpeaking: (() -> Void)?
+    @MainActor @Published private(set) var state: TTSState = .idle
     var didSpeakingStateChanged: ((Bool) -> Void)?
 
     override init() {
@@ -23,95 +20,130 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     }
 
     func speak(_ text: String) {
-        synthesizer.stopSpeaking(at: .immediate)
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
         synthesizer.speak(utterance)
     }
 
     func speakSequentially(_ text: String) async {
-        if currentContinuation != nil {
-            stop()
+        print("[INFO] speakSequentially 호출")
+        
+        while await self.state == .paused {
+            print("[DEBUG] [speakSequentially] 일시정지 상태, 재생될 때까지 대기...")
+            try? await Task.sleep(for: .milliseconds(100))
         }
 
-        await withCheckedContinuation { continuation in
-            currentContinuation = continuation
-            speak(text)
+        let currentState = await self.state
+        guard currentState == .idle || currentState == .finished else {
+            print("[WARN] 현재 발화 중 → 새 발화 무시")
+            return
+        }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-                if self.currentContinuation != nil {
-                    print("[TTS] fallback timeout – forcing stop")
-                    self.stop()
-                }
+        await withCheckedContinuation { [weak self] continuation in
+            guard let self else {
+                continuation.resume()
+                return
             }
+
+            self.currentContinuation = continuation
+            self.speak(text)
         }
-    }
-
-
-    func stop() {
-        synthesizer.stopSpeaking(at: .immediate)
-
-        currentContinuation = nil
-        isSpeaking = false
-        isPaused = false
     }
 
     func pause() {
+        print("[DEBUG] pause 호출")
+        guard synthesizer.isSpeaking else {
+            print("[WARN] pause 호출 시 재생 중이 아님")
+            return
+        }
+
         if synthesizer.pauseSpeaking(at: .word) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                if !self.synthesizer.isSpeaking {
-                    self.isSpeaking = false
-                    self.isPaused = true
-                }
+            Task { @MainActor in
+                self.state = .paused
+                self.didSpeakingStateChanged?(false)
             }
         }
     }
 
     func resume() {
+        print("[DEBUG] resume 호출")
+        guard synthesizer.isPaused else {
+            print("[WARN] resume 호출 시 일시정지 상태가 아님")
+            return
+        }
+
         if synthesizer.continueSpeaking() {
-            isSpeaking = true
-            isPaused = false
+            Task { @MainActor in
+                self.state = .playing
+                self.didSpeakingStateChanged?(true)
+            }
+        }
+    }
+
+    func stop() {
+        print("[DEBUG] stop 호출")
+        synthesizer.stopSpeaking(at: .immediate)
+        currentContinuation = nil
+
+        Task { @MainActor in
+            self.state = .idle
+            self.didSpeakingStateChanged?(false)
+        }
+    }
+
+    func toggleSpeaking() {
+        print("[INFO] toggleSpeaking 호출")
+        Task { @MainActor in
+            switch state {
+            case .playing:
+                pause()
+            case .paused:
+                resume()
+            default:
+                print("[WARN] toggleSpeaking: 일시정지/재생 가능한 상태가 아님")
+            }
         }
     }
 }
 
 extension TTSManager: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
-        isSpeaking = true
-        isPaused = false
-        didSpeakingStateChanged?(true)
+        Task { @MainActor in
+            self.state = .playing
+            self.didSpeakingStateChanged?(true)
+        }
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
-        isSpeaking = false
-        isPaused = true
-        didSpeakingStateChanged?(false)
+        Task { @MainActor in
+            self.state = .paused
+            self.didSpeakingStateChanged?(false)
+        }
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
-        isSpeaking = true
-        isPaused = false
-        didSpeakingStateChanged?(true)
+        Task { @MainActor in
+            self.state = .playing
+            self.didSpeakingStateChanged?(true)
+        }
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        isSpeaking = false
-        isPaused = false
+        Task { @MainActor in
+            self.state = .finished
+            self.didSpeakingStateChanged?(false)
+        }
 
         if let continuation = currentContinuation {
             continuation.resume()
             currentContinuation = nil
         }
-
-        didFinishSpeaking?()
-        didFinishSpeaking = nil
-        didSpeakingStateChanged?(false)
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        isSpeaking = false
-        isPaused = false
-        didSpeakingStateChanged?(false)
+        Task { @MainActor in
+            self.state = .idle
+            self.didSpeakingStateChanged?(false)
+        }
     }
 }
-
