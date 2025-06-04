@@ -14,9 +14,6 @@ class TournamentViewModel: ObservableObject {
     @Published var isFinished = false
     @Published var winner: Candidate?
     @Published var matchHistory: [TournamentStepData] = []
-    @Published var isSpeaking = false
-    
-    var ttsManager = TTSManager()
     
     private let contentRepository: ContentRepositoryProtocol
     private let historyRepository: PlayHistoryRepositoryProtocol
@@ -44,11 +41,6 @@ class TournamentViewModel: ObservableObject {
         self.tournamentId = tournamentId
         self.contentRepository = contentRepository
         self.historyRepository = historyRepository
-        ttsManager.didSpeakingStateChanged = { [weak self] speaking in
-            DispatchQueue.main.async {
-                self?.isSpeaking = speaking
-            }
-        }
     }
     
     func loadTournament(context: ModelContext) {
@@ -132,5 +124,4 @@ class TournamentViewModel: ObservableObject {
             print("[ERROR] 토너먼트 히스토리 저장 실패 : \(error)")
         }
     }
-    
 }
