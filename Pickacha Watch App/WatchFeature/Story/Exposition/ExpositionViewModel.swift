@@ -8,10 +8,17 @@
 import Foundation
 
 class ExpositionViewModel: ObservableObject {
-    @Published var isPlay = true
+    @Published var isPlayTTS = true
 
     func toggleState() {
-        isPlay.toggle()
-        print(isPlay ? "재생" : "일시정지")
+        isPlayTTS.toggle()
+        if isPlayTTS == true {
+            print("재생")
+            WatchConnectManager.shared.sendStageExpositionWithResume()
+        } else {
+            WatchConnectManager.shared.sendStageExpositionWithPause()
+            print("일시정지")
+        }
+
     }
 }

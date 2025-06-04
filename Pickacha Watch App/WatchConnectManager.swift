@@ -55,11 +55,16 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                 self.watchStartVM?.isStart = false
             case .exposition:
                 self.watchStoryVM?.storyNodeType = stage
+                self.watchExpositionVM?.isPlayTTS = self.isPlayTTS
             case .decision:
                 self.watchStoryVM?.storyNodeType = stage
+                self.watchDecisionVM?.isStartTimer = self.timerStarted
+                self.watchDecisionVM?.decisionIndex = self.decisionIndex
+                self.watchDecisionVM?.isInterrupt = self.isInterrupt
+                self.watchDecisionVM?.isFirstRequest = self.isFirstRequest
             case .ending:
                 self.watchStoryVM?.storyNodeType = stage
-
+                self.watchOutroVM?.isEndingPlay = true
             }
 
             if let timerStarted = message["timerStarted"] as? Bool {

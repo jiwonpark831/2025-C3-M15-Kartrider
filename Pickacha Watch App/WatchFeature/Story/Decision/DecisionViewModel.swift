@@ -10,8 +10,14 @@ import Foundation
 import WatchKit
 
 class DecisionViewModel: ObservableObject {
+    @Published var isStartTimer = false
+    @Published var decisionIndex = 0
+    @Published var isInterrupt = false
+    @Published var isFirstRequest = true
+
     @Published var choice: String?
     @Published var time = 10
+    @Published var progress: CGFloat = 0.0
 
     private var middle: Double = 0.0
     private var timer: Timer?
@@ -26,6 +32,7 @@ class DecisionViewModel: ObservableObject {
             } else {
                 self.timer?.invalidate()
                 print("time out")
+                self.isStartTimer = false
             }
         }
     }
@@ -54,11 +61,25 @@ class DecisionViewModel: ObservableObject {
                 print("2번")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
+                if self.isFirstRequest {
+                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                        self.decisionIndex, "B")
+                } else {
+                    WatchConnectManager.shared.sendSecChoiceToIos(
+                        self.decisionIndex, "B")
+                }
             } else if value < -0.5 {
                 self.choice = "1번"
                 print("1번")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
+                if self.isFirstRequest {
+                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                        self.decisionIndex, "A")
+                } else {
+                    WatchConnectManager.shared.sendSecChoiceToIos(
+                        self.decisionIndex, "A")
+                }
             }
         }
     }
