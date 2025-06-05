@@ -71,6 +71,8 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             "stage": "idle", "startContent": true,
         ]
         let session = WCSession.default
+        print("[DEBUG] idle message 보내기: \(message)")
+
         if session.isReachable {
             print("[DEBUG] 워치로 idle 메시지 전송")
             session.sendMessage(message, replyHandler: nil)

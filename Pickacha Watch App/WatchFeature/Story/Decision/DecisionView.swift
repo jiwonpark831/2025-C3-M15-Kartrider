@@ -8,19 +8,25 @@
 import SwiftUI
 
 struct DecisionView: View {
-//    @ObservedObject var viewModel: DecisionViewModel
-//    @StateObject private var viewModel = DecisionViewModel()
-    @ObservedObject var viewModel = WatchConnectManager.shared.watchDecisionVM
+    @EnvironmentObject private var connectManager: WatchConnectManager
+    @StateObject private var decisionViewModel: DecisionViewModel
+    
+    init(connectManager: WatchConnectManager) {
+        _decisionViewModel = StateObject(
+            wrappedValue: DecisionViewModel(
+                watchConnectivityManager: connectManager))
+
+    }
 
     var body: some View {
         Group{
-            if viewModel.isFirstRequest {
-                if viewModel.isStartTimer {
+            if decisionViewModel.isFirstRequest {
+                if decisionViewModel.isStartTimer {
                     VStack {
                         Text("손목을 돌려서 선택")
                         ZStack {
                             Circle()
-                                .trim(from: 0, to: viewModel.progress)
+                                .trim(from: 0, to: decisionViewModel.progress)
                                 .stroke(
                                     Color.orange,
                                     style: StrokeStyle(
@@ -29,25 +35,25 @@ struct DecisionView: View {
                                 .rotationEffect(.degrees(-90))
                                 .frame(width: 165, height: 165)
                                 .animation(
-                                    .linear(duration: 10), value: viewModel.progress
+                                    .linear(duration: 10), value: decisionViewModel.progress
                                 )
-                            Text("\(viewModel.time)").onAppear {
-                                viewModel.startTimer()
+                            Text("\(decisionViewModel.time)").onAppear {
+                                decisionViewModel.startTimer()
                             }
                         }
                         HStack {
                             Text("1번").foregroundStyle(
-                                viewModel.choice == "1번"
+                                decisionViewModel.choice == "1번"
                                 ? Color.orange : Color.white)
                             Spacer()
                             Text("2번").foregroundStyle(
-                                viewModel.choice == "2번"
+                                decisionViewModel.choice == "2번"
                                 ? Color.orange : Color.white)
                         }
                     }.onAppear {
-                        viewModel.startTimer()
-                        viewModel.progress = 1.0
-                        viewModel.makeChoice()
+                        decisionViewModel.startTimer()
+                        decisionViewModel.progress = 1.0
+                        decisionViewModel.makeChoice()
                     }
                 } else {
                     ZStack {
@@ -74,12 +80,12 @@ struct DecisionView: View {
                     }
                 }
             } else {
-                if viewModel.isStartTimer {
+                if decisionViewModel.isStartTimer {
                     VStack {
                         Text("손목을 돌려서 선택")
                         ZStack {
                             Circle()
-                                .trim(from: 0, to: viewModel.progress)
+                                .trim(from: 0, to: decisionViewModel.progress)
                                 .stroke(
                                     Color.orange,
                                     style: StrokeStyle(
@@ -88,31 +94,31 @@ struct DecisionView: View {
                                 .rotationEffect(.degrees(-90))
                                 .frame(width: 165, height: 165)
                                 .animation(
-                                    .linear(duration: 10), value: viewModel.progress
+                                    .linear(duration: 10), value: decisionViewModel.progress
                                 )
-                            Text("\(viewModel.time)").onAppear {
-                                viewModel.startTimer()
+                            Text("\(decisionViewModel.time)").onAppear {
+                                decisionViewModel.startTimer()
                             }
                         }
                         HStack {
                             Text("1번").foregroundStyle(
-                                viewModel.choice == "1번"
+                                decisionViewModel.choice == "1번"
                                 ? Color.orange : Color.white)
                             Spacer()
                             Text("2번").foregroundStyle(
-                                viewModel.choice == "2번"
+                                decisionViewModel.choice == "2번"
                                 ? Color.orange : Color.white)
                         }
                     }.onAppear {
-                        viewModel.startTimer()
-                        viewModel.progress = 1.0
-                        viewModel.makeChoice()
+                        decisionViewModel.startTimer()
+                        decisionViewModel.progress = 1.0
+                        decisionViewModel.makeChoice()
                     }
                 } else {
-                    if viewModel.isStartTimer {
+                    if decisionViewModel.isStartTimer {
                         ZStack {
                             Circle()
-                                .trim(from: 0, to: viewModel.progress)
+                                .trim(from: 0, to: decisionViewModel.progress)
                                 .stroke(
                                     Color.orange,
                                     style: StrokeStyle(
@@ -121,7 +127,7 @@ struct DecisionView: View {
                                 .rotationEffect(.degrees(-90))
                                 .frame(width: 165, height: 165)
                                 .animation(
-                                    .linear(duration: 5), value: viewModel.progress)
+                                    .linear(duration: 5), value: decisionViewModel.progress)
                             
                             VStack(spacing: 16) {
                                 Text("선택지가\n재생중입니다")
@@ -131,12 +137,12 @@ struct DecisionView: View {
                             }
                         }
                         .onAppear {
-                            viewModel.progress = 1.0
+                            decisionViewModel.progress = 1.0
                         }
                     } else {
                         ZStack {
                             Circle()
-                                .trim(from: 0, to: viewModel.progress)
+                                .trim(from: 0, to: decisionViewModel.progress)
                                 .stroke(
                                     Color.orange,
                                     style: StrokeStyle(
@@ -145,7 +151,7 @@ struct DecisionView: View {
                                 .rotationEffect(.degrees(-90))
                                 .frame(width: 165, height: 165)
                                 .animation(
-                                    .linear(duration: 5), value: viewModel.progress)
+                                    .linear(duration: 5), value: decisionViewModel.progress)
                             
                             VStack(spacing: 10) {
                                 Text("선택되지 않음")
@@ -158,7 +164,7 @@ struct DecisionView: View {
                             }
                         }
                         .onAppear {
-                            viewModel.progress = 1.0
+                            decisionViewModel.progress = 1.0
                         }
                     }
                 }

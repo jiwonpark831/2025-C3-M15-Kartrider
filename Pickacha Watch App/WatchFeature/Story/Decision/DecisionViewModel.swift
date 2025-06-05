@@ -10,6 +10,9 @@ import Foundation
 import WatchKit
 
 class DecisionViewModel: ObservableObject {
+
+    @Published var watchConnectivityManager: WatchConnectManager
+
     @Published var isStartTimer = false
     @Published var decisionIndex = 0
     @Published var isInterrupt = false
@@ -22,6 +25,14 @@ class DecisionViewModel: ObservableObject {
     private var middle: Double = 0.0
     private var timer: Timer?
     private var motionManager = CMMotionManager()
+
+    init(watchConnectivityManager: WatchConnectManager) {
+        self.watchConnectivityManager = watchConnectivityManager
+        self.isStartTimer = watchConnectivityManager.timerStarted
+        self.decisionIndex = watchConnectivityManager.decisionIndex
+        self.isInterrupt = watchConnectivityManager.isInterrupt
+        self.isFirstRequest = watchConnectivityManager.isFirstRequest
+    }
 
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
@@ -62,10 +73,10 @@ class DecisionViewModel: ObservableObject {
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {
-                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                    self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "B")
                 } else {
-                    WatchConnectManager.shared.sendSecChoiceToIos(
+                    self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "B")
                 }
             } else if value < -0.5 {
@@ -74,10 +85,10 @@ class DecisionViewModel: ObservableObject {
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {
-                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                    self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "A")
                 } else {
-                    WatchConnectManager.shared.sendSecChoiceToIos(
+                    self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "A")
                 }
             }

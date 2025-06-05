@@ -8,37 +8,28 @@
 import SwiftUI
 
 struct WatchStoryView: View {
-    
+    @EnvironmentObject private var connectManager: WatchConnectManager
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-    //    @StateObject private var viewModel = WatchStoryViewModel()
-    @ObservedObject var viewModel = WatchConnectManager.shared.watchStoryVM
-    
-    
-    //    var body: some View {
-    //        Text("Current stage: \(viewModel.storyNodeType.rawValue)")
-    //
-    //        switch viewModel.storyNodeType {
-    //        case .exposition: ExpositionView()
-    //        case .decision: DecisionView(viewModel: WatchConnectManager.shared.watchDecisionVM)
-    //        case .ending: WatchOutroView()
-    //        default: Text("error")
-    //        }
-    //    }
-    var body: some View {
-        contentView(for: viewModel.storyNodeTypeRaw)
+    @StateObject private var watchStoryViewModel: WatchStoryViewModel
+
+    init(connectManager: WatchConnectManager) {
+        _watchStoryViewModel = StateObject(
+            wrappedValue: WatchStoryViewModel(
+                watchConnectivityManager: connectManager))
+
     }
-    
+
+    var body: some View {
+        contentView(for: connectManager.stage)
+    }
+
     @ViewBuilder
     func contentView(for stage: String) -> some View {
         switch stage {
-        case "exposition":
-            ExpositionView()
-        case "decision":
-            DecisionView(viewModel: WatchConnectManager.shared.watchDecisionVM)
-        case "ending":
-            WatchOutroView()
-        default:
-            Text("idle 또는 알 수 없는 상태")
+        case "exposition": ExpositionView(connectManager: connectManager)
+        case "decision": DecisionView(connectManager: connectManager)
+        case "ending": WatchOutroView()
+        default: Text("[ERROR] wrong stage")
         }
     }
 }
