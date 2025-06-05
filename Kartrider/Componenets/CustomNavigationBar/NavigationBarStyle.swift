@@ -52,6 +52,8 @@ enum NavigationBarStyle: Equatable {
         switch self {
         case .home:
             Image("logo")
+                .resizable()
+                .frame(width: 72, height: 39)
         case .archive:
             HStack(spacing: 4) {
                 Image(systemName: NavigationButtonType.back.iconName)
