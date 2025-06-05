@@ -41,7 +41,7 @@ struct StorySeeder {
     }
     
     static func seed(context: ModelContext) async {
-        guard let jsonData = StoryJSONParser.loadJSON(named: "dummy_story") else {
+        guard let jsonData = StoryJSONParser.loadJSON(named: "dummy_chimpis") else {
             print("[ERROR] JSON 파일 로드 실패")
             return
         }

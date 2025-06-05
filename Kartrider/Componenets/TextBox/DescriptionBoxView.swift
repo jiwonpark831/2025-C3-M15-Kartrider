@@ -17,7 +17,7 @@ struct DescriptionBoxView: View {
             // 나중에 KaraokeTextView 추가
         } else {
             Text(text)
-                .font(.system(size: 28, weight: .bold))
+                .font(.system(size: 24, weight: .bold))
                 .lineSpacing(6)
                 .foregroundColor(.textPrimary)
                 .multilineTextAlignment(.leading)
