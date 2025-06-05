@@ -17,10 +17,4 @@ class IntroViewModel: ObservableObject {
             "[DEBUG] IntroViewModel 초기화 - 제목 : \(content.title), 타입 : \(content.type)"
         )
     }
-    func startIfNeeded() {
-            if !hasSentIdle {
-                IosConnectManager.shared.sendStageIdle()
-                hasSentIdle = true
-            }
-        }
 }

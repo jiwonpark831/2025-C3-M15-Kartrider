@@ -21,6 +21,7 @@ class DecisionViewModel: ObservableObject {
     @Published var choice: String?
     @Published var time = 10
     @Published var progress: CGFloat = 0.0
+    @Published var isTimeOut = false
 
     private var middle: Double = 0.0
     private var timer: Timer?
@@ -41,9 +42,12 @@ class DecisionViewModel: ObservableObject {
                 self.time -= 1
                 WKInterfaceDevice.current().play(.start)
             } else {
-                self.timer?.invalidate()
-                print("time out")
-                self.isStartTimer = false
+                if !self.isTimeOut{
+                    self.timer?.invalidate()
+                    self.isStartTimer = false
+                    self.isTimeOut = true
+                    print("time out")
+                    }
             }
         }
     }

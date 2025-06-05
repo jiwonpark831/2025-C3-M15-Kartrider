@@ -44,7 +44,7 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     func session(_ session: WCSession, didReceiveMessage message: [String: Any])
     {
         DispatchQueue.main.async {
-            print("Received message: \(message)")
+            print("[DEBUG] Received message: \(message)")
             guard let stage = message["stage"] as? String else {
                 print("[ERROR] stage is nil")
                 return
@@ -72,18 +72,22 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                 self.isInterrupt = isInterrupt
             }
 
-            print("[RECEIVE] stage: \(stage)")
+            print("[STAGE] stage: \(stage)")
 
+            print("[DEBUG] stage will change from '\(self.stage)' to '\(stage)'")
+            self.stage = stage
+            print("[DEBUG] stage did change to '\(self.stage)'")
+ 
             switch stage {
             case "idle":
-                print("[RECEIVE] startContent: \(self.startContent)")
+                print("[IDLE] startContent: \(self.startContent)")
                 self.msg = ["stage": "idle", "startContent": self.startContent]
             case "exposition":
-                print("[RECEIVE] isPlayTTS: \(self.isPlayTTS)")
+                print("[EXPOSITION] isPlayTTS: \(self.isPlayTTS)")
                 self.msg = ["stage": "exposition", "isPlayTTS": self.isPlayTTS]
             case "decision":
                 print(
-                    "[RECEIVE] timerStarted: \(self.timerStarted), decisionIndex: \(self.decisionIndex), isFirstRequest: \(self.isFirstRequest)"
+                    "[DECISION] timerStarted: \(self.timerStarted), decisionIndex: \(self.decisionIndex), isFirstRequest: \(self.isFirstRequest)"
                 )
                 self.msg = [
                     "stage": "decision", "timerStarted": self.timerStarted,
@@ -91,7 +95,7 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                     "isFirstRequest": self.isFirstRequest,
                 ]
             case "ending":
-                //                    print("[RECEIVE] ")
+                print("[ENDING] ")
                 self.msg = ["stage": "ending"]
             default:
                 print("[ERROR] wrong stage: \(stage)")

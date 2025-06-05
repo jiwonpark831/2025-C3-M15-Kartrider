@@ -20,7 +20,13 @@ struct WatchStoryView: View {
     }
 
     var body: some View {
-        contentView(for: connectManager.stage)
+        VStack {
+            contentView(for: connectManager.stage)
+                .id(connectManager.stage)
+        }
+        .onReceive(connectManager.$stage) { newStage in
+            print("[VIEW] stage updated to '\(newStage)'")
+        }
     }
 
     @ViewBuilder
@@ -29,7 +35,7 @@ struct WatchStoryView: View {
         case "exposition": ExpositionView(connectManager: connectManager)
         case "decision": DecisionView(connectManager: connectManager)
         case "ending": WatchOutroView()
-        default: Text("[ERROR] wrong stage")
+        default: Text("Loading...")
         }
     }
 }

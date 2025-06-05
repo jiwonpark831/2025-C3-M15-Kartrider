@@ -13,7 +13,6 @@ class WatchStoryViewModel: ObservableObject {
 
     init(watchConnectivityManager: WatchConnectManager) {
         self.watchConnectivityManager = watchConnectivityManager
-        self.storyType = watchConnectivityManager.stage
     }
 
     func updateStage() {
