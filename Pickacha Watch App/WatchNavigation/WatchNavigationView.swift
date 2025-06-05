@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WatchNavigationView: View {
 
-    @ObservedObject private var coordinator = WatchNavigationCoordinator()
+    @StateObject private var coordinator = WatchNavigationCoordinator()
 
     var body: some View {
         NavigationStack(path: $coordinator.paths) {

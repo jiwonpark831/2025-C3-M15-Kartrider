@@ -8,5 +8,7 @@
 import Foundation
 
 class WatchStoryViewModel: ObservableObject {
-    @Published var storyNodeType: Stage = .idle
+    @Published var storyNodeTypeRaw: String = "idle"
+
+    @Published var decisionViewModel = DecisionViewModel()
 }

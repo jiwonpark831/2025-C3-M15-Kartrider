@@ -18,6 +18,7 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     @Published var decisionIndex: Int = 0
     @Published var selectedChoice: String = ""
     @Published var decisionCount: Int = 0
+    @Published var selectedOption: StoryChoiceOption? = nil
 
     var session: WCSession
 
@@ -52,11 +53,13 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             }
 
             if let decisionIndex = message["decisionIndex"] as? Int,
-                let selectedChoice = message["selectedChoice"] as? String,
+                let selectedChoiceRaw = message["selectedChoice"] as? String,
+                let selectedChoice = StoryChoiceOption(
+                    rawValue: selectedChoiceRaw),
                 let decisionCount = message["decisionCount"] as? Int
             {
                 self.decisionIndex = decisionIndex
-                self.selectedChoice = selectedChoice
+                self.selectedOption = selectedChoice
                 self.decisionCount = decisionCount
             }
 
@@ -69,7 +72,13 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         ]
         let session = WCSession.default
         if session.isReachable {
+            print("[DEBUG] 워치로 idle 메시지 전송")
             session.sendMessage(message, replyHandler: nil)
+        } else {
+            print("[INFO] 세션 도달 불가. 1초 뒤 재시도.")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.sendStageIdle()
+            }
         }
     }
 

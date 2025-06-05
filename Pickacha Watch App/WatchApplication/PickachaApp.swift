@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct Pickacha_Watch_AppApp: App {
+
     var body: some Scene {
         WindowGroup {
-            WatchNavigationView()
+            WatchNavigationView().environmentObject(WatchConnectManager.shared)
         }
     }
 }
