@@ -11,6 +11,7 @@ struct IntroView: View {
 
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @StateObject private var viewModel: IntroViewModel
+    @EnvironmentObject private var iosConnectManager: IosConnectManager
 
     init(content: ContentMeta) {
         _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
@@ -69,7 +70,7 @@ struct IntroView: View {
         OrangeButton(title: "이야기 시작하기") {
             print("시작버튼 눌림")
 
-            IosConnectManager.shared.sendStageIdle()
+            iosConnectManager.sendStageIdle()
 
             switch viewModel.content.type {
             case .story:

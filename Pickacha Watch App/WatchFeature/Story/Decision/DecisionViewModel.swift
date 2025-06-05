@@ -36,6 +36,17 @@ class DecisionViewModel: ObservableObject {
     }
 
     func startTimer() {
+        guard timer == nil else { return }
+        
+        self.timer?.invalidate()
+        self.timer = nil
+        self.isStartTimer = true
+        self.progress = 1.0
+        self.time = 10
+        self.isTimeOut = false
+        timer?.invalidate()
+        
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
             if self.time > 0 {
@@ -44,13 +55,25 @@ class DecisionViewModel: ObservableObject {
             } else {
                 if !self.isTimeOut{
                     self.timer?.invalidate()
+                    self.timer = nil
                     self.isStartTimer = false
                     self.isTimeOut = true
+                    self.time = 0
+                    self.progress = 0.0
                     print("time out")
+                    self.motionManager.stopDeviceMotionUpdates()
                     }
             }
         }
     }
+    func stopTimer() {
+            timer?.invalidate()
+            timer = nil
+            isStartTimer = false
+            isTimeOut = false
+            progress = 0.0
+            motionManager.stopDeviceMotionUpdates()
+        }
     func makeChoice() {
         guard motionManager.isDeviceMotionAvailable else {
             print("unavailable")
@@ -79,6 +102,7 @@ class DecisionViewModel: ObservableObject {
                 if self.isFirstRequest {
                     self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "B")
+                    
                 } else {
                     self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "B")

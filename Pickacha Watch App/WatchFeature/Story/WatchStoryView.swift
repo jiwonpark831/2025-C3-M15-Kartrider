@@ -34,7 +34,10 @@ struct WatchStoryView: View {
         switch stage {
         case "exposition": ExpositionView(connectManager: connectManager)
         case "decision": DecisionView(connectManager: connectManager)
-        case "ending": WatchOutroView()
+        case "ending":
+            Color.clear.onAppear {
+                coordinator.push(.outro)
+            }
         default: Text("Loading...")
         }
     }

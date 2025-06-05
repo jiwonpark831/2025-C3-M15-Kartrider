@@ -9,10 +9,8 @@ import Foundation
 import WatchConnectivity
 
 class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
-    static let shared = IosConnectManager()
 
-    weak var iosStoryVM: StoryViewModel?
-    weak var iosTournamentVM: TournamentViewModel?
+    @Published var msg: [String: Any] = [:]
 
     @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
@@ -22,7 +20,7 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
     var session: WCSession
 
-    private init(session: WCSession = .default) {
+    init(session: WCSession = .default) {
         self.session = session
         super.init()
         self.session.delegate = self

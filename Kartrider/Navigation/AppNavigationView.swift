@@ -9,8 +9,9 @@ import SwiftUI
 
 struct AppNavigationView: View {
 
-    @ObservedObject private var coordinator = NavigationCoordinator()
+    @StateObject var coordinator = NavigationCoordinator()
     @StateObject private var ttsManager = TTSManager()
+    @EnvironmentObject private var iosConnectManager: IosConnectManager
 
     var body: some View {
         NavigationStack(path: $coordinator.paths) {
@@ -20,7 +21,7 @@ struct AppNavigationView: View {
                 case .home: HomeView()
                 case .intro(let content): IntroView(content: content)
                 case .story(let title, let id): StoryView(title: title, id: id)
-                case .tournament(let title, let id) :
+                case .tournament(let title, let id):
                     TournamentView(title: title, id: id)
                 case .outro: OutroView()
                 case .storage: StorageView()
