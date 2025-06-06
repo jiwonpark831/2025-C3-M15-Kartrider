@@ -10,11 +10,13 @@ struct StoryView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var storyViewModel: StoryViewModel
+    @EnvironmentObject private var iosConnectManager: IosConnectManager
 
     let title: String
 
     init(title: String, id: String) {
-        _storyViewModel = StateObject(wrappedValue: StoryViewModel(title: title, id: id))
+        _storyViewModel = StateObject(
+            wrappedValue: StoryViewModel(title: title, id: id))
         self.title = title
     }
 
@@ -44,10 +46,13 @@ struct StoryView: View {
 
                         Spacer()
 
-                        TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
+                        TTSControlButton(isSpeaking: storyViewModel.isSpeaking)
+                        {
                             storyViewModel.toggleSpeaking()
                         }
-                        .disabled(storyViewModel.isTransitioningTTS || storyViewModel.isTogglingTTS)
+                        .disabled(
+                            storyViewModel.isTransitioningTTS
+                                || storyViewModel.isTogglingTTS)
                     }
                     .contentShape(Rectangle())
                 }
@@ -56,6 +61,35 @@ struct StoryView: View {
         .task {
             await storyViewModel.loadInitialNode(context: context)
         }
+        .onAppear {
+            storyViewModel.iosConnectManager = iosConnectManager
+            storyViewModel.isSpeaking = iosConnectManager.isPlayTTS
+        }
+        .onChange(of: iosConnectManager.selectedOption) { newOption in
+            guard let selected = newOption else { return }
+
+            print("[DEBUG] 워치 선택 감지: \(selected.rawValue)")
+            storyViewModel.handleWatchChoice(option: selected)
+
+            iosConnectManager.selectedOption = nil
+
+        }
+
+        .onChange(of: iosConnectManager.isPlayTTS) { newValue in
+
+            if newValue == storyViewModel.isSpeaking {
+                print("중복방지")
+                return
+            }
+
+            if newValue {
+                storyViewModel.ttsManager.resume()
+            } else {
+                storyViewModel.ttsManager.pause()
+            }
+            storyViewModel.isSpeaking = newValue
+        }
+
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
 
@@ -64,7 +98,8 @@ struct StoryView: View {
                     storyViewModel.isSequenceInProgress = true
                 }
                 try? await Task.sleep(for: .milliseconds(300))
-                await storyViewModel.handleStoryNode(storyNode, context: context)
+                await storyViewModel.handleStoryNode(
+                    storyNode, context: context)
             }
         }
     }
@@ -76,7 +111,9 @@ struct StoryView: View {
             EmptyView()
         case .decision:
             VStack(spacing: 12) {
-                if let choiceA = storyNode.choiceA, let choiceB = storyNode.choiceB {
+                if let choiceA = storyNode.choiceA,
+                    let choiceB = storyNode.choiceB
+                {
                     DecisionBoxView(
                         text: choiceA.text,
                         storyChoiceOption: .a,
@@ -101,7 +138,6 @@ struct StoryView: View {
         }
     }
 }
-
 
 #Preview {
     StoryView(title: "임시 타이틀인데요", id: "")

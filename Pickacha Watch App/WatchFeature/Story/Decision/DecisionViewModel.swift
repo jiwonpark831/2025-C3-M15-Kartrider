@@ -38,15 +38,14 @@ class DecisionViewModel: ObservableObject {
     func startTimer() {
         self.timer?.invalidate()
         self.timer = nil
-
-        self.isStartTimer = true
         self.progress = 1.0
         self.time = 10
         self.isTimeOut = false
-        timer?.invalidate()
-
+        self.isStartTimer = true
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
+            print("[TIMER] \(self.time)")
             if self.time > 0 {
                 self.time -= 1
                 WKInterfaceDevice.current().play(.start)
@@ -66,6 +65,8 @@ class DecisionViewModel: ObservableObject {
     }
 
     func makeChoice() {
+        motionManager.stopDeviceMotionUpdates()
+        
         guard motionManager.isDeviceMotionAvailable else {
             print("unavailable")
             return
