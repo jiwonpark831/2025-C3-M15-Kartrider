@@ -108,19 +108,22 @@ class StoryViewModel: ObservableObject {
 
         if node.type == .decision {
             iosConnectManager?.sendStageDecisionWithFirstTTS(decisionIndex)
+
             await ttsManager.speakSequentially("A")
             await ttsManager.speakSequentially(node.choiceA?.text ?? "")
             await ttsManager.speakSequentially("B")
             await ttsManager.speakSequentially(node.choiceB?.text ?? "")
+            try? await Task.sleep(for: .milliseconds(300))
             iosConnectManager?.sendStageDecisionWithFirstTimer(decisionIndex)
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
             goToEndingNode(title: title, toId: endingId, context: context)
+
         } else if node.type == .exposition {
             iosConnectManager?.sendStageExpositionWithResume()
-            if !isSpeaking {
-                await ttsManager.speakSequentially(node.text)
-            }
+            //            if !isSpeaking {
+            await ttsManager.speakSequentially(node.text)
+            //            }
             self.goToNextNode(from: node)
         }
         self.isSequenceInProgress = false

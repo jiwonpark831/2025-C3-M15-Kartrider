@@ -92,6 +92,7 @@ struct StoryView: View {
 
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
+            guard !storyViewModel.isSequenceInProgress else { return }
 
             Task {
                 await MainActor.run {
