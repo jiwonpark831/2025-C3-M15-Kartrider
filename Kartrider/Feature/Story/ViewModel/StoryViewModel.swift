@@ -120,7 +120,7 @@ class StoryViewModel: ObservableObject {
             iosConnectManager?.sendStageDecisionWithFirstTimer(decisionIndex)
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
-            goToEndingNode(title: title, toId: endingId, context: context)
+            await goToEndingNode(title: title, toId: endingId, context: context)
 
         } else if node.type == .exposition {
             iosConnectManager?.sendStageExpositionWithResume()
@@ -147,7 +147,7 @@ class StoryViewModel: ObservableObject {
     @MainActor
     private func goToEndingNode(
         title: String, toId: String, context: ModelContext
-    ) {
+    ) async {
         isLoading = true
         do {
             if let story = try contentRepository.fetchStory(
@@ -155,6 +155,11 @@ class StoryViewModel: ObservableObject {
                 let endingNode = story.nodes.first(where: { $0.id == toId })
             {
                 currentNode = endingNode
+                iosConnectManager?.sendStageEnding()
+                if !endingNode.text.isEmpty {
+
+                    await ttsManager.speakSequentially(endingNode.text)
+                }
             } else {
                 errorMessage = "해당 결말을 찾을 수 없습니다"
             }

@@ -11,11 +11,21 @@ import WatchKit
 class WatchOutroViewModel: ObservableObject {
     @Published var time = 10
     @Published var progress: CGFloat = 1.0
-    @Published var isEndingPlay = false
+    @Published var isTimerStart = false
+
+    private var connectManager: WatchConnectManager
 
     private var timer: Timer?
 
+    init(connectManager: WatchConnectManager) {
+        self.connectManager = connectManager
+    }
+
     func startTimer() {
+        guard !isTimerStart else { return }
+        isTimerStart = true
+        connectManager.timerStarted = true
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
             if self.time > 0 {

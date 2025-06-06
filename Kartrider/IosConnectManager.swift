@@ -162,4 +162,14 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             session.sendMessage(["stage": "ending"], replyHandler: nil)
         }
     }
+    
+    func sendStageEndingTimer() {
+        let message: [String: Any] = [
+            "stage": "ending", "timerStarted": true,
+        ]
+        let session = WCSession.default
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil)
+        }
+    }
 }

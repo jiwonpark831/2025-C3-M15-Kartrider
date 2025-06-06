@@ -38,8 +38,8 @@ struct TournamentView: View {
         ) {
             VStack(spacing: 16) {
                 contentBody
-//                statusIndicator
-//                retryButton
+                //                statusIndicator
+                //                retryButton
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 40)
@@ -57,8 +57,9 @@ struct TournamentView: View {
         }
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let option = newOption,
-                  let (a, b) = viewModel.currentCandidates,
-                  selectedOption == nil else { return }
+                let (a, b) = viewModel.currentCandidates,
+                selectedOption == nil
+            else { return }
 
             selectedOption = option
             let selected = option == .a ? a : b
@@ -76,11 +77,12 @@ struct TournamentView: View {
                 coordinator.popToRoot()
             }
             .task(id: viewModel.winner?.id) {
+                iosConnectManager.sendStageEnding()
                 guard let name = viewModel.winner?.name else { return }
                 await ttsManager.stop()
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
-                iosConnectManager.sendStageEnding()
+                iosConnectManager.sendStageEndingTimer()
             }
         } else if let (a, b) = viewModel.currentCandidates {
             TournamentMatchView(

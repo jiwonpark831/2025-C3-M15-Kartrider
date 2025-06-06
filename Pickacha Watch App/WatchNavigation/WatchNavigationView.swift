@@ -21,7 +21,8 @@ struct WatchNavigationView: View {
                         WatchStartView(connectManager: watchConnectManager)
                     case .story:
                         WatchStoryView(connectManager: watchConnectManager)
-                    case .outro: WatchOutroView()
+                    case .outro:
+                        WatchOutroView(connectManager: watchConnectManager)
                     }
                 }
         }

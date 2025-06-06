@@ -74,10 +74,11 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
             print("[STAGE] stage: \(stage)")
 
-            print("[DEBUG] stage will change from '\(self.stage)' to '\(stage)'")
+            print(
+                "[DEBUG] stage will change from '\(self.stage)' to '\(stage)'")
             self.stage = stage
             print("[DEBUG] stage did change to '\(self.stage)'")
- 
+
             switch stage {
             case "idle":
                 print("[IDLE] startContent: \(self.startContent)")
@@ -96,7 +97,9 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                 ]
             case "ending":
                 print("[ENDING] ")
-                self.msg = ["stage": "ending"]
+                self.msg = [
+                    "stage": "ending", "timerStarted": self.timerStarted,
+                ]
             default:
                 print("[ERROR] wrong stage: \(stage)")
             }
