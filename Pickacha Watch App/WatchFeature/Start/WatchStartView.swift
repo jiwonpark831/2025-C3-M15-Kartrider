@@ -22,10 +22,20 @@ struct WatchStartView: View {
     var body: some View {
         VStack {
             if !watchStartViewModel.isStart {
-                Text("이야기를 감상하려면 iPhone에서 앱을 실행해 주세요.")
-                    .onAppear {
-                        watchStartViewModel.speakIntro()
-                    }
+                VStack {
+                    Image(systemName: "book.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                    Group {
+                        Text("이야기를 감상하려면")
+                        Text("iPhone에서")
+                        Text("앱을 실행해 주세요.")
+                    }.font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .onAppear {
+                    watchStartViewModel.speakIntro()
+                }
             } else {
                 Color.clear.onAppear {
                     coordinator.push(.story)

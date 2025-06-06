@@ -109,6 +109,9 @@ class StoryViewModel: ObservableObject {
         if node.type == .decision {
             iosConnectManager?.sendStageDecisionWithFirstTTS(decisionIndex)
 
+            if !node.text.isEmpty {
+                await ttsManager.speakSequentially(node.text)
+            }
             await ttsManager.speakSequentially("A")
             await ttsManager.speakSequentially(node.choiceA?.text ?? "")
             await ttsManager.speakSequentially("B")

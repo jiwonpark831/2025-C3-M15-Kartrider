@@ -10,21 +10,21 @@ import WatchKit
 
 class WatchOutroViewModel: ObservableObject {
     @Published var time = 10
-    @Published var progress: CGFloat = 0.0
+    @Published var progress: CGFloat = 1.0
     @Published var isEndingPlay = false
 
     private var timer: Timer?
-    
 
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
             if self.time > 0 {
                 self.time -= 1
+                self.progress = CGFloat(self.time) / 10.0
                 WKInterfaceDevice.current().play(.start)
             } else {
                 self.timer?.invalidate()
-                print("time out")
+                print("[ENDING] Time Out")
             }
         }
     }

@@ -30,8 +30,9 @@ struct StoryView: View {
         ) {
             Group {
                 if storyViewModel.isLoading {
-                    Spacer()
-                    ProgressView().padding()
+                    //                    ProgressView().padding()
+                    DescriptionBoxView(
+                        text: storyViewModel.currentNode?.text ?? "")
                     Spacer()
                 } else if let errorMessage = storyViewModel.errorMessage {
                     Text(errorMessage)

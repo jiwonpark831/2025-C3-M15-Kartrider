@@ -16,35 +16,46 @@ struct WatchOutroView: View {
     var body: some View {
         if viewModel.isEndingPlay {
             ZStack {
+
                 Circle()
-                    .trim(from: 0, to: viewModel.progress)
                     .stroke(
                         Color.orange,
-                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round)
                     )
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 165, height: 165)
-                    .animation(.linear(duration: 5), value: viewModel.progress)
-
+                    .frame(width: 121, height: 121)
                 VStack(spacing: 16) {
                     Text("결말이\n재생중입니다")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: 13, weight: .medium))
                         .multilineTextAlignment(.center)
-
                 }
-            }
-            .onAppear {
-                viewModel.progress = 1.0
             }
         } else {
             VStack {
                 ZStack {
-                    ProgressView().progressViewStyle(.circular)
-                    Text("\(viewModel.time)").onAppear {
-                        viewModel.startTimer()
-                    }
+                    Circle()
+                        .trim(from: 1 - viewModel.progress, to: 1)
+                        .stroke(
+                            Color.orange,
+                            style: StrokeStyle(
+                                lineWidth: 2, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+                        .frame(width: 73, height: 73)
+                        .animation(
+                            .linear(duration: 1),
+                            value: viewModel.progress
+                        )
+                    Text("\(viewModel.time)").font(
+                        .system(size: 30, weight: .light))
                 }
-                Text("10초 후 다음 이야기가 재생됩니다.")
+                Spacer().frame(height: 14)
+                Group {
+                    Text("10초 후")
+                    Text("다음 이야기가 재생됩니다.")
+                }
+                .font(.system(size: 10, weight: .regular))
+            }.onAppear {
+                viewModel.startTimer()
             }
         }
     }

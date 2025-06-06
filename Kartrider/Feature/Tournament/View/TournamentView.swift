@@ -38,8 +38,8 @@ struct TournamentView: View {
         ) {
             VStack(spacing: 16) {
                 contentBody
-                statusIndicator
-                retryButton
+//                statusIndicator
+//                retryButton
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 40)

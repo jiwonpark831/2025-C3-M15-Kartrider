@@ -19,14 +19,17 @@ struct ExpositionView: View {
     }
 
     var body: some View {
-        VStack {
+        ZStack {
+            Circle()
+                .frame(width: 102, height: 102).foregroundColor(.white)
             Image(
                 systemName: expositionViewModel.isPlayTTS
                     ? "pause.fill" : "play.fill"
-            )
-            .onTapGesture {
-                expositionViewModel.toggleStateWatch()
-            }
+            ).font(.system(size: 36, weight: .bold))
+                .foregroundColor(.orange)
+                .onTapGesture {
+                    expositionViewModel.toggleStateWatch()
+                }
         }
         .onAppear {
             expositionViewModel.syncTTSState()
