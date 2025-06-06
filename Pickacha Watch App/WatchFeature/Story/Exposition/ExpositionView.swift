@@ -8,18 +8,22 @@
 import SwiftUI
 
 struct ExpositionView: View {
+    @EnvironmentObject private var connectManager: WatchConnectManager
+    @StateObject private var expositionViewModel : ExpositionViewModel
+    
+    init(connectManager: WatchConnectManager) {
+        _expositionViewModel = StateObject(
+            wrappedValue: ExpositionViewModel(
+                watchConnectivityManager: connectManager))
 
-    @StateObject private var viewModel = ExpositionViewModel()
+    }
 
     var body: some View {
         VStack {
-            Image(systemName: viewModel.isPlayTTS ? "pause.fill" : "play.fill")
+            Image(systemName: expositionViewModel.isPlayTTS ? "pause.fill" : "play.fill")
                 .onTapGesture {
-                    viewModel.toggleState()
+                    expositionViewModel.toggleState()
                 }
         }
     }
-}
-#Preview {
-    ExpositionView()
 }

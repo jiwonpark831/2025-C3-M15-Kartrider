@@ -10,6 +10,9 @@ import Foundation
 import WatchKit
 
 class DecisionViewModel: ObservableObject {
+
+    @Published var watchConnectivityManager: WatchConnectManager
+
     @Published var isStartTimer = false
     @Published var decisionIndex = 0
     @Published var isInterrupt = false
@@ -18,24 +21,50 @@ class DecisionViewModel: ObservableObject {
     @Published var choice: String?
     @Published var time = 10
     @Published var progress: CGFloat = 0.0
+    @Published var isTimeOut = false
 
     private var middle: Double = 0.0
     private var timer: Timer?
     private var motionManager = CMMotionManager()
 
+    init(watchConnectivityManager: WatchConnectManager) {
+        self.watchConnectivityManager = watchConnectivityManager
+        self.isStartTimer = watchConnectivityManager.timerStarted
+        self.decisionIndex = watchConnectivityManager.decisionIndex
+        self.isInterrupt = watchConnectivityManager.isInterrupt
+        self.isFirstRequest = watchConnectivityManager.isFirstRequest
+    }
+
     func startTimer() {
+        self.timer?.invalidate()
+        self.timer = nil
+
+        self.isStartTimer = true
+        self.progress = 1.0
+        self.time = 10
+        self.isTimeOut = false
+        timer?.invalidate()
+
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
             if self.time > 0 {
                 self.time -= 1
                 WKInterfaceDevice.current().play(.start)
             } else {
-                self.timer?.invalidate()
-                print("time out")
-                self.isStartTimer = false
+                if !self.isTimeOut {
+                    self.timer?.invalidate()
+                    self.timer = nil
+                    self.isStartTimer = false
+                    self.isTimeOut = true
+                    self.time = 0
+                    self.progress = 0.0
+                    print("time out")
+                    self.motionManager.stopDeviceMotionUpdates()
+                }
             }
         }
     }
+
     func makeChoice() {
         guard motionManager.isDeviceMotionAvailable else {
             print("unavailable")
@@ -62,10 +91,11 @@ class DecisionViewModel: ObservableObject {
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {
-                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                    self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "B")
+
                 } else {
-                    WatchConnectManager.shared.sendSecChoiceToIos(
+                    self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "B")
                 }
             } else if value < -0.5 {
@@ -74,10 +104,10 @@ class DecisionViewModel: ObservableObject {
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {
-                    WatchConnectManager.shared.sendFirstChoiceToIos(
+                    self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "A")
                 } else {
-                    WatchConnectManager.shared.sendSecChoiceToIos(
+                    self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "A")
                 }
             }

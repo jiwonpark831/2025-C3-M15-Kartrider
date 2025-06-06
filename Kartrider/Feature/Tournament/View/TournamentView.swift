@@ -11,6 +11,8 @@ import SwiftUI
 struct TournamentView: View {
     @EnvironmentObject private var ttsManager: TTSManager
     @EnvironmentObject private var coordinator: NavigationCoordinator
+    @EnvironmentObject private var iosConnectManager: IosConnectManager
+
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel: TournamentViewModel
 
@@ -49,23 +51,20 @@ struct TournamentView: View {
         .onChange(of: viewModel.isFinished) { isFinished in
             guard isFinished else { return }
             viewModel.finishTournamentAndSave(context: context)
-            decisionIndex += 1
         }
         .onChange(of: viewModel.currentCandidates?.0.id) { _ in
             selectedOption = nil
-        }.onChange(of: IosConnectManager.shared.selectedOption) { newValue in
-            guard let option = newValue,
-                  let (a, b) = viewModel.currentCandidates else { return }
-
-            switch option {
-            case .a:
-                selectedOption = .a
-                handleSelection(a)
-            case .b:
-                selectedOption = .b
-                handleSelection(b)
-            }
         }
+        .onChange(of: iosConnectManager.selectedOption) { newOption in
+            guard let option = newOption,
+                  let (a, b) = viewModel.currentCandidates,
+                  selectedOption == nil else { return }
+
+            selectedOption = option
+            let selected = option == .a ? a : b
+            handleSelection(selected)
+        }
+
     }
 
     // MARK: - View Sections
@@ -81,6 +80,7 @@ struct TournamentView: View {
                 await ttsManager.stop()
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
+                iosConnectManager.sendStageEnding()
             }
         } else if let (a, b) = viewModel.currentCandidates {
             TournamentMatchView(
@@ -125,6 +125,7 @@ extension TournamentView {
             try? await Task.sleep(nanoseconds: 200_000_000)
 
             viewModel.select(candidate)
+            decisionIndex += 1
             speakCurrentMatch()
         }
     }
@@ -132,14 +133,14 @@ extension TournamentView {
     private func speakCurrentMatch() {
         guard let (a, b) = viewModel.currentCandidates else { return }
         Task {
-            IosConnectManager.shared.sendStageDecisionWithFirstTTS(
+            iosConnectManager.sendStageDecisionWithFirstTTS(
                 decisionIndex)
 
             await ttsManager.speakSequentially(
                 viewModel.currentRoundDescription)
             await ttsManager.speakSequentially("A. \(a.name)")
             await ttsManager.speakSequentially("B. \(b.name)")
-            IosConnectManager.shared.sendStageDecisionWithFirstTimer(
+            iosConnectManager.sendStageDecisionWithFirstTimer(
                 decisionIndex)
 
         }

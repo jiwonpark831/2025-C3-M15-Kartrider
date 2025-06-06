@@ -9,10 +9,8 @@ import Foundation
 import WatchConnectivity
 
 class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
-    static let shared = IosConnectManager()
 
-    weak var iosStoryVM: StoryViewModel?
-    weak var iosTournamentVM: TournamentViewModel?
+    @Published var msg: [String: Any] = [:]
 
     @Published var isPlayTTS: Bool = true
     @Published var decisionIndex: Int = 0
@@ -22,7 +20,7 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
     var session: WCSession
 
-    private init(session: WCSession = .default) {
+    init(session: WCSession = .default) {
         self.session = session
         super.init()
         self.session.delegate = self
@@ -71,6 +69,8 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             "stage": "idle", "startContent": true,
         ]
         let session = WCSession.default
+        print("[DEBUG] idle message 보내기: \(message)")
+
         if session.isReachable {
             print("[DEBUG] 워치로 idle 메시지 전송")
             session.sendMessage(message, replyHandler: nil)

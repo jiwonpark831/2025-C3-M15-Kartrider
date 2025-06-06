@@ -9,46 +9,31 @@ import AVFoundation
 import SwiftUI
 
 struct WatchStartView: View {
-
+    @EnvironmentObject private var connectManager: WatchConnectManager
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-//        @StateObject private var viewModel = WatchStartViewModel()
-    @ObservedObject private var viewModel = WatchConnectManager.shared
-        .watchStartVM
+    @StateObject private var watchStartViewModel: WatchStartViewModel
 
-    var body: some View {
-//        VStack {
-//            if !viewModel.isStart {
-//                Text("이야기를 감상하려면 iPhone에서 앱을 실행해 주세요.")
-//                    .onAppear {
-//                        viewModel.speakIntro()
-//                        //                        WatchConnectManager.shared.watchStartVM = self.viewModel
-//                    }
-//            } else {
-//                Color.clear.onAppear {
-//                    coordinator.push(.story)
-//                }
-//            }
-//
-//        }
-        VStack {
-                    if !viewModel.isStart {
-                        Text("이야기를 감상하려면 iPhone에서 앱을 실행해 주세요.")
-                            .onAppear {
-                                viewModel.speakIntro()
-                            }
-                    } else {
-                        Color.clear
-                    }
-                }
-                .onChange(of: viewModel.isStart) { newValue in
-                    if newValue {
-                        coordinator.push(.story)
-                    }
-                }
+    init(connectManager: WatchConnectManager) {
+        _watchStartViewModel = StateObject(
+            wrappedValue: WatchStartViewModel(
+                watchConnectivityManager: connectManager))
     }
 
-}
-
-#Preview {
-    WatchStartView()
+    var body: some View {
+        VStack {
+            if !watchStartViewModel.isStart {
+                Text("이야기를 감상하려면 iPhone에서 앱을 실행해 주세요.")
+                    .onAppear {
+                        watchStartViewModel.speakIntro()
+                    }
+            } else {
+                Color.clear.onAppear {
+                    coordinator.push(.story)
+                }
+            }
+        }
+        .onChange(of: connectManager.startContent) { newValue in
+            watchStartViewModel.isStart = newValue
+        }
+    }
 }

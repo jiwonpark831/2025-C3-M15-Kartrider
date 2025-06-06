@@ -8,20 +8,24 @@
 import SwiftUI
 
 struct WatchNavigationView: View {
-
+    @EnvironmentObject private var watchConnectManager: WatchConnectManager
     @StateObject private var coordinator = WatchNavigationCoordinator()
 
     var body: some View {
         NavigationStack(path: $coordinator.paths) {
-            WatchStartView().navigationDestination(for: WatchRoute.self) {
-                route in
-                switch route {
-                case .start: WatchStartView()
-                case .story: WatchStoryView()
-                case .outro: WatchOutroView()
+            WatchStartView(connectManager: watchConnectManager)
+                .navigationDestination(for: WatchRoute.self) {
+                    route in
+                    switch route {
+                    case .start:
+                        WatchStartView(connectManager: watchConnectManager)
+                    case .story:
+                        WatchStoryView(connectManager: watchConnectManager)
+                    case .outro: WatchOutroView()
+                    }
                 }
-            }
-        }.environmentObject(coordinator)
+        }
+        .environmentObject(coordinator)
     }
 }
 

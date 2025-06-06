@@ -9,18 +9,8 @@ import Foundation
 import WatchConnectivity
 
 class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
-    static let shared = WatchConnectManager()
 
-    //    weak var watchStartVM: WatchStartViewModel?
-    //    weak var watchStoryVM: WatchStoryViewModel?
-    //    weak var watchExpositionVM: ExpositionViewModel?
-    //    weak var watchDecisionVM: DecisionViewModel?
-    //    weak var watchOutroVM: WatchOutroViewModel?
-    var watchStartVM = WatchStartViewModel()
-    var watchStoryVM = WatchStoryViewModel()
-    var watchExpositionVM = ExpositionViewModel()
-    var watchDecisionVM = DecisionViewModel()
-    var watchOutroVM = WatchOutroViewModel()
+    @Published var msg: [String: Any] = [:]
 
     @Published var stage: String = ""
     @Published var startContent: Bool = false
@@ -32,11 +22,15 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
     var session: WCSession
 
-    private init(session: WCSession = .default) {
+    init(session: WCSession = .default) {
         self.session = session
         super.init()
-        self.session.delegate = self
-        session.activate()
+        if WCSession.isSupported() {
+            self.session.delegate = self
+            self.session.activate()
+        } else {
+            print("[ERROR] WCSession not supported")
+        }
     }
 
     func session(
@@ -46,19 +40,24 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     ) {
         print("Session activated: \(activationState.rawValue)")
     }
-    
-    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        DispatchQueue.main.async {
-            print("Received message: \(message)")
 
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any])
+    {
+        DispatchQueue.main.async {
+            print("[DEBUG] Received message: \(message)")
             guard let stage = message["stage"] as? String else {
-                print("error - stage is nil or not String")
+                print("[ERROR] stage is nil")
                 return
             }
+            print(
+                "[DEBUG] stage raw value: '\(stage)' (type: \(type(of: stage)))"
+            )
 
-            // 필요한 값 파싱
-            if let timerStartedInt = message["timerStarted"] as? Int {
-                self.timerStarted = timerStartedInt != 0
+            if let startContent = message["startContent"] as? Bool {
+                self.startContent = startContent
+            }
+            if let timerStarted = message["timerStarted"] as? Bool {
+                self.timerStarted = timerStarted
             }
             if let isPlayTTS = message["isPlayTTS"] as? Bool {
                 self.isPlayTTS = isPlayTTS
@@ -66,83 +65,44 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             if let decisionIndex = message["decisionIndex"] as? Int {
                 self.decisionIndex = decisionIndex
             }
-            if let isFirstRequestInt = message["isFirstRequest"] as? Int {
-                self.isFirstRequest = isFirstRequestInt != 0
+            if let isFirstRequest = message["isFirstRequest"] as? Bool {
+                self.isFirstRequest = isFirstRequest
             }
-            if let isInterruptInt = message["isInterrupt"] as? Int {
-                self.isInterrupt = isInterruptInt != 0
+            if let isInterrupt = message["isInterrupt"] as? Bool {
+                self.isInterrupt = isInterrupt
             }
 
-            print("Parsed values — stage: \(stage), isFirstRequest: \(self.isFirstRequest), timerStarted: \(self.timerStarted)")
+            print("[STAGE] stage: \(stage)")
 
-            // String 값으로 조건 처리
-            switch stage.lowercased() {
+            print("[DEBUG] stage will change from '\(self.stage)' to '\(stage)'")
+            self.stage = stage
+            print("[DEBUG] stage did change to '\(self.stage)'")
+ 
+            switch stage {
             case "idle":
-                self.watchStartVM.isStart = self.startContent
+                print("[IDLE] startContent: \(self.startContent)")
+                self.msg = ["stage": "idle", "startContent": self.startContent]
             case "exposition":
-                self.watchStoryVM.storyNodeTypeRaw = "exposition"
-                self.watchExpositionVM.isPlayTTS = self.isPlayTTS
+                print("[EXPOSITION] isPlayTTS: \(self.isPlayTTS)")
+                self.msg = ["stage": "exposition", "isPlayTTS": self.isPlayTTS]
             case "decision":
-                self.watchStoryVM.storyNodeTypeRaw = "decision"
-                self.watchDecisionVM.isStartTimer = self.timerStarted
-                self.watchDecisionVM.decisionIndex = self.decisionIndex
-                self.watchDecisionVM.isInterrupt = self.isInterrupt
-                self.watchDecisionVM.isFirstRequest = self.isFirstRequest
+                print(
+                    "[DECISION] timerStarted: \(self.timerStarted), decisionIndex: \(self.decisionIndex), isFirstRequest: \(self.isFirstRequest)"
+                )
+                self.msg = [
+                    "stage": "decision", "timerStarted": self.timerStarted,
+                    "decisionIndex": self.decisionIndex,
+                    "isFirstRequest": self.isFirstRequest,
+                ]
             case "ending":
-                self.watchStoryVM.storyNodeTypeRaw = "ending"
-                self.watchOutroVM.isEndingPlay = true
+                print("[ENDING] ")
+                self.msg = ["stage": "ending"]
             default:
-                print("Unknown stage received: \(stage)")
+                print("[ERROR] wrong stage: \(stage)")
             }
         }
     }
 
-
-    //    func session(_ session: WCSession, didReceiveMessage message: [String: Any])
-    //    {
-    //        DispatchQueue.main.async {
-    //            print("Received message: \(message)")
-    //            guard let stageType = message["stage"] as? String,
-    //                let stage = Stage(rawValue: stageType)
-    //            else {
-    //                print("error - stageType: \(message["stage"] ?? "nil")")
-    //                return
-    //            }
-    //
-    //            switch stage {
-    //            case .idle:
-    //                self.watchStartVM?.isStart = self.startContent
-    //            case .exposition:
-    //                self.watchStoryVM?.storyNodeType = stage
-    //                self.watchExpositionVM?.isPlayTTS = self.isPlayTTS
-    //            case .decision:
-    //                self.watchStoryVM?.storyNodeType = stage
-    //                self.watchDecisionVM?.isStartTimer = self.timerStarted
-    //                self.watchDecisionVM?.decisionIndex = self.decisionIndex
-    //                self.watchDecisionVM?.isInterrupt = self.isInterrupt
-    //                self.watchDecisionVM?.isFirstRequest = self.isFirstRequest
-    //            case .ending:
-    //                self.watchStoryVM?.storyNodeType = stage
-    //                self.watchOutroVM?.isEndingPlay = true
-    //            }
-    //
-    //            if let timerStarted = message["timerStarted"] as? Bool {
-    //                self.timerStarted = timerStarted
-    //            }
-    //            if let isPlayTTS = message["isPlayTTS"] as? Bool {
-    //                self.isPlayTTS = isPlayTTS
-    //            }
-    //            if let decisionIndex = message["decisionIndex"] as? Int {
-    //                self.decisionIndex = decisionIndex
-    //            }
-    //            if let isFirstRequest = message["isFirstRequest"] as? Bool {
-    //                self.isFirstRequest = isFirstRequest
-    //            }
-    //            if let isInterrupt = message["isInterrupt"] as? Bool {
-    //                self.isInterrupt = isInterrupt
-    //            }
-    //        }
-    //    }
     func sendStageExpositionWithPause() {
         let session = WCSession.default
         if session.isReachable {

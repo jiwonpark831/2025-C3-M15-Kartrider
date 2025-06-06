@@ -8,7 +8,15 @@
 import Foundation
 
 class WatchStoryViewModel: ObservableObject {
-    @Published var storyNodeTypeRaw: String = "idle"
+    @Published var watchConnectivityManager: WatchConnectManager
+    @Published var storyType: String = "idle"
 
-    @Published var decisionViewModel = DecisionViewModel()
+    init(watchConnectivityManager: WatchConnectManager) {
+        self.watchConnectivityManager = watchConnectivityManager
+    }
+
+    func updateStage() {
+        self.storyType = watchConnectivityManager.stage
+    }
+
 }

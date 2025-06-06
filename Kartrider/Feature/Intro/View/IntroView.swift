@@ -11,6 +11,7 @@ struct IntroView: View {
 
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @StateObject private var viewModel: IntroViewModel
+    @EnvironmentObject private var iosConnectManager: IosConnectManager
 
     init(content: ContentMeta) {
         _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
@@ -68,13 +69,14 @@ struct IntroView: View {
     private var actionSection: some View {
         OrangeButton(title: "이야기 시작하기") {
             print("시작버튼 눌림")
+
+            iosConnectManager.sendStageIdle()
+
             switch viewModel.content.type {
             case .story:
                 if let startNodeId = viewModel.content.story?.startNodeId {
                     coordinator.push(
                         Route.story(viewModel.content.title, startNodeId))
-                    print("[DEBUG] sendStageIdleToWatch 호출됨")
-                    IosConnectManager.shared.sendStageIdle()
                 } else {
                     print("[ERROR] 스토리가 존재하지 않음")
                 }
@@ -82,14 +84,10 @@ struct IntroView: View {
                 if let id = viewModel.content.tournament?.id {
                     coordinator.push(
                         Route.tournament(viewModel.content.title, id))
-                    print("[DEBUG] sendStageIdleToWatch 호출됨")
-                    IosConnectManager.shared.sendStageIdle()
                 } else {
                     print("[ERROR] 토너먼트가 존재하지 않음")
                 }
             }
-        }.onAppear {
-            viewModel.startIfNeeded()
         }
         .padding(.vertical, 20)
     }
