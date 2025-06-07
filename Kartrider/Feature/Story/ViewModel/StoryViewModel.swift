@@ -68,24 +68,21 @@ class StoryViewModel: ObservableObject {
 
     func goToNextNode(from currentNode: StoryNode) {
         guard let nextId = currentNode.nextId,
-            let nextNode = currentNode.story.nodes.first(where: {
-                $0.id == nextId
-            })
-        else {
+              let story = currentNode.story,
+              let nextNode = story.nodes.first(where: {$0.id == nextId}) else {
             errorMessage = "다음 스토리 노드를 찾을 수 없습니다"
             return
         }
+
         Task { @MainActor in
             self.currentNode = nextNode
         }
     }
 
     func selectChoice(toId: String) {
-        guard let currentNode,
-            let nextNode = currentNode.story.nodes.first(where: {
-                $0.id == toId
-            })
-        else {
+        guard let currentNode = currentNode,
+              let story = currentNode.story,
+              let nextNode = story.nodes.first(where: { $0.id == toId }) else {
             errorMessage = "선택한 노드를 찾을 수 없습니다"
             return
         }

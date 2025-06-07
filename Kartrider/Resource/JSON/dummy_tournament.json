@@ -5,7 +5,7 @@
             "summary": "직장인이 공감하는 최악의 빌런을 뽑는 월드컵!",
             "type": "tournament",
             "hashtags": ["빌런", "회사", "토너먼트"],
-            "thumbnailName": "snack_thumb"
+            "thumbnailName": "thumb_company"
         },
         "candidates": [
             { "name": "모든 걸 회의로 해결하려 하고, 30분짜리를 2시간으로 늘리는 달인" },
@@ -48,7 +48,7 @@
             "summary": "당신이 생각하는 헬스장 최고의 빌런은?",
             "type": "tournament",
             "hashtags": ["운동", "헬스장", "토너먼트"],
-            "thumbnailName": "summer_thumb"
+            "thumbnailName": "thumb_gym"
         },
         "candidates": [
             { "name" : "한 기구에서 30분씩 앉아있으면서 휴대폰만 보는 사람" },

@@ -17,11 +17,11 @@ class StoryNode {
     var endingIndex: Int?
     var title: String?
     
-    @Relationship(inverse: \Story.nodes) var story: Story
     @Relationship(deleteRule: .cascade) var choiceA: StoryChoice?
     @Relationship(deleteRule: .cascade) var choiceB: StoryChoice?
+    @Relationship var story: Story? //
     
-    init(id: String, text: String, type: StoryNodeType, nextId: String? = nil, endingIndex: Int? = nil, title: String? = nil, story: Story, choiceA: StoryChoice? = nil, choiceB: StoryChoice? = nil) {
+    init(id: String, text: String, type: StoryNodeType, nextId: String? = nil, endingIndex: Int? = nil, title: String? = nil, story: Story? = nil, choiceA: StoryChoice? = nil, choiceB: StoryChoice? = nil) {
         self.id = id
         self.text = text
         self.type = type

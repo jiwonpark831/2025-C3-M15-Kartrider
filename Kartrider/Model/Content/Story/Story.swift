@@ -13,9 +13,8 @@ class Story {
     @Attribute(.unique) var id: UUID
     var startNodeId: String
     
-    @Relationship(inverse: \ContentMeta.story) var meta: ContentMeta
+    @Relationship(deleteRule: .cascade, inverse: \ContentMeta.story) var meta: ContentMeta
     @Relationship(deleteRule: .cascade) var nodes: [StoryNode] = []
-    
     @Relationship(deleteRule: .cascade) var endingConditions: [EndingCondition] = []
     
     init(startNodeId: String, meta: ContentMeta) {
