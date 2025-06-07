@@ -18,6 +18,7 @@ struct TournamentView: View {
 
     @State private var selectedOption: StoryChoiceOption? = nil
     @State private var decisionIndex = 0
+    @State private var decisionTask: Task<Void, Never>? = nil
 
     let title: String
     let id: UUID
@@ -36,13 +37,9 @@ struct TournamentView: View {
                 coordinator.pop()
             }
         ) {
-            VStack(spacing: 16) {
-                contentBody
-                //                statusIndicator
-                //                retryButton
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.top, 40)
+            VStack(spacing: 16) { contentBody }.frame(
+                maxWidth: .infinity, maxHeight: .infinity
+            ).padding(.top, 40)
         }
         .task {
             viewModel.loadTournament(context: context)
@@ -54,6 +51,8 @@ struct TournamentView: View {
         }
         .onChange(of: viewModel.currentCandidates?.0.id) { _ in
             selectedOption = nil
+            iosConnectManager.timeout = false
+            iosConnectManager.isFirstRequest = true
         }
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let option = newOption,
@@ -61,11 +60,16 @@ struct TournamentView: View {
                 selectedOption == nil
             else { return }
 
+            decisionTask?.cancel()
+            decisionTask = nil
+
             selectedOption = option
             let selected = option == .a ? a : b
             handleSelection(selected)
         }
-
+        .onChange(of: iosConnectManager.timeout) { newValue in
+            handleTimeout(newValue)
+        }
     }
 
     // MARK: - View Sections
@@ -123,6 +127,7 @@ extension TournamentView {
 
         Task {
             await ttsManager.stop()
+            iosConnectManager.sendChoiceInterrupt()
             await speakSelectedChoice(candidate)
             try? await Task.sleep(nanoseconds: 200_000_000)
 
@@ -134,18 +139,48 @@ extension TournamentView {
 
     private func speakCurrentMatch() {
         guard let (a, b) = viewModel.currentCandidates else { return }
-        Task {
+
+        decisionTask?.cancel()
+
+        iosConnectManager.timeout = false
+        iosConnectManager.isFirstRequest = true
+
+        decisionTask = Task {
             iosConnectManager.sendStageDecisionWithFirstTTS(
                 decisionIndex)
-
             await ttsManager.speakSequentially(
                 viewModel.currentRoundDescription)
             await ttsManager.speakSequentially("A. \(a.name)")
             await ttsManager.speakSequentially("B. \(b.name)")
             iosConnectManager.sendStageDecisionWithFirstTimer(
                 decisionIndex)
-
         }
+    }
+
+    private func playSecondTTS() {
+        guard let (a, b) = viewModel.currentCandidates else { return }
+        decisionTask?.cancel()
+
+        let texts = [
+            "선택지가 다시 한번 재생됩니다",
+            "A. \(a.name)",
+            "B. \(b.name)",
+        ]
+
+        decisionTask = Task {
+            iosConnectManager.sendStageDecisionWithSecTTS(decisionIndex)
+            for text in texts { await ttsManager.speakSequentially(text) }
+            let totalDelay =
+                texts.map { estimateDuration(for: $0) }.reduce(0, +)
+                + 200_000_000
+            try? await Task.sleep(nanoseconds: totalDelay)
+            iosConnectManager.sendStageDecisionWithSecTimer(decisionIndex)
+        }
+    }
+
+    private func estimateDuration(for text: String) -> UInt64 {
+        let seconds = Double(text.count) * 0.1
+        return UInt64(seconds * 1_000_000_000)
     }
 
     private func speakOnlyChoices() {
@@ -159,6 +194,25 @@ extension TournamentView {
     private func speakSelectedChoice(_ candidate: Candidate) async {
         await ttsManager.speakSequentially("\(candidate.name) 선택")
     }
+
+    private func handleTimeout(_ newValue: Bool?) {
+        let isTimeout = newValue == true
+        let sameIndex = iosConnectManager.decisionIndex == decisionIndex
+        let noSelection = selectedOption == nil
+
+        guard isTimeout, sameIndex, noSelection else { return }
+
+        if iosConnectManager.isFirstRequest {
+            playSecondTTS()
+        } else {
+            if let (aCandidate, _) = viewModel.currentCandidates {
+                selectedOption = .a
+                handleSelection(aCandidate)
+            }
+        }
+        iosConnectManager.timeout = false
+    }
+
 }
 
 #Preview {

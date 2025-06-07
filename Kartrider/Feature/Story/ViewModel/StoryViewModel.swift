@@ -26,6 +26,8 @@ class StoryViewModel: ObservableObject {
     @Published var isTransitioningTTS = false
 
     @Published var decisionIndex = 0
+    private var secPlayed = false
+    private var decisionTask: Task<Void, Never>? = nil
 
     var ttsManager = TTSManager()
 
@@ -104,26 +106,18 @@ class StoryViewModel: ObservableObject {
         self.isSequenceInProgress = true
 
         if node.type == .decision {
-            iosConnectManager?.sendStageDecisionWithFirstTTS(decisionIndex)
+            iosConnectManager?.timeout = false
+            iosConnectManager?.isFirstRequest = true
+            secPlayed = false
+            firstDecision(node: node)
 
-            if !node.text.isEmpty {
-                await ttsManager.speakSequentially(node.text)
-            }
-            await ttsManager.speakSequentially("A")
-            await ttsManager.speakSequentially(node.choiceA?.text ?? "")
-            await ttsManager.speakSequentially("B")
-            await ttsManager.speakSequentially(node.choiceB?.text ?? "")
-            try? await Task.sleep(for: .milliseconds(300))
-            iosConnectManager?.sendStageDecisionWithFirstTimer(decisionIndex)
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
             await goToEndingNode(title: title, toId: endingId, context: context)
 
         } else if node.type == .exposition {
             iosConnectManager?.sendStageExpositionWithResume()
-            //            if !isSpeaking {
             await ttsManager.speakSequentially(node.text)
-            //            }
             self.goToNextNode(from: node)
         }
         self.isSequenceInProgress = false
@@ -186,6 +180,7 @@ class StoryViewModel: ObservableObject {
     }
     func handleWatchChoice(option: StoryChoiceOption) {
         guard let currentNode = currentNode else { return }
+        iosConnectManager?.sendChoiceInterrupt()
 
         switch option {
         case .a:
@@ -197,6 +192,65 @@ class StoryViewModel: ObservableObject {
                 selectChoice(toId: toId)
             }
         }
+    }
+    private func estimateDuration(for text: String) -> UInt64 {
+        return UInt64(Double(text.count) * 0.1 * 1_000_000_000)
+    }
+
+    func firstDecision(node: StoryNode) {
+        decisionTask?.cancel()
+        decisionTask = Task {
+            iosConnectManager?.sendStageDecisionWithFirstTTS(decisionIndex)
+            if !node.text.isEmpty {
+                await ttsManager.speakSequentially(node.text)
+            }
+            await ttsManager.speakSequentially("A")
+            await ttsManager.speakSequentially(node.choiceA?.text ?? "")
+            await ttsManager.speakSequentially("B")
+            await ttsManager.speakSequentially(node.choiceB?.text ?? "")
+
+            iosConnectManager?.sendStageDecisionWithFirstTimer(decisionIndex)
+        }
+    }
+
+    func playSecDecisionTTS(node: StoryNode) {
+        decisionTask?.cancel()
+        secPlayed = true
+
+        let texts = [
+            "선택지가 다시 한번 재생됩니다",
+            "A. \(node.choiceA?.text ?? "")",
+            "B. \(node.choiceB?.text ?? "")",
+        ]
+
+        decisionTask = Task {
+            secPlayed = true
+            iosConnectManager?.sendStageDecisionWithSecTTS(decisionIndex)
+            for text in texts { await ttsManager.speakSequentially(text) }
+            let totalDelay =
+                texts.map { estimateDuration(for: $0) }.reduce(0, +)
+                + 200_000_000
+            try? await Task.sleep(nanoseconds: totalDelay)
+            iosConnectManager?.sendStageDecisionWithSecTimer(decisionIndex)
+        }
+    }
+
+    func handleTimeout(_ newValue: Bool?) {
+        let isTimeout = newValue == true
+        let noSelection = iosConnectManager?.selectedOption == nil
+        guard isTimeout, noSelection,
+            let node = currentNode, node.type == .decision
+        else { return }
+
+        if iosConnectManager?.isFirstRequest == true {
+            playSecDecisionTTS(node: node)
+            iosConnectManager?.isFirstRequest = false
+        } else {
+            if let toId = node.choiceA?.toId {
+                selectChoice(toId: toId)
+            }
+        }
+        iosConnectManager?.timeout = false
     }
 
 }

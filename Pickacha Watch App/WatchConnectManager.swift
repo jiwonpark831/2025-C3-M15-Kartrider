@@ -96,7 +96,7 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                     "isFirstRequest": self.isFirstRequest,
                 ]
             case "ending":
-                print("[ENDING] ")
+                print("[ENDING] timerStarted: \(self.timerStarted)")
                 self.msg = [
                     "stage": "ending", "timerStarted": self.timerStarted,
                 ]
@@ -142,4 +142,21 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
     }
 
+    func sendTimeoutToIos(_ decisionIndex: Int, isFirstRequest: Bool) {
+        let message: [String: Any] = [
+            "decisionIndex": decisionIndex,
+            "timeout": true,
+            "isFirstRequest": isFirstRequest,
+        ]
+        guard session.isReachable else { return }
+        session.sendMessage(message, replyHandler: nil)
+    }
+
+    func scheduleFirstTimeout(_ decisionIndex: Int) {
+        sendTimeoutToIos(decisionIndex, isFirstRequest: true)
+    }
+
+    func scheduleSecondTimeout(_ decisionIndex: Int) {
+        sendTimeoutToIos(decisionIndex, isFirstRequest: false)
+    }
 }

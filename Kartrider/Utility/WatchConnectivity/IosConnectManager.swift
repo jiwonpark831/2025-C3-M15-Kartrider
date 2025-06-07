@@ -17,6 +17,8 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     @Published var selectedChoice: String = ""
     @Published var decisionCount: Int = 0
     @Published var selectedOption: StoryChoiceOption? = nil
+    @Published var timeout: Bool? = false
+    @Published var isFirstRequest: Bool = true
 
     var session: WCSession
 
@@ -49,16 +51,28 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             if let isPlayTTS = message["isPlayTTS"] as? Bool {
                 self.isPlayTTS = isPlayTTS
             }
-
-            if let decisionIndex = message["decisionIndex"] as? Int,
-                let selectedChoiceRaw = message["selectedChoice"] as? String,
-                let selectedChoice = StoryChoiceOption(
-                    rawValue: selectedChoiceRaw),
-                let decisionCount = message["decisionCount"] as? Int
-            {
+            if let decisionIndex = message["decisionIndex"] as? Int {
                 self.decisionIndex = decisionIndex
-                self.selectedOption = selectedChoice
+            }
+            if let decisionCount = message["decisionCount"] as? Int {
                 self.decisionCount = decisionCount
+            }
+
+            if let timeout = message["timeout"] as? Bool {
+                self.timeout = timeout
+            }
+            
+            if let isFirstRequest = message["isFirstRequest"] as? Bool {
+                self.isFirstRequest = isFirstRequest
+            }
+            if let selectedChoiceRaw = message["selectedChoice"] as? String,
+                let selectedChoice = StoryChoiceOption(
+                    rawValue: selectedChoiceRaw)
+            {
+                self.selectedOption = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    self.selectedOption = selectedChoice
+                }
             }
 
         }
@@ -147,12 +161,15 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     }
 
     func sendChoiceInterrupt() {
-        let message: [String: Any] = [
-            "stage": "decision", "isInterrupt": true,
-        ]
         let session = WCSession.default
         if session.isReachable {
-            session.sendMessage(message, replyHandler: nil)
+            session.sendMessage(
+                ["stage": "decision", "isInterrupt": false], replyHandler: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                session.sendMessage(
+                    ["stage": "decision", "isInterrupt": true],
+                    replyHandler: nil)
+            }
         }
     }
 

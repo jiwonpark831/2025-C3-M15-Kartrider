@@ -26,6 +26,7 @@ class DecisionViewModel: ObservableObject {
     private var middle: Double = 0.0
     private var timer: Timer?
     private var motionManager = CMMotionManager()
+    private var isSetMiddle = false
 
     init(watchConnectivityManager: WatchConnectManager) {
         self.watchConnectivityManager = watchConnectivityManager
@@ -33,6 +34,19 @@ class DecisionViewModel: ObservableObject {
         self.decisionIndex = watchConnectivityManager.decisionIndex
         self.isInterrupt = watchConnectivityManager.isInterrupt
         self.isFirstRequest = watchConnectivityManager.isFirstRequest
+    }
+
+    func resetState() {
+        timer?.invalidate()
+        timer = nil
+        motionManager.stopDeviceMotionUpdates()
+        isStartTimer = false
+        isTimeOut = false
+        choice = nil
+        time = 10
+        progress = 1.0
+        middle = 0.0
+        isSetMiddle = false
     }
 
     func startTimer() {
@@ -43,6 +57,7 @@ class DecisionViewModel: ObservableObject {
         self.isTimeOut = false
         self.isStartTimer = true
         self.choice = nil
+        self.middle = 0.0
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
@@ -61,51 +76,70 @@ class DecisionViewModel: ObservableObject {
                     self.progress = 0.0
                     print("[DECISION] Time Out")
                     self.motionManager.stopDeviceMotionUpdates()
+
+                  
+                    self.watchConnectivityManager.sendTimeoutToIos(self.decisionIndex,isFirstRequest: self.isFirstRequest)
                 }
             }
         }
     }
 
     func makeChoice() {
-        motionManager.stopDeviceMotionUpdates()
 
         guard motionManager.isDeviceMotionAvailable else {
             print("unavailable")
             return
         }
 
-        middle = 0.0
         motionManager.deviceMotionUpdateInterval = 0.1
+        isSetMiddle = false
+        middle = 0.0
 
-        motionManager.startDeviceMotionUpdates(to: .main) {
-            (deviceMotion: CMDeviceMotion?, error: Error?) in
-            guard let data = deviceMotion, error == nil else {
+        motionManager.startDeviceMotionUpdates(to: .main) { data, error in
+            guard let data = data, error == nil else {
                 print(
-                    "Failed to get device motion data: \(error?.localizedDescription ?? "Unknown error")"
+                    "Motion data error: \(error?.localizedDescription ?? "Unknown")"
                 )
                 return
             }
 
             let roll = data.attitude.roll
+
+            if !self.isSetMiddle {
+                self.middle = roll
+                self.isSetMiddle = true
+                print("[MOTION] middle set: \(roll)")
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.startTimer()
+                }
+                return
+            }
+
+            guard self.isStartTimer else {
+                return
+            }
+
             let value = roll - self.middle
-            if value > 0.5 {
+
+            guard self.choice == nil else { return } 
+            if value > 0.6 {
                 self.choice = "B"
-                print("B")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
+                print("[CHOICE] B")
                 if self.isFirstRequest {
                     self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "B")
-
                 } else {
                     self.watchConnectivityManager.sendSecChoiceToIos(
                         self.decisionIndex, "B")
                 }
-            } else if value < -0.5 {
+            } else if value < -0.6 {
                 self.choice = "A"
-                print("A")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
+                print("[CHOICE] A")
                 if self.isFirstRequest {
                     self.watchConnectivityManager.sendFirstChoiceToIos(
                         self.decisionIndex, "A")
@@ -116,4 +150,13 @@ class DecisionViewModel: ObservableObject {
             }
         }
     }
+
+    func interruptByPhone() {
+        print("[WATCH] choice done in phone")
+        timer?.invalidate()
+        timer = nil
+        motionManager.stopDeviceMotionUpdates()
+        isStartTimer = false
+    }
+
 }
