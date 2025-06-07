@@ -18,7 +18,6 @@ struct TournamentView: View {
 
     @State private var selectedOption: StoryChoiceOption? = nil
     @State private var decisionIndex = 0
-
     @State private var decisionTask: Task<Void, Never>? = nil
 
     let title: String
@@ -52,6 +51,8 @@ struct TournamentView: View {
         }
         .onChange(of: viewModel.currentCandidates?.0.id) { _ in
             selectedOption = nil
+            iosConnectManager.timeout = false
+            iosConnectManager.isFirstRequest = true
         }
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let option = newOption,
@@ -159,13 +160,27 @@ extension TournamentView {
     private func playSecondTTS() {
         guard let (a, b) = viewModel.currentCandidates else { return }
         decisionTask?.cancel()
+
+        let texts = [
+            "선택지가 다시 한번 재생됩니다",
+            "A. \(a.name)",
+            "B. \(b.name)",
+        ]
+
         decisionTask = Task {
             iosConnectManager.sendStageDecisionWithSecTTS(decisionIndex)
-            await ttsManager.speakSequentially("선택지가 다시 한번 재생됩니다")
-            await ttsManager.speakSequentially("A. \(a.name)")
-            await ttsManager.speakSequentially("B. \(b.name)")
+            for text in texts { await ttsManager.speakSequentially(text) }
+            let totalDelay =
+                texts.map { estimateDuration(for: $0) }.reduce(0, +)
+                + 200_000_000
+            try? await Task.sleep(nanoseconds: totalDelay)
             iosConnectManager.sendStageDecisionWithSecTimer(decisionIndex)
         }
+    }
+
+    private func estimateDuration(for text: String) -> UInt64 {
+        let seconds = Double(text.count) * 0.1
+        return UInt64(seconds * 1_000_000_000)
     }
 
     private func speakOnlyChoices() {
