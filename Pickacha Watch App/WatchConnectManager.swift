@@ -142,4 +142,27 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
     }
 
+    func sendTimeoutToIos(_ decisionIndex: Int, isFirstRequest: Bool) {
+           let message: [String: Any] = [
+               "decisionIndex": decisionIndex,
+               "timeout": true,
+               "isFirstRequest": isFirstRequest
+           ]
+           guard session.isReachable else { return }
+           // 안정적인 전송을 위해 두 번 보내는 로직 유지
+           session.sendMessage(message, replyHandler: nil)
+           DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+               self.session.sendMessage(message, replyHandler: nil)
+           }
+       }
+
+       func scheduleFirstTimeout(_ decisionIndex: Int) {
+           // … first timer expiry logic …
+           sendTimeoutToIos(decisionIndex, isFirstRequest: true)
+       }
+
+       func scheduleSecondTimeout(_ decisionIndex: Int) {
+           sendTimeoutToIos(decisionIndex, isFirstRequest: false)
+       }
+
 }

@@ -19,6 +19,8 @@ struct TournamentView: View {
     @State private var selectedOption: StoryChoiceOption? = nil
     @State private var decisionIndex = 0
 
+    @State private var decisionTask: Task<Void, Never>? = nil
+
     let title: String
     let id: UUID
 
@@ -36,13 +38,9 @@ struct TournamentView: View {
                 coordinator.pop()
             }
         ) {
-            VStack(spacing: 16) {
-                contentBody
-                //                statusIndicator
-                //                retryButton
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.top, 40)
+            VStack(spacing: 16) { contentBody }.frame(
+                maxWidth: .infinity, maxHeight: .infinity
+            ).padding(.top, 40)
         }
         .task {
             viewModel.loadTournament(context: context)
@@ -61,11 +59,16 @@ struct TournamentView: View {
                 selectedOption == nil
             else { return }
 
+            decisionTask?.cancel()
+            decisionTask = nil
+
             selectedOption = option
             let selected = option == .a ? a : b
             handleSelection(selected)
         }
-
+        .onChange(of: iosConnectManager.timeout) { newValue in
+            handleTimeout(newValue)
+        }
     }
 
     // MARK: - View Sections
@@ -123,6 +126,7 @@ extension TournamentView {
 
         Task {
             await ttsManager.stop()
+            iosConnectManager.sendChoiceInterrupt()
             await speakSelectedChoice(candidate)
             try? await Task.sleep(nanoseconds: 200_000_000)
 
@@ -134,17 +138,33 @@ extension TournamentView {
 
     private func speakCurrentMatch() {
         guard let (a, b) = viewModel.currentCandidates else { return }
-        Task {
+
+        decisionTask?.cancel()
+
+        iosConnectManager.timeout = false
+        iosConnectManager.isFirstRequest = true
+
+        decisionTask = Task {
             iosConnectManager.sendStageDecisionWithFirstTTS(
                 decisionIndex)
-
             await ttsManager.speakSequentially(
                 viewModel.currentRoundDescription)
             await ttsManager.speakSequentially("A. \(a.name)")
             await ttsManager.speakSequentially("B. \(b.name)")
             iosConnectManager.sendStageDecisionWithFirstTimer(
                 decisionIndex)
+        }
+    }
 
+    private func playSecondTTS() {
+        guard let (a, b) = viewModel.currentCandidates else { return }
+        decisionTask?.cancel()
+        decisionTask = Task {
+            iosConnectManager.sendStageDecisionWithSecTTS(decisionIndex)
+            await ttsManager.speakSequentially("선택지가 다시 한번 재생됩니다")
+            await ttsManager.speakSequentially("A. \(a.name)")
+            await ttsManager.speakSequentially("B. \(b.name)")
+            iosConnectManager.sendStageDecisionWithSecTimer(decisionIndex)
         }
     }
 
@@ -159,6 +179,25 @@ extension TournamentView {
     private func speakSelectedChoice(_ candidate: Candidate) async {
         await ttsManager.speakSequentially("\(candidate.name) 선택")
     }
+
+    private func handleTimeout(_ newValue: Bool?) {
+        let isTimeout = newValue == true
+        let sameIndex = iosConnectManager.decisionIndex == decisionIndex
+        let noSelection = selectedOption == nil
+
+        guard isTimeout, sameIndex, noSelection else { return }
+
+        if iosConnectManager.isFirstRequest {
+            playSecondTTS()
+        } else {
+            if let (aCandidate, _) = viewModel.currentCandidates {
+                selectedOption = .a
+                handleSelection(aCandidate)
+            }
+        }
+        iosConnectManager.timeout = false
+    }
+
 }
 
 #Preview {
