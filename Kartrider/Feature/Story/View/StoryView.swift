@@ -75,11 +75,8 @@ struct StoryView: View {
             iosConnectManager.selectedOption = nil
 
         }
-
         .onChange(of: iosConnectManager.isPlayTTS) { newValue in
-
             if newValue == storyViewModel.isSpeaking {
-                print("중복방지")
                 return
             }
 
@@ -90,7 +87,6 @@ struct StoryView: View {
             }
             storyViewModel.isSpeaking = newValue
         }
-
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
             guard !storyViewModel.isSequenceInProgress else { return }
@@ -103,6 +99,9 @@ struct StoryView: View {
                 await storyViewModel.handleStoryNode(
                     storyNode, context: context)
             }
+        }
+        .onChange(of: iosConnectManager.timeout) { newValue in
+            storyViewModel.handleTimeout(newValue)
         }
     }
 
