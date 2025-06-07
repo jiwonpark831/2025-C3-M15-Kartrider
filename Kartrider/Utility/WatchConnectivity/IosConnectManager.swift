@@ -20,7 +20,6 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     @Published var timeout: Bool? = false
     @Published var isFirstRequest: Bool = true
 
-
     var session: WCSession
 
     init(session: WCSession = .default) {
@@ -48,7 +47,6 @@ class IosConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any])
     {
-
         DispatchQueue.main.async {
             if let isPlayTTS = message["isPlayTTS"] as? Bool {
                 self.isPlayTTS = isPlayTTS

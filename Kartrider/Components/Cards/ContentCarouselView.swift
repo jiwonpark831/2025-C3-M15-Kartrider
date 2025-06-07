@@ -56,11 +56,6 @@ struct ContentCarouselView: View {
         .onAppear {
             currentIndex = initialIndex
         }
-        .onChange(of: contents) { newValue in
-            if !newValue.isEmpty {
-                currentIndex = newValue.count / 2
-            }
-        }
         
         // Page Indicator
         PageIndicatorView(
