@@ -20,7 +20,7 @@ class DecisionViewModel: ObservableObject {
 
     @Published var choice: String?
     @Published var time = 10
-    @Published var progress: CGFloat = 0.0
+    @Published var progress: CGFloat = 1.0
     @Published var isTimeOut = false
 
     private var middle: Double = 0.0
@@ -38,17 +38,18 @@ class DecisionViewModel: ObservableObject {
     func startTimer() {
         self.timer?.invalidate()
         self.timer = nil
-
-        self.isStartTimer = true
         self.progress = 1.0
         self.time = 10
         self.isTimeOut = false
-        timer?.invalidate()
+        self.isStartTimer = true
+        self.choice = nil
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
+            print("[TIMER] \(self.time)")
             if self.time > 0 {
                 self.time -= 1
+                self.progress = CGFloat(self.time) / 10.0
                 WKInterfaceDevice.current().play(.start)
             } else {
                 if !self.isTimeOut {
@@ -58,7 +59,7 @@ class DecisionViewModel: ObservableObject {
                     self.isTimeOut = true
                     self.time = 0
                     self.progress = 0.0
-                    print("time out")
+                    print("[DECISION] Time Out")
                     self.motionManager.stopDeviceMotionUpdates()
                 }
             }
@@ -66,6 +67,8 @@ class DecisionViewModel: ObservableObject {
     }
 
     func makeChoice() {
+        motionManager.stopDeviceMotionUpdates()
+
         guard motionManager.isDeviceMotionAvailable else {
             print("unavailable")
             return
@@ -86,8 +89,8 @@ class DecisionViewModel: ObservableObject {
             let roll = data.attitude.roll
             let value = roll - self.middle
             if value > 0.5 {
-                self.choice = "2번"
-                print("2번")
+                self.choice = "B"
+                print("B")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {
@@ -99,8 +102,8 @@ class DecisionViewModel: ObservableObject {
                         self.decisionIndex, "B")
                 }
             } else if value < -0.5 {
-                self.choice = "1번"
-                print("1번")
+                self.choice = "A"
+                print("A")
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 if self.isFirstRequest {

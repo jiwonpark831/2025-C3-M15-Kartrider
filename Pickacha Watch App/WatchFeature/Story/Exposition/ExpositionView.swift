@@ -9,8 +9,8 @@ import SwiftUI
 
 struct ExpositionView: View {
     @EnvironmentObject private var connectManager: WatchConnectManager
-    @StateObject private var expositionViewModel : ExpositionViewModel
-    
+    @StateObject private var expositionViewModel: ExpositionViewModel
+
     init(connectManager: WatchConnectManager) {
         _expositionViewModel = StateObject(
             wrappedValue: ExpositionViewModel(
@@ -19,11 +19,23 @@ struct ExpositionView: View {
     }
 
     var body: some View {
-        VStack {
-            Image(systemName: expositionViewModel.isPlayTTS ? "pause.fill" : "play.fill")
+        ZStack {
+            Circle()
+                .frame(width: 102, height: 102).foregroundColor(.white)
+            Image(
+                systemName: expositionViewModel.isPlayTTS
+                    ? "pause.fill" : "play.fill"
+            ).font(.system(size: 36, weight: .bold))
+                .foregroundColor(.orange)
                 .onTapGesture {
-                    expositionViewModel.toggleState()
+                    expositionViewModel.toggleStateWatch()
                 }
+        }
+        .onAppear {
+            expositionViewModel.syncTTSState()
+        }
+        .onChange(of: connectManager.isPlayTTS) { newValue in
+            expositionViewModel.updateStateByIos(newValue)
         }
     }
 }

@@ -23,35 +23,43 @@ struct DecisionView: View {
             //            if decisionViewModel.isFirstRequest {
             if decisionViewModel.isStartTimer == true {
                 VStack {
-                    Text("손목을 돌려서 선택")
+                    Text("손목을 돌려서 선택").font(.system(size: 11, weight: .medium))
+                    Spacer().frame(height: 15)
                     ZStack {
                         Circle()
-                            .trim(from: 0, to: decisionViewModel.progress)
+                            .trim(from: 1 - decisionViewModel.progress, to: 1)
                             .stroke(
                                 Color.orange,
                                 style: StrokeStyle(
-                                    lineWidth: 6, lineCap: .round)
+                                    lineWidth: 2, lineCap: .round)
                             )
                             .rotationEffect(.degrees(-90))
-                            .frame(width: 165, height: 165)
+                            .frame(width: 73, height: 73)
                             .animation(
-                                .linear(duration: 10),
+                                .linear(duration: 1),
                                 value: decisionViewModel.progress
                             )
-                        Text("\(decisionViewModel.time)")
-//                            .onAppear {
-//                                decisionViewModel.startTimer()
-//                                decisionViewModel.makeChoice()
-//                            }
+                        Text("\(decisionViewModel.time)").font(
+                            .system(size: 30, weight: .light))
                     }
                     HStack {
-                        Text("1번").foregroundStyle(
-                            decisionViewModel.choice == "1번"
-                                ? Color.orange : Color.white)
+                        ZStack {
+                            Circle().frame(width: 36, height: 36)
+                                .foregroundColor(
+                                    decisionViewModel.choice == "A"
+                                        ? Color.orange
+                                        : Color.white.opacity(0.1))
+                            Text("A").foregroundColor(.white)
+                        }.padding(.leading, 19)
                         Spacer()
-                        Text("2번").foregroundStyle(
-                            decisionViewModel.choice == "2번"
-                                ? Color.orange : Color.white)
+                        ZStack {
+                            Circle().frame(width: 36, height: 36)
+                                .foregroundColor(
+                                    decisionViewModel.choice == "B"
+                                        ? Color.orange
+                                        : Color.white.opacity(0.1))
+                            Text("B").foregroundColor(.white)
+                        }.padding(.trailing, 19)
                     }
                 }
             } else {
@@ -59,12 +67,12 @@ struct DecisionView: View {
                     Circle()
                         .stroke(
                             Color.orange,
-                            style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                            style: StrokeStyle(lineWidth: 2, lineCap: .round)
                         )
-                        .frame(width: 165, height: 165)
+                        .frame(width: 121, height: 121)
                     VStack(spacing: 16) {
                         Text("선택지가\n재생중입니다")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 13, weight: .medium))
                             .multilineTextAlignment(.center)
 
                     }
@@ -83,6 +91,7 @@ struct DecisionView: View {
         .onChange(of: connectManager.isFirstRequest) { newValue in
             decisionViewModel.isFirstRequest = newValue
         }
+        .navigationBarBackButtonHidden(true)
         //        else {
         //                if decisionViewModel.isStartTimer {
         //                    VStack {

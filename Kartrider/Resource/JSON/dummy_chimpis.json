@@ -1278,6 +1278,512 @@
                 
             ]
         }
-    }
+    },
+    {
+      "meta": {
+        "title": "잃어버린 방",
+        "summary": "기억을 잃은 채 방에서 깨어난 당신. 문을 열 수 있을까요?",
+        "type": "story",
+        "hashtags": [
+          "분기",
+          "선택",
+          "결말"
+        ],
+        "thumbnailName": "thumb_room"
+      },
+      "story": {
+        "startNodeId": "lostroom_e1",
+        "nodes": [
+          {
+            "id": "lostroom_e1",
+            "text": "당신은 눈을 떴습니다. 낯선 공간입니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q1"
+          },
+          {
+            "id": "lostroom_q1",
+            "text": "1번째 선택입니다. 어떻게 하시겠습니까?",
+            "type": "decision",
+            "choiceA": {
+              "text": "1번 A 선택",
+              "toId": "lostroom_e2"
+            },
+            "choiceB": {
+              "text": "1번 B 선택",
+              "toId": "lostroom_e3"
+            }
+          },
+          {
+            "id": "lostroom_e2",
+            "text": "A를 선택한 당신은 조금 더 안쪽으로 나아갑니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q2"
+          },
+          {
+            "id": "lostroom_e3",
+            "text": "B를 선택한 당신은 주변을 경계합니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q2"
+          },
+          {
+            "id": "lostroom_q2",
+            "text": "2번째 선택입니다. 어떻게 하시겠습니까?",
+            "type": "decision",
+            "choiceA": {
+              "text": "2번 A 선택",
+              "toId": "lostroom_e4"
+            },
+            "choiceB": {
+              "text": "2번 B 선택",
+              "toId": "lostroom_e5"
+            }
+          },
+          {
+            "id": "lostroom_e4",
+            "text": "A를 선택한 당신은 조금 더 안쪽으로 나아갑니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q3"
+          },
+          {
+            "id": "lostroom_e5",
+            "text": "B를 선택한 당신은 주변을 경계합니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q3"
+          },
+          {
+            "id": "lostroom_q3",
+            "text": "3번째 선택입니다. 어떻게 하시겠습니까?",
+            "type": "decision",
+            "choiceA": {
+              "text": "3번 A 선택",
+              "toId": "lostroom_e6"
+            },
+            "choiceB": {
+              "text": "3번 B 선택",
+              "toId": "lostroom_e7"
+            }
+          },
+          {
+            "id": "lostroom_e6",
+            "text": "A를 선택한 당신은 조금 더 안쪽으로 나아갑니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q4"
+          },
+          {
+            "id": "lostroom_e7",
+            "text": "B를 선택한 당신은 주변을 경계합니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q4"
+          },
+          {
+            "id": "lostroom_q4",
+            "text": "4번째 선택입니다. 어떻게 하시겠습니까?",
+            "type": "decision",
+            "choiceA": {
+              "text": "4번 A 선택",
+              "toId": "lostroom_e8"
+            },
+            "choiceB": {
+              "text": "4번 B 선택",
+              "toId": "lostroom_e9"
+            }
+          },
+          {
+            "id": "lostroom_e8",
+            "text": "A를 선택한 당신은 조금 더 안쪽으로 나아갑니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q5"
+          },
+          {
+            "id": "lostroom_e9",
+            "text": "B를 선택한 당신은 주변을 경계합니다.",
+            "type": "exposition",
+            "nextId": "lostroom_q5"
+          },
+          {
+            "id": "lostroom_q5",
+            "text": "5번째 선택입니다. 어떻게 하시겠습니까?",
+            "type": "decision",
+            "choiceA": {
+              "text": "5번 A 선택",
+              "toId": "lostroom_e10"
+            },
+            "choiceB": {
+              "text": "5번 B 선택",
+              "toId": "lostroom_e11"
+            }
+          },
+          {
+            "id": "lostroom_e10",
+            "text": "A를 선택한 당신은 조금 더 안쪽으로 나아갑니다.",
+            "type": "exposition",
+            "nextId": null
+          },
+          {
+            "id": "lostroom_e11",
+            "text": "B를 선택한 당신은 주변을 경계합니다.",
+            "type": "exposition",
+            "nextId": null
+          },
+          {
+            "id": "lostroom_end1",
+            "text": "당신은 결말 1에 도달했습니다. 선택의 결과입니다.",
+            "type": "ending",
+            "endingIndex": 1,
+            "title": "잃어버린 방 결말 1"
+          },
+          {
+            "id": "lostroom_end2",
+            "text": "당신은 결말 2에 도달했습니다. 선택의 결과입니다.",
+            "type": "ending",
+            "endingIndex": 2,
+            "title": "잃어버린 방 결말 2"
+          },
+          {
+            "id": "lostroom_end3",
+            "text": "당신은 결말 3에 도달했습니다. 선택의 결과입니다.",
+            "type": "ending",
+            "endingIndex": 3,
+            "title": "잃어버린 방 결말 3"
+          },
+          {
+            "id": "lostroom_end4",
+            "text": "당신은 결말 4에 도달했습니다. 선택의 결과입니다.",
+            "type": "ending",
+            "endingIndex": 4,
+            "title": "잃어버린 방 결말 4"
+          },
+          {
+            "id": "lostroom_end5",
+            "text": "당신은 결말 5에 도달했습니다. 선택의 결과입니다.",
+            "type": "ending",
+            "endingIndex": 5,
+            "title": "잃어버린 방 결말 5"
+          }
+        ],
+        "endingConditions": [
+          {
+            "path": [
+              "A",
+              "B",
+              "A",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "B",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "B",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "A",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "B",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "A",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "A",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "A",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "B",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "B",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "A",
+              "A",
+              "B",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "A",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "A",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "A",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "B",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "B",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "B",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "A",
+              "B",
+              "B",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "A",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "A",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "A",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "A",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "B",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "B",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "B",
+              "A",
+              "B",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "A",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "A",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end2"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "A",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end3"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "A",
+              "B",
+              "B"
+            ],
+            "toId": "lostroom_end4"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "B",
+              "A",
+              "A"
+            ],
+            "toId": "lostroom_end5"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "B",
+              "A",
+              "B"
+            ],
+            "toId": "lostroom_end1"
+          },
+          {
+            "path": [
+              "B",
+              "B",
+              "B",
+              "B",
+              "A"
+            ],
+            "toId": "lostroom_end2"
+          }
+        ]
+      }
+    },
 ]
  
