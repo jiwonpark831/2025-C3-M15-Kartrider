@@ -13,6 +13,8 @@ class StoryChoice {
     var text: String
     var toId: String
     
+    @Relationship(deleteRule: .cascade) var options: [StoryChoiceOption] = []
+    
     init(text: String, toId: String) {
         self.text = text
         self.toId = toId
