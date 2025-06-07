@@ -77,7 +77,7 @@ struct TournamentView: View {
                 coordinator.popToRoot()
             }
             .task(id: viewModel.winner?.id) {
-                iosConnectManager.sendStageEnding()
+                iosConnectManager.sendStageEndingTTS()
                 guard let name = viewModel.winner?.name else { return }
                 await ttsManager.stop()
                 try? await Task.sleep(nanoseconds: 300_000_000)

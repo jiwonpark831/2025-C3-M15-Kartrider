@@ -25,7 +25,7 @@ class WatchOutroViewModel: ObservableObject {
         guard !isTimerStart else { return }
         isTimerStart = true
         connectManager.timerStarted = true
-        
+
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
             _ in
             if self.time > 0 {

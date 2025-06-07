@@ -155,11 +155,11 @@ class StoryViewModel: ObservableObject {
                 let endingNode = story.nodes.first(where: { $0.id == toId })
             {
                 currentNode = endingNode
-                iosConnectManager?.sendStageEnding()
+                iosConnectManager?.sendStageEndingTTS()
                 if !endingNode.text.isEmpty {
-
                     await ttsManager.speakSequentially(endingNode.text)
                 }
+                iosConnectManager?.sendStageEndingTimer()
             } else {
                 errorMessage = "해당 결말을 찾을 수 없습니다"
             }
