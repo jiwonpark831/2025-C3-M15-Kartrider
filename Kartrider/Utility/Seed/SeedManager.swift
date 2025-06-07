@@ -42,6 +42,8 @@ class SeedManager: ObservableObject {
         let context = container.mainContext
         let resetKey = "hasSeededOnce"
         
+        let isInMemory = container.configurations.first?.isStoredInMemoryOnly == true
+        
         // MARK: - 개발용 강제 초기화 트리거 (배포 전 삭제)
         #if DEBUG
         if ProcessInfo.processInfo.environment["RESET_DB"] == "true" { // TODO: - 배포할 때 스키마 RESET_DB = false로 변경
@@ -51,7 +53,14 @@ class SeedManager: ObservableObject {
         }
         #endif
         
-        // 이미 시드된 경우 종료
+        // isInMemory가 true일 경우 매번 시드
+        if isInMemory {
+            print("[DEBUG] 인메모리 모드 -> 무조건 시드")
+            await performSeeding(context: context)
+            return
+        }
+        
+        // 최초 실행 여부 체그 (영구 저장인 경우만)
         let hasSeeded = UserDefaults.standard.bool(forKey: resetKey)
         print("[DEBUG] hasSeededOnce 값: \(hasSeeded)")
         
@@ -61,16 +70,9 @@ class SeedManager: ObservableObject {
             return
         }
         
-        print("[INFO] 시드 시작")
-        
-        await StorySeeder.seedIfNeeded(context: context)
-        await TournamentSeeder.seedIfNeeded(context: context)
-        
+        print("[INFO] 최초 실행 → 시드 시작")
+        await performSeeding(context: context)
         UserDefaults.standard.set(true, forKey: resetKey)
-        
-        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초
-        
-        isReady = true
     }
     
     // MARK: - 전체 삭제 (개발용)
@@ -92,5 +94,15 @@ class SeedManager: ObservableObject {
         for item in all {
             context.delete(item)
         }
+    }
+    
+    private func performSeeding(context: ModelContext) async {
+        await StorySeeder.seedIfNeeded(context: context)
+        await TournamentSeeder.seedIfNeeded(context: context)
+
+        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초
+
+        isReady = true
+        print("[DEBUG] 시드 완료 → isReady = true")
     }
 }
