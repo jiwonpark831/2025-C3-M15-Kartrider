@@ -66,7 +66,7 @@ struct WatchOutroView: View {
                 }
             }
         }.onChange(of: connectManager.timerStarted) { newValue in
-            print("[WatchOutroView] timerStarted 변경 감지: \(newValue)")
+            print("[View] timer state change: \(newValue)")
             if newValue {
                 watchOutroViewModel.startTimer()
             }

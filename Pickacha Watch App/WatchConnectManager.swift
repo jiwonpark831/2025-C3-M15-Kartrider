@@ -96,7 +96,7 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                     "isFirstRequest": self.isFirstRequest,
                 ]
             case "ending":
-                print("[ENDING] ")
+                print("[ENDING] timerStarted: \(self.timerStarted)")
                 self.msg = [
                     "stage": "ending", "timerStarted": self.timerStarted,
                 ]
