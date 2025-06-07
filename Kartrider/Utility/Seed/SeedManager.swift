@@ -39,21 +39,58 @@ class SeedManager: ObservableObject {
         }
     }
     func seedIfNeeded() async {
-//        #if DEBUG
         let context = container.mainContext
+        let resetKey = "hasSeededOnce"
         
-        let startTime = Date()
+        // MARK: - 개발용 강제 초기화 트리거 (배포 전 삭제)
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["RESET_DB"] == "true" { // TODO: - 배포할 때 스키마 RESET_DB = false로 변경
+            print("[DEBUG] RESET_DB 환경 변수 감지")
+            await resetAll(context: context)
+            UserDefaults.standard.removeObject(forKey: resetKey)
+        }
+        #endif
+        
+        // 이미 시드된 경우 종료
+        let hasSeeded = UserDefaults.standard.bool(forKey: resetKey)
+        print("[DEBUG] hasSeededOnce 값: \(hasSeeded)")
+        
+        guard !hasSeeded else {
+            isReady = true
+            print("[DEBUG] 이미 시드 완료됨 -> 종료")
+            return
+        }
+        
+        print("[INFO] 시드 시작")
         
         await StorySeeder.seedIfNeeded(context: context)
         await TournamentSeeder.seedIfNeeded(context: context)
         
-        let elapsed = Date().timeIntervalSince(startTime)
-        let delay = max(0, 1.5 - elapsed)
+        UserDefaults.standard.set(true, forKey: resetKey)
         
-        if delay > 0 {
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-        }
-//        #endif
+        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초
+        
         isReady = true
+    }
+    
+    // MARK: - 전체 삭제 (개발용)
+    private func resetAll(context: ModelContext) async {
+        do {
+            try await deleteAll(of: StoryStep.self, context: context)
+            try await deleteAll(of: TournamentStep.self, context: context)
+            try await deleteAll(of: PlayHistory.self, context: context)
+            try await deleteAll(of: ContentMeta.self, context: context)
+
+            try await context.save()
+        } catch {
+            print("[ERROR] SwiftData 초기화 중 오류 발생: \(error)")
+        }
+    }
+    
+    private func deleteAll<T: PersistentModel>(of type: T.Type, context: ModelContext) async throws {
+        let all = try context.fetch(FetchDescriptor<T>())
+        for item in all {
+            context.delete(item)
+        }
     }
 }
