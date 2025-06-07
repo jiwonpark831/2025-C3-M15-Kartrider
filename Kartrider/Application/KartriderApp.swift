@@ -12,48 +12,20 @@ import SwiftUI
 struct KartriderApp: App {
 
     @StateObject private var iosConnectManager = IosConnectManager()
-
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            ContentMeta.self,
-            Story.self,
-            StoryNode.self,
-            StoryChoice.self,
-            EndingCondition.self,
-            Tournament.self,
-            Candidate.self,
-            PlayHistory.self,
-            StoryStep.self,
-            TournamentStep.self,
-        ])
-
-        let modelConfiguration = ModelConfiguration(
-            schema: schema, isStoredInMemoryOnly: true)
-
-        do {
-            return try ModelContainer(
-                for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var seedManager = SeedManager()
 
     var body: some Scene {
         WindowGroup {
-            AppNavigationView()
-                .task {
-                    #if DEBUG
-                        let context = sharedModelContainer.mainContext
-                        //                    await StorySeeder.deleteAll(context: context)
-                        //                    await StorySeeder.seed(context: context)
-                        await StorySeeder.seedIfNeeded(
-                            context: sharedModelContainer.mainContext)
-                        await TournamentSeeder.seedIfNeeded(
-                            context: sharedModelContainer.mainContext)
-                    #endif
-                }
+            if seedManager.isReady {
+                AppNavigationView()
+                    .modelContainer(seedManager.container)
+                    .environmentObject(iosConnectManager)
+            } else {
+                LaunchView()
+                    .task{
+                        await seedManager.seedIfNeeded()
+                    }
+            }
         }
-        .modelContainer(sharedModelContainer)
-        .environmentObject(iosConnectManager)
     }
 }
