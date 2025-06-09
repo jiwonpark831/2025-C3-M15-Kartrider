@@ -11,9 +11,12 @@ struct LaunchView: View {
     var body: some View {
         ZStack {
             Color.primaryOrange
-                .ignoresSafeArea()
-            Image("logo_white")
-                .padding(.bottom, 200)
+                .edgesIgnoringSafeArea(.all)
+
+            GIFView(gifName: "launch")
+//                .aspectRatio(contentMode: .fit)
+//                .frame(maxWidth: UIScreen.main.bounds.width)
+//                .clipped()
         }
         
     }
