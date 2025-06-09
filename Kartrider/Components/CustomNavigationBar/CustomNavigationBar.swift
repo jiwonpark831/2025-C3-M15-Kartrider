@@ -32,7 +32,7 @@ struct CustomNavigationBar: View {
                     } label: {
                         Image(systemName: right.type.iconName)
                             .resizable()
-                            .frame(width: 20, height: 20)
+                            .frame(width: 24, height: 20)
                             .foregroundStyle(right.color)
                     }
                 } else {
