@@ -28,36 +28,39 @@ struct StoryView: View {
                 coordinator.pop()
             }
         ) {
-            Group {
-                if storyViewModel.isLoading {
-                    //                    ProgressView().padding()
-                    DescriptionBoxView(
-                        text: storyViewModel.currentNode?.text ?? "")
-                    Spacer()
-                } else if let errorMessage = storyViewModel.errorMessage {
-                    Text(errorMessage)
-                } else if let storyNode = storyViewModel.currentNode {
-                    VStack {
-                        Divider()
-                        Spacer().frame(height: 28)
-
-                        DescriptionBoxView(text: storyNode.text)
-
-                        nodeTypeView(for: storyNode)
-
+            VStack(spacing: 16) {
+                Divider()
+                Group {
+                    if storyViewModel.isLoading {
+                        //                    ProgressView().padding()
+                        DescriptionBoxView(
+                            text: storyViewModel.currentNode?.text ?? "")
                         Spacer()
+                    } else if let errorMessage = storyViewModel.errorMessage {
+                        Text(errorMessage)
+                    } else if let storyNode = storyViewModel.currentNode {
+                        VStack {
 
-                        TTSControlButton(isSpeaking: storyViewModel.isSpeaking)
-                        {
-                            storyViewModel.toggleSpeaking()
+                            DescriptionBoxView(text: storyNode.text)
+
+                            nodeTypeView(for: storyNode)
+
+                            Spacer()
+
+                            TTSControlButton(isSpeaking: storyViewModel.isSpeaking)
+                            {
+                                storyViewModel.toggleSpeaking()
+                            }
+                            .disabled(
+                                storyViewModel.isTransitioningTTS
+                                    || storyViewModel.isTogglingTTS)
                         }
-                        .disabled(
-                            storyViewModel.isTransitioningTTS
-                                || storyViewModel.isTogglingTTS)
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                 }
             }
+            
+            
         }
         .task {
             await storyViewModel.loadInitialNode(context: context)
