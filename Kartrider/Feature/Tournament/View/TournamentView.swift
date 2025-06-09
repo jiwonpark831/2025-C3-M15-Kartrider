@@ -37,9 +37,11 @@ struct TournamentView: View {
                 coordinator.pop()
             }
         ) {
-            VStack(spacing: 16) { contentBody }.frame(
-                maxWidth: .infinity, maxHeight: .infinity
-            ).padding(.top, 40)
+            VStack(spacing: 16) {
+                Divider()
+                contentBody
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .task {
             viewModel.loadTournament(context: context)

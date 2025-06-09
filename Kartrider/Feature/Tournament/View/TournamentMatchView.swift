@@ -20,7 +20,7 @@ struct TournamentMatchView: View {
         VStack(spacing: 18) {
             DescriptionBoxView(text: roundDescription)
             
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 DecisionBoxView(
                     text: a,
                     storyChoiceOption: StoryChoiceOption.a,

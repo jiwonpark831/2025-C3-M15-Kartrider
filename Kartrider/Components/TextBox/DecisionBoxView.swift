@@ -21,6 +21,7 @@ struct DecisionBoxView: View {
                         .font(.title)
                     Text(text)
                         .font(.title3)
+                        .multilineTextAlignment(.leading)
                 }
                 .bold()
                 .foregroundColor(isSelected ? Color.white : Color.primaryOrange)

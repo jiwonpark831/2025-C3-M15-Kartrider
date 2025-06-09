@@ -23,7 +23,12 @@ struct HomeView: View {
             Divider()
             
             VStack(spacing: 12) {
-                headerSection
+                
+                VStack {
+                    headerSection
+                        .padding(.bottom, 8)
+                }
+                .padding(.vertical, 6)
                 
                 ContentCarouselView(
                     contents: viewModel.contents,
