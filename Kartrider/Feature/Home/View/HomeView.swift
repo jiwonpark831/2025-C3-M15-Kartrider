@@ -26,9 +26,9 @@ struct HomeView: View {
                 
                 VStack {
                     headerSection
-                        .padding(.bottom, 18)
+                        .padding(.bottom, 8)
                 }
-                .padding(.vertical, 14)
+                .padding(.vertical, 6)
                 
                 ContentCarouselView(
                     contents: viewModel.contents,
