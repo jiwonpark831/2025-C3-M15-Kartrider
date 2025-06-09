@@ -24,13 +24,14 @@ struct WatchStartView: View {
             if !watchStartViewModel.isStart {
                 VStack {
                     Image(systemName: "book.fill")
-                        .font(.system(size: 16))
+                        .font(.system(.headline))
                         .foregroundColor(.white)
+                    Spacer().frame(height: 9)
                     Group {
                         Text("이야기를 감상하려면")
                         Text("iPhone에서")
                         Text("앱을 실행해 주세요.")
-                    }.font(.system(size: 11, weight: .medium))
+                    }.font(.system(.headline))
                         .foregroundColor(.white)
                 }
                 .onAppear {

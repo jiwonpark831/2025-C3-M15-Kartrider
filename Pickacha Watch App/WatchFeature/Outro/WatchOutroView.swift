@@ -39,28 +39,27 @@ struct WatchOutroView: View {
                                 .linear(duration: 1),
                                 value: watchOutroViewModel.progress
                             )
-                        Text("\(watchOutroViewModel.time)").font(
-                            .system(size: 30, weight: .light))
+                        Text("\(watchOutroViewModel.time)")
+                            .font(.system(.title))
                     }
-                    Spacer().frame(height: 14)
+                    Spacer().frame(height: 20)
                     Group {
                         Text("10초 후")
                         Text("다음 이야기가 재생됩니다.")
                     }
-                    .font(.system(size: 10, weight: .regular))
+                    .font(.system(.footnote))
                 }
             } else {
                 ZStack {
-
                     Circle()
                         .stroke(
                             Color.orange,
-                            style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                            style: StrokeStyle(lineWidth: 3, lineCap: .round)
                         )
-                        .frame(width: 121, height: 121)
+                        .frame(width: 140, height: 140)
                     VStack(spacing: 16) {
                         Text("결말이\n재생중입니다")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(.headline))
                             .multilineTextAlignment(.center)
                     }
                 }

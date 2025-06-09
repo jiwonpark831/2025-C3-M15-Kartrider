@@ -20,11 +20,11 @@ struct DecisionView: View {
 
     var body: some View {
         Group {
-            //            if decisionViewModel.isFirstRequest {
             if decisionViewModel.isStartTimer == true {
                 VStack {
-                    Text("손목을 돌려서 선택").font(.system(size: 11, weight: .medium))
-                    Spacer().frame(height: 15)
+                    Text("손목을 돌려서 선택")
+                        .font(.system(.footnote))
+                    Spacer().frame(height: 20)
                     ZStack {
                         Circle()
                             .trim(from: 1 - decisionViewModel.progress, to: 1)
@@ -39,8 +39,8 @@ struct DecisionView: View {
                                 .linear(duration: 1),
                                 value: decisionViewModel.progress
                             )
-                        Text("\(decisionViewModel.time)").font(
-                            .system(size: 30, weight: .light))
+                        Text("\(decisionViewModel.time)")
+                            .font(.system(.title))
                     }
                     HStack {
                         ZStack {
@@ -69,12 +69,12 @@ struct DecisionView: View {
                             .stroke(
                                 Color.orange,
                                 style: StrokeStyle(
-                                    lineWidth: 2, lineCap: .round)
+                                    lineWidth: 3, lineCap: .round)
                             )
-                            .frame(width: 121, height: 121)
+                            .frame(width: 140, height: 140)
                         VStack(spacing: 16) {
                             Text("선택지가\n재생중입니다")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.system(.headline))
                                 .multilineTextAlignment(.center)
 
                         }
@@ -85,15 +85,17 @@ struct DecisionView: View {
                             .stroke(
                                 Color.orange,
                                 style: StrokeStyle(
-                                    lineWidth: 2, lineCap: .round)
+                                    lineWidth: 3, lineCap: .round)
                             )
-                            .frame(width: 121, height: 121)
-                        VStack(spacing: 16) {
+                            .frame(width: 140, height: 140)
+                        VStack(spacing: 10) {
                             Text("선택되지 않음")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.system(.headline))
                                 .multilineTextAlignment(.center)
                             Text("선택지가 다시 한번\n재생됩니다.")
-                                .font(.system(size: 11, weight: .regular))
+                                .font(.system(.footnote)).foregroundStyle(
+                                    Color.gray
+                                )
                                 .multilineTextAlignment(.center)
 
                         }
@@ -109,7 +111,7 @@ struct DecisionView: View {
                 }
             }
         }
-        
+
         .onChange(of: connectManager.decisionIndex) { newValue in
             decisionViewModel.decisionIndex = newValue
             decisionViewModel.resetState()
@@ -120,7 +122,8 @@ struct DecisionView: View {
         }
         .onChange(of: connectManager.isInterrupt) { newValue in
             if newValue {
-                decisionViewModel.interruptByPhone()}
+                decisionViewModel.interruptByPhone()
+            }
         }
         .navigationBarBackButtonHidden(true)
     }
