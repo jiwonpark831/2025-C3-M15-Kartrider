@@ -6,17 +6,16 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct LaunchView: View {
     var body: some View {
         ZStack {
             Color.primaryOrange
                 .edgesIgnoringSafeArea(.all)
-
-            GIFView(gifName: "launch")
-//                .aspectRatio(contentMode: .fit)
-//                .frame(maxWidth: UIScreen.main.bounds.width)
-//                .clipped()
+            
+            LottieView(animationName: "launch_lottie", loopMode: .playOnce)
+                .frame(width: 300, height: 300)
         }
         
     }
