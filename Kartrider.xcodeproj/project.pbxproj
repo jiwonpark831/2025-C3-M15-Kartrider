@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		806707A72DF68A05003B9739 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 806707A62DF68A05003B9739 /* Lottie */; };
 		87D65E852DE6B6BB00F15CA1 /* Pickacha Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 87D65E782DE6B6BB00F15CA1 /* Pickacha Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		87D65EA52DE6B70500F15CA1 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D65EA42DE6B70500F15CA1 /* WatchConnectivity.framework */; };
 		87D65EA72DE6B79100F15CA1 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D65EA62DE6B79100F15CA1 /* WatchConnectivity.framework */; };
@@ -62,6 +63,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87D65EA52DE6B70500F15CA1 /* WatchConnectivity.framework in Frameworks */,
+				806707A72DF68A05003B9739 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +128,7 @@
 			);
 			name = Kartrider;
 			packageProductDependencies = (
+				806707A62DF68A05003B9739 /* Lottie */,
 			);
 			productName = Kartrider;
 			productReference = 87465C9C2DE568840010DAC7 /* Kartrider.app */;
@@ -180,6 +183,9 @@
 			);
 			mainGroup = 87465C932DE568840010DAC7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				806707A52DF68A05003B9739 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 87465C9D2DE568840010DAC7 /* Products */;
 			projectDirPath = "";
@@ -358,7 +364,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Kartrider/Preview Content\"";
-				DEVELOPMENT_TEAM = 3ZR27WJQYX;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -399,7 +405,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Kartrider/Preview Content\"";
-				DEVELOPMENT_TEAM = 3ZR27WJQYX;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -439,7 +445,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pickacha Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = 3ZR27WJQYX;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Pickacha;
@@ -471,7 +477,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pickacha Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = 3ZR27WJQYX;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Pickacha;
@@ -526,6 +532,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		806707A52DF68A05003B9739 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		806707A62DF68A05003B9739 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 806707A52DF68A05003B9739 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 87465C942DE568840010DAC7 /* Project object */;
 }
