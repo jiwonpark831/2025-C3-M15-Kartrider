@@ -8,8 +8,15 @@
 import Foundation
 import SwiftData
 
+// TODO: Generic + Protocol로 리팩토링
+// TODO: small Camel Case로 바꾸세요!
+// TODO: 객체로 바꾸세요!
+// TODO: 1. StorySeeder, TournamentSeeder를 합친다. -> Seeder로 통합
+// TODO: 2. StoryJSON, TournamentJSON -> 프로토콜로 통합
+// TODO: 3. StoryJSON, TournamentJSON 따라 로직을 분기한다! (분기하는 로직도 extension으로 빼면 좋을 것 같음!)
 @MainActor
 struct StorySeeder {
+    // TODO: 동시성 문제가 있을 것으로 예상 -> 수정, 다 동기적으로 처리해도 좋을 것 같음
     static func deleteAll(context: ModelContext) async {
         do {
             try context.delete(model: ContentMeta.self)
@@ -30,7 +37,7 @@ struct StorySeeder {
         }
     }
     
-    
+    // MARK: 개행 왜 이따구죠?
     static func seedIfNeeded(context: ModelContext) async {
         await deleteAll(context: context)
         await seed(context: context)
@@ -41,6 +48,7 @@ struct StorySeeder {
     }
     
     static func seed(context: ModelContext) async {
+        // TODO: Constant 파일로 분리
         guard let jsonData = StoryJSONParser.loadJSON(named: "dummy_chimpis") else {
             print("[ERROR] JSON 파일 로드 실패")
             return

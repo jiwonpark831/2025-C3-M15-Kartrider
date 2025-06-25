@@ -38,6 +38,7 @@ class SeedManager: ObservableObject {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }
+    // TODO: 제발 개행에 신경을 쓰기
     func seedIfNeeded() async {
         let context = container.mainContext
         let resetKey = "hasSeededOnce"
@@ -49,6 +50,7 @@ class SeedManager: ObservableObject {
         if ProcessInfo.processInfo.environment["RESET_DB"] == "true" { // TODO: - 배포할 때 스키마 RESET_DB = false로 변경
             print("[DEBUG] RESET_DB 환경 변수 감지")
             await resetAll(context: context)
+            // TODO: UserDefaults 관리하는 객체 추가.
             UserDefaults.standard.removeObject(forKey: resetKey)
         }
         #endif
@@ -76,6 +78,7 @@ class SeedManager: ObservableObject {
     }
     
     // MARK: - 전체 삭제 (개발용)
+    // TODO: 동시성 문제 해결!
     private func resetAll(context: ModelContext) async {
         do {
             try await deleteAll(of: StoryStep.self, context: context)
@@ -83,7 +86,7 @@ class SeedManager: ObservableObject {
             try await deleteAll(of: PlayHistory.self, context: context)
             try await deleteAll(of: ContentMeta.self, context: context)
 
-            try await context.save()
+            try? context.save()
         } catch {
             print("[ERROR] SwiftData 초기화 중 오류 발생: \(error)")
         }

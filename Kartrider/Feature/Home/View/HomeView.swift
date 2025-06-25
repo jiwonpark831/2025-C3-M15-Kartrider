@@ -13,6 +13,7 @@ struct HomeView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel = HomeViewModel()
     
+    // TODO: ViewModel로 보내세요.
     @State private var selectedIndex: Int = 0
 
     var body: some View {
@@ -34,12 +35,12 @@ struct HomeView: View {
                     contents: viewModel.contents,
                     initialIndex: selectedIndex
                 ) { selected in
+                    // TODO: ViewModel로 보내세요.
                     if let index = viewModel.contents.firstIndex(of: selected) {
                         selectedIndex = index
                     }
                     coordinator.push(Route.intro(selected))
                 }
-                
             }
         }
         .task {
@@ -47,6 +48,7 @@ struct HomeView: View {
         }
     }
     
+    // TODO: 컴포넌트로 분리하세요.
     private var headerSection: some View {
         VStack(spacing: 4) {
             Text("선택에 따라 바뀌는 결말!\n내가 만드는 스토리")

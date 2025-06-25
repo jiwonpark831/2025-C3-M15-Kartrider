@@ -8,6 +8,7 @@
 import SwiftData
 import SwiftUI
 
+// TODO: 안쓰는 파일 및 코드 삭제
 struct ContentView: View {
 
     var body: some View {

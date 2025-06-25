@@ -23,4 +23,3 @@ class Story {
         self.meta = meta
     }
 }
-

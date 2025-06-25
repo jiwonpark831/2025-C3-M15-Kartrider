@@ -103,6 +103,7 @@ struct DecisionView: View {
                 }
             }
         }
+        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
         .onChange(of: connectManager.timerStarted) { newValue in
             if newValue && connectManager.stage == "decision" {
                 decisionViewModel.resetState()
@@ -111,15 +112,17 @@ struct DecisionView: View {
                 }
             }
         }
-
+        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
         .onChange(of: connectManager.decisionIndex) { newValue in
             decisionViewModel.decisionIndex = newValue
             decisionViewModel.resetState()
         }
+        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
         .onChange(of: connectManager.isFirstRequest) { newValue in
             decisionViewModel.isFirstRequest = newValue
             decisionViewModel.resetState()
         }
+        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
         .onChange(of: connectManager.isInterrupt) { newValue in
             if newValue {
                 decisionViewModel.interruptByPhone()

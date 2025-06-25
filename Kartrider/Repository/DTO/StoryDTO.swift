@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - 파일 이름 바꾸세요~
 struct StoryJSON: Decodable {
     let meta: MetaData
     let story: StoryData

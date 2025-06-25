@@ -7,13 +7,17 @@
 import SwiftUI
 
 struct StoryView: View {
-    @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
-    @StateObject private var storyViewModel: StoryViewModel
+    
+    @EnvironmentObject private var coordinator: NavigationCoordinator
+    // TODO: iosConnectManager 단일 객체로 관리하기
     @EnvironmentObject private var iosConnectManager: IosConnectManager
+    @StateObject private var storyViewModel: StoryViewModel
 
+    // TODO: ViewModel로 분리
     let title: String
 
+    // TODO: Init 없애기 - Id, title을 ViewModel로 분리
     init(title: String, id: String) {
         _storyViewModel = StateObject(
             wrappedValue: StoryViewModel(title: title, id: id))
@@ -32,9 +36,7 @@ struct StoryView: View {
                 Divider()
                 Group {
                     if storyViewModel.isLoading {
-                        //                    ProgressView().padding()
-                        DescriptionBoxView(
-                            text: storyViewModel.currentNode?.text ?? "")
+                        DescriptionBoxView(text: storyViewModel.currentNode?.text ?? "")
                         Spacer()
                     } else if let errorMessage = storyViewModel.errorMessage {
                         Text(errorMessage)
@@ -47,10 +49,10 @@ struct StoryView: View {
 
                             Spacer()
 
-                            TTSControlButton(isSpeaking: storyViewModel.isSpeaking)
-                            {
+                            TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
                                 storyViewModel.toggleSpeaking()
                             }
+                            // TODO: ViewModel로 분리
                             .disabled(
                                 storyViewModel.isTransitioningTTS
                                     || storyViewModel.isTogglingTTS)
@@ -66,9 +68,11 @@ struct StoryView: View {
             await storyViewModel.loadInitialNode(context: context)
         }
         .onAppear {
+            // TODO: setConnectManager와 같은 메서드를 ViewModel에 만든 후, 호출
             storyViewModel.iosConnectManager = iosConnectManager
             storyViewModel.isSpeaking = iosConnectManager.isPlayTTS
         }
+        // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let selected = newOption else { return }
 
@@ -78,6 +82,7 @@ struct StoryView: View {
             iosConnectManager.selectedOption = nil
 
         }
+        // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.isPlayTTS) { newValue in
             if newValue == storyViewModel.isSpeaking {
                 return
@@ -108,6 +113,7 @@ struct StoryView: View {
         }
     }
 
+    // TODO: ViewBuilder 제거, 컴포넌트로 분리
     @ViewBuilder
     private func nodeTypeView(for storyNode: StoryNode) -> some View {
         switch storyNode.type {

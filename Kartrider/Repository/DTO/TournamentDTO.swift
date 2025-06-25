@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+// MARK: 지우세요.
 //[
 //  {
 //    "meta": {
@@ -38,7 +38,7 @@ import Foundation
 //  }
 //]
 
-
+// MARK: - 파일 이름 바꾸세요~
 struct TournamentJSON: Decodable {
     let meta: MetaData
     let candidates: [CandidateData]

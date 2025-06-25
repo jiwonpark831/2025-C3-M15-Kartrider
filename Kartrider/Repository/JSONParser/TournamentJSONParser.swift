@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 
+// TODO: Generic + Protocol로 리팩토링
 enum TournamentJSONParser {
     static func loadJSON(named fileName: String) -> Data? {
         guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else {
@@ -47,3 +48,5 @@ enum TournamentJSONParser {
         print("[DEBUG] 저장된 ContentMeta 수: \(try context.fetch(FetchDescriptor<ContentMeta>()).count)")
     }
 }
+ 
+    
