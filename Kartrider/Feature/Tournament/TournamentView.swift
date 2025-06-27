@@ -42,7 +42,40 @@ struct TournamentView: View {
         ) {
             VStack(spacing: 16) {
                 Divider()
-                contentBody
+                
+                if viewModel.isFinished, let winner = viewModel.winner {
+                    TournamentResultView(winner: winner.name) {
+                        coordinator.popToRoot()
+                    }
+                    .task(id: viewModel.winner?.id) {
+                        iosConnectManager.sendStageEndingTTS()
+                        guard let name = viewModel.winner?.name else { return }
+                        // TODO: ttsManager.stop : Async함수 아님
+                        await ttsManager.stop()
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
+                        iosConnectManager.sendStageEndingTimer()
+                    }
+                    // TODO: a, b 이렇게 쓰지 말고, 알기 쉬운 변수명으로 변경
+                } else if let (a, b) = viewModel.currentCandidates {
+                    TournamentMatchView(
+                        roundDescription: viewModel.currentRoundDescription,
+                        a: a.name,
+                        b: b.name,
+                        onSelectA: {
+                            selectedOption = .a
+                            handleSelection(a)
+                        },
+                        onSelectB: {
+                            selectedOption = .b
+                            handleSelection(b)
+                        },
+                        buttonDisabled: ttsManager.state == .playing,
+                        selectedOption: selectedOption
+                    )
+                } else {
+                    ProgressView()
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -79,55 +112,6 @@ struct TournamentView: View {
         .onChange(of: iosConnectManager.timeout) { newValue in
             handleTimeout(newValue)
         }
-    }
-
-    // MARK: - View Sections
-    @ViewBuilder
-    private var contentBody: some View {
-        if viewModel.isFinished, let winner = viewModel.winner {
-            TournamentResultView(winner: winner.name) {
-                coordinator.popToRoot()
-            }
-            .task(id: viewModel.winner?.id) {
-                iosConnectManager.sendStageEndingTTS()
-                guard let name = viewModel.winner?.name else { return }
-                // TODO: ttsManager.stop : Async함수 아님
-                await ttsManager.stop()
-                try? await Task.sleep(nanoseconds: 300_000_000)
-                await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
-                iosConnectManager.sendStageEndingTimer()
-            }
-            // TODO: a, b 이렇게 쓰지 말고, 알기 쉬운 변수명으로 변경
-        } else if let (a, b) = viewModel.currentCandidates {
-            TournamentMatchView(
-                roundDescription: viewModel.currentRoundDescription,
-                a: a.name,
-                b: b.name,
-                onSelectA: {
-                    selectedOption = .a
-                    handleSelection(a)
-                },
-                onSelectB: {
-                    selectedOption = .b
-                    handleSelection(b)
-                },
-                buttonDisabled: ttsManager.state == .playing,
-                selectedOption: selectedOption
-            )
-        } else {
-            ProgressView()
-        }
-    }
-
-    private var statusIndicator: some View {
-        Text(ttsManager.state == .playing ? "읽는 중..." : "정지됨")
-            .font(.caption)
-            .foregroundColor(.gray)
-    }
-
-    private var retryButton: some View {
-        Button("선택지 다시 듣기", action: speakOnlyChoices)
-            .padding(.top, 8)
     }
 }
 

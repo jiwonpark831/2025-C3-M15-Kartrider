@@ -26,7 +26,7 @@ struct HomeView: View {
             VStack(spacing: 12) {
                 
                 VStack {
-                    headerSection
+                    HomeHeaderView()
                         .padding(.bottom, 8)
                 }
                 .padding(.vertical, 6)
@@ -45,18 +45,6 @@ struct HomeView: View {
         }
         .task {
             viewModel.loadContents(context: context)
-        }
-    }
-    
-    // TODO: 컴포넌트로 분리하세요.
-    private var headerSection: some View {
-        VStack(spacing: 4) {
-            Text("선택에 따라 바뀌는 결말!\n내가 만드는 스토리")
-                .multilineTextAlignment(.center)
-                .font(.title2)
-                .bold()
-                .foregroundColor(Color.textPrimary)
-                .padding(.top, 40)
         }
     }
 }
