@@ -6,13 +6,16 @@
 
 import SwiftUI
 
+// TODO: 컴포넌트 분리
 struct IntroView: View {
     @Environment(\.modelContext) private var context
-
+    
     @EnvironmentObject private var coordinator: NavigationCoordinator
-    @StateObject private var viewModel: IntroViewModel
+    // TODO: 객체 ViewModel에서 생성
     @EnvironmentObject private var iosConnectManager: IosConnectManager
+    @StateObject private var viewModel: IntroViewModel
 
+    // TODO: init 제거
     init(content: ContentMeta) {
         _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
     }
@@ -36,12 +39,14 @@ struct IntroView: View {
         }
     }
 
+    // TODO: 컴포넌트 분리
     private var thumbnailSection: some View {
         ContentCardView(
             content: viewModel.content, showsTags: false, imageHeight: 435,
             aspectRatio: 320.0 / 435.0)
     }
 
+    // TODO: 컴포넌트 분리
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(viewModel.content.title)
@@ -66,6 +71,7 @@ struct IntroView: View {
         .padding(.horizontal, 20)
     }
 
+    // TODO: 컴포넌트 분리
     private var actionSection: some View {
         OrangeButton(title: "이야기 시작하기") {
             print("시작버튼 눌림")

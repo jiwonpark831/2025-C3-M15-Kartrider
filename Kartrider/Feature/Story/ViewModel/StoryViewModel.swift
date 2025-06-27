@@ -13,6 +13,7 @@ class StoryViewModel: ObservableObject {
     private let contentRepository: ContentRepositoryProtocol
     private var lastToggleTime: Date = .distantPast
 
+    // TODO: iOSConnectManager 사용 안함 (여기서 생성한 적이 없음)
     @Published var iosConnectManager: IosConnectManager?
 
     @Published var isLoading: Bool = true
@@ -106,6 +107,7 @@ class StoryViewModel: ObservableObject {
         self.isSequenceInProgress = true
 
         if node.type == .decision {
+            // TODO: iosConnectManager : 아직 값이 없음.
             iosConnectManager?.timeout = false
             iosConnectManager?.isFirstRequest = true
             secPlayed = false
@@ -146,10 +148,12 @@ class StoryViewModel: ObservableObject {
                 let endingNode = story.nodes.first(where: { $0.id == toId })
             {
                 currentNode = endingNode
+                // TODO: 아직 값이 없음.
                 iosConnectManager?.sendStageEndingTTS()
                 if !endingNode.text.isEmpty {
                     await ttsManager.speakSequentially(endingNode.text)
                 }
+                // TODO: 아직 값이 없음.
                 iosConnectManager?.sendStageEndingTimer()
             } else {
                 errorMessage = "해당 결말을 찾을 수 없습니다"

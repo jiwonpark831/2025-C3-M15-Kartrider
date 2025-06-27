@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 
+// TODO: 지우세요~
 @Model
 final class Item {
     var timestamp: Date

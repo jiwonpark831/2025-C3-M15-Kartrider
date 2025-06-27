@@ -20,4 +20,3 @@ class StoryChoice {
         self.toId = toId
     }
 }
-

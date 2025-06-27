@@ -21,6 +21,7 @@ class StoryNode {
     @Relationship(deleteRule: .cascade) var choiceB: StoryChoice?
     @Relationship var story: Story? //
     
+    // MARK: 컨벤션을 맞추자!
     init(id: String, text: String, type: StoryNodeType, nextId: String? = nil, endingIndex: Int? = nil, title: String? = nil, story: Story? = nil, choiceA: StoryChoice? = nil, choiceB: StoryChoice? = nil) {
         self.id = id
         self.text = text

@@ -21,5 +21,4 @@ class WatchNavigationCoordinator: ObservableObject {
     func popToRoot() {
         paths.removeAll()
     }
-
 }

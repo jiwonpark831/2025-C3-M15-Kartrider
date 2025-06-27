@@ -7,7 +7,7 @@
 import Foundation
 import AVFoundation
 
-
+// TODO: 니카가 차근차근 리팩토링 해보기!
 final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     private var currentContinuation: CheckedContinuation<Void, Never>?
@@ -22,6 +22,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
         synthesizer.delegate = self
     }
 
+    // TODO: 전체적인 개선이 필요해 보임
     func speakSequentially(_ text: String) async {
         print("[INFO] speakSequentially 호출")
 

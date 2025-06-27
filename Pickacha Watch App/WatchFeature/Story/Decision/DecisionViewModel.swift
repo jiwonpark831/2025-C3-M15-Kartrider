@@ -14,9 +14,9 @@ class DecisionViewModel: ObservableObject {
     @Published var watchConnectivityManager: WatchConnectManager
 
     @Published var isStartTimer = false
-    @Published var decisionIndex = 0
     @Published var isInterrupt = false
     @Published var isFirstRequest = true
+    @Published var decisionIndex = 0
 
     @Published var choice: String?
     @Published var time = 10
@@ -49,6 +49,7 @@ class DecisionViewModel: ObservableObject {
         isSetMiddle = false
     }
 
+    // TODO: 중복되는 코드들 분리
     func startTimer() {
         self.timer?.invalidate()
         self.timer = nil
@@ -59,8 +60,7 @@ class DecisionViewModel: ObservableObject {
         self.choice = nil
         self.middle = 0.0
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
-            _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             print("[TIMER] \(self.time)")
             if self.time > 0 {
                 self.time -= 1
@@ -77,13 +77,13 @@ class DecisionViewModel: ObservableObject {
                     print("[DECISION] Time Out")
                     self.motionManager.stopDeviceMotionUpdates()
 
-                  
                     self.watchConnectivityManager.sendTimeoutToIos(self.decisionIndex,isFirstRequest: self.isFirstRequest)
                 }
             }
         }
     }
 
+    // TODO: 기능 단위로 조금 쪼개자.
     func makeChoice() {
 
         guard motionManager.isDeviceMotionAvailable else {
@@ -97,12 +97,14 @@ class DecisionViewModel: ObservableObject {
 
         motionManager.startDeviceMotionUpdates(to: .main) { data, error in
             guard let data = data, error == nil else {
-                print(
-                    "Motion data error: \(error?.localizedDescription ?? "Unknown")"
-                )
+                print("Motion data error: \(error?.localizedDescription ?? "Unknown")")
                 return
             }
-
+            
+            guard self.choice == nil else { return }
+            
+            guard self.isStartTimer else { return }
+            
             let roll = data.attitude.roll
 
             if !self.isSetMiddle {
@@ -115,25 +117,19 @@ class DecisionViewModel: ObservableObject {
                 }
                 return
             }
-
-            guard self.isStartTimer else {
-                return
-            }
+            
 
             let value = roll - self.middle
-
-            guard self.choice == nil else { return } 
+            
             if value > 0.6 {
                 self.choice = "B"
                 self.timer?.invalidate()
                 self.motionManager.stopDeviceMotionUpdates()
                 print("[CHOICE] B")
                 if self.isFirstRequest {
-                    self.watchConnectivityManager.sendFirstChoiceToIos(
-                        self.decisionIndex, "B")
+                    self.watchConnectivityManager.sendFirstChoiceToIos(self.decisionIndex, "B")
                 } else {
-                    self.watchConnectivityManager.sendSecChoiceToIos(
-                        self.decisionIndex, "B")
+                    self.watchConnectivityManager.sendSecChoiceToIos(self.decisionIndex, "B")
                 }
             } else if value < -0.6 {
                 self.choice = "A"
@@ -141,11 +137,9 @@ class DecisionViewModel: ObservableObject {
                 self.motionManager.stopDeviceMotionUpdates()
                 print("[CHOICE] A")
                 if self.isFirstRequest {
-                    self.watchConnectivityManager.sendFirstChoiceToIos(
-                        self.decisionIndex, "A")
+                    self.watchConnectivityManager.sendFirstChoiceToIos(self.decisionIndex, "A")
                 } else {
-                    self.watchConnectivityManager.sendSecChoiceToIos(
-                        self.decisionIndex, "A")
+                    self.watchConnectivityManager.sendSecChoiceToIos(self.decisionIndex, "A")
                 }
             }
         }
@@ -158,5 +152,4 @@ class DecisionViewModel: ObservableObject {
         motionManager.stopDeviceMotionUpdates()
         isStartTimer = false
     }
-
 }

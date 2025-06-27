@@ -12,5 +12,3 @@ enum StoryNodeType : String, Codable {
     case decision
     case ending
 }
-
-

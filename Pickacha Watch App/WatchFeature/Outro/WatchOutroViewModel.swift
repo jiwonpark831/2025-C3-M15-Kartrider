@@ -26,8 +26,7 @@ class WatchOutroViewModel: ObservableObject {
         isTimerStart = true
         connectManager.timerStarted = true
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {
-            _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             if self.time > 0 {
                 self.time -= 1
                 self.progress = CGFloat(self.time) / 10.0

@@ -8,6 +8,12 @@
 import Foundation
 import SwiftData
 
+// TODO: Generic + Protocol로 리팩토링
+// TODO: small Camel Case로 바꾸세요!
+// TODO: 객체로 바꾸세요!
+// TODO: 1. StoryJSONParser, TournamentJSONParser를 합친다. -> JSONParser로 통합
+// TODO: 2. StoryJSON, TournamentJSON -> 프로토콜로 통합
+// TODO: 3. StoryJSON, TournamentJSON 따라 로직을 분기한다! (분기하는 로직도 extension으로 빼면 좋을 것 같음!)
 enum StoryJSONParser {
     static func loadJSON(named fileName: String) -> Data? {
         guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else {
@@ -16,6 +22,7 @@ enum StoryJSONParser {
         }
         return try? Data(contentsOf: url)
     }
+    
     
     static func parseAndInsertStories(from jsonData: Data, context: ModelContext) throws {
         let decoder = JSONDecoder()

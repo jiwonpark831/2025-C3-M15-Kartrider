@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct WatchNavigationView: View {
+    // TODO: EnvironmentObject인데, 파라미터로 넘겨야 하나
     @EnvironmentObject private var watchConnectManager: WatchConnectManager
     @StateObject private var coordinator = WatchNavigationCoordinator()
 

@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct TournamentView: View {
+    // TODO: 객체 제거 및 ViewModel로 분리
     @EnvironmentObject private var ttsManager: TTSManager
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @EnvironmentObject private var iosConnectManager: IosConnectManager
@@ -20,9 +21,11 @@ struct TournamentView: View {
     @State private var decisionIndex = 0
     @State private var decisionTask: Task<Void, Never>? = nil
 
+    // TODO: ViewModel로 분리
     let title: String
     let id: UUID
 
+    // TODO: init 제거
     init(title: String, id: UUID) {
         _viewModel = StateObject(
             wrappedValue: TournamentViewModel(tournamentId: id))
@@ -47,15 +50,18 @@ struct TournamentView: View {
             viewModel.loadTournament(context: context)
             speakCurrentMatch()
         }
+        // TODO: onChange 제거 : ViewModel로 분리
         .onChange(of: viewModel.isFinished) { isFinished in
             guard isFinished else { return }
             viewModel.finishTournamentAndSave(context: context)
         }
+        // TODO: onChange 제거 : ViewModel로 분리
         .onChange(of: viewModel.currentCandidates?.0.id) { _ in
             selectedOption = nil
             iosConnectManager.timeout = false
             iosConnectManager.isFirstRequest = true
         }
+        // TODO: onChange 제거 : ViewModel로 분리
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let option = newOption,
                 let (a, b) = viewModel.currentCandidates,
@@ -69,13 +75,13 @@ struct TournamentView: View {
             let selected = option == .a ? a : b
             handleSelection(selected)
         }
+        // TODO: onChange 제거 : ViewModel로 분리
         .onChange(of: iosConnectManager.timeout) { newValue in
             handleTimeout(newValue)
         }
     }
 
     // MARK: - View Sections
-
     @ViewBuilder
     private var contentBody: some View {
         if viewModel.isFinished, let winner = viewModel.winner {
@@ -85,11 +91,13 @@ struct TournamentView: View {
             .task(id: viewModel.winner?.id) {
                 iosConnectManager.sendStageEndingTTS()
                 guard let name = viewModel.winner?.name else { return }
+                // TODO: ttsManager.stop : Async함수 아님
                 await ttsManager.stop()
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
                 iosConnectManager.sendStageEndingTimer()
             }
+            // TODO: a, b 이렇게 쓰지 말고, 알기 쉬운 변수명으로 변경
         } else if let (a, b) = viewModel.currentCandidates {
             TournamentMatchView(
                 roundDescription: viewModel.currentRoundDescription,
@@ -123,11 +131,13 @@ struct TournamentView: View {
     }
 }
 
+// TODO: ViewModel로 분리
 extension TournamentView {
     // MARK: - TTS Helpers
     private func handleSelection(_ candidate: Candidate) {
 
         Task {
+            // TODO: ttsManager.stop : Async함수 아님
             await ttsManager.stop()
             iosConnectManager.sendChoiceInterrupt()
             await speakSelectedChoice(candidate)
