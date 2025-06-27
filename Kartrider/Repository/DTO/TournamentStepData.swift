@@ -7,7 +7,6 @@
 
 import Foundation
 
-// MARK: 파일이름이랑 구조체랑 이름 다름.
 struct TournamentStepData: Identifiable {
     let id = UUID()
     var round: Int

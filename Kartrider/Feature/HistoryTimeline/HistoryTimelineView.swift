@@ -1,5 +1,5 @@
 //
-//  StorageView.swift
+//  EndingDetailView.swift
 //  Kartrider
 //
 //  Created by 박난 on 5/28/25.
@@ -7,21 +7,19 @@
 
 import SwiftUI
 
-struct StorageView: View {
+struct HistoryTimelineView: View {
 
     @EnvironmentObject private var coordinator: NavigationCoordinator
 
     var body: some View {
+        
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.archive,
+            navStyle: NavigationBarStyle.timeline(title: "임의-타임라인"),
             onTapLeft: { coordinator.pop() }
         ) {
             VStack {
                 Spacer()
-                Text("[[ 스토리1 ]]")
-                    .onTapGesture {
-                        coordinator.push(Route.history)
-                    }
+                Text("TimelineView")
                 Spacer()
             }
         }
@@ -29,6 +27,6 @@ struct StorageView: View {
 }
 
 #Preview {
-    StorageView()
+    HistoryTimelineView()
         .environmentObject(NavigationCoordinator())
 }

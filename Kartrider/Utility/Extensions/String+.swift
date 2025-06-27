@@ -7,7 +7,6 @@
 
 import Foundation
 
-// TODO: Utility/Extensions/String+.swift 등으로 수정하기
 extension String {
     func insertLineBreak(every n: Int) -> String {
         var result = ""
