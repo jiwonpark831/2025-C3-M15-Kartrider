@@ -29,12 +29,12 @@ struct AppNavigationView: View {
                         TournamentView(title: title, id: id)
                     case .outro:
                         OutroView()
-                    case .storage:
-                        StorageView()
-                    case .history:
-                        HistoryView()
-                    case .historyTimeline:
-                        HistoryTimelineView()
+                    case .contentLibrary:
+                        ContentLibraryView()
+                    case .contentSummary:
+                        ContentSummaryView()
+                    case .contentPlayback:
+                        ContentPlaybackView()
                     }
                 }
         }

@@ -13,7 +13,7 @@ enum Route: Hashable {
     case story(String, String)
     case tournament(String, UUID)
     case outro
-    case storage
-    case history
-    case historyTimeline
+    case contentLibrary
+    case contentSummary
+    case contentPlayback
 }
