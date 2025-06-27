@@ -7,7 +7,6 @@
 
 import Foundation
 
-// MARK: - 파일 이름 바꾸세요~
 struct MetaData: Decodable {
     let title: String
     let summary: String

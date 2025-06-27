@@ -25,7 +25,5 @@ struct LottieView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: LottieAnimationView, context: Context) {
-        // 필요시 업데이트 처리
-    }
+    func updateUIView(_ uiView: LottieAnimationView, context: Context) { }
 }
