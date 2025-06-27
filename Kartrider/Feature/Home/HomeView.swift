@@ -12,9 +12,6 @@ struct HomeView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
     @StateObject private var viewModel = HomeViewModel()
-    
-    // TODO: ViewModel로 보내세요.
-    @State private var selectedIndex: Int = 0
 
     var body: some View {
         NavigationBarWrapper(
@@ -25,20 +22,15 @@ struct HomeView: View {
             
             VStack(spacing: 12) {
                 
-                VStack {
-                    HomeHeaderView()
-                        .padding(.bottom, 8)
-                }
-                .padding(.vertical, 6)
+                HomeHeaderView()
+                    .padding(.bottom, 8)
+                    .padding(.vertical, 6)
                 
                 ContentCarouselView(
                     contents: viewModel.contents,
-                    initialIndex: selectedIndex
+                    initialIndex: viewModel.selectedIndex
                 ) { selected in
-                    // TODO: ViewModel로 보내세요.
-                    if let index = viewModel.contents.firstIndex(of: selected) {
-                        selectedIndex = index
-                    }
+                    viewModel.selectContent(selected)
                     coordinator.push(Route.intro(selected))
                 }
             }
