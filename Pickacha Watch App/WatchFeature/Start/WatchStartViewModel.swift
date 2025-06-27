@@ -15,7 +15,7 @@ class WatchStartViewModel: ObservableObject {
 
     init(watchConnectivityManager: WatchConnectManager) {
         self.watchConnectivityManager = watchConnectivityManager
-        self.isStart = watchConnectivityManager.startContent
+        self.isStart = watchConnectivityManager.hasStartedContent
     }
 
     func speak(_ text: String) {

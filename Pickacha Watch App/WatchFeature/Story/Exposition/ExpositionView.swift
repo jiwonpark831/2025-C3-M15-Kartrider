@@ -34,7 +34,7 @@ struct ExpositionView: View {
         .onAppear {
             expositionViewModel.syncTTSState()
         }
-        .onChange(of: connectManager.isPlayTTS) { newValue in
+        .onChange(of: connectManager.isTTSPlaying) { newValue in
             expositionViewModel.updateStateByIos(newValue)
         }
     }

@@ -64,14 +64,14 @@ struct WatchOutroView: View {
                     }
                 }
             }
-        }.onChange(of: connectManager.timerStarted) { newValue in
+        }.onChange(of: connectManager.isTimerRunning) { newValue in
             print("[View] timer state change: \(newValue)")
             if newValue {
                 watchOutroViewModel.startTimer()
             }
         }
         .onAppear {
-            if connectManager.timerStarted {
+            if connectManager.isTimerRunning {
                 watchOutroViewModel.startTimer()
             }
         }

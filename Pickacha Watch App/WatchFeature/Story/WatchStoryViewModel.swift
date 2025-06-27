@@ -17,6 +17,6 @@ class WatchStoryViewModel: ObservableObject {
     }
 
     func updateStage() {
-        self.storyType = watchConnectivityManager.stage
+        self.storyType = watchConnectivityManager.currentStage
     }
 }

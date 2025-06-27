@@ -13,16 +13,16 @@ class ExpositionViewModel: ObservableObject {
 
     init(watchConnectivityManager: WatchConnectManager) {
         self.watchConnectivityManager = watchConnectivityManager
-        self.isPlayTTS = watchConnectivityManager.isPlayTTS
+        self.isPlayTTS = watchConnectivityManager.isTTSPlaying
     }
 
     func syncTTSState() {
-        isPlayTTS = watchConnectivityManager.isPlayTTS
+        isPlayTTS = watchConnectivityManager.isTTSPlaying
     }
 
     func toggleStateWatch() {
         isPlayTTS.toggle()
-        watchConnectivityManager.isPlayTTS = isPlayTTS
+        watchConnectivityManager.isTTSPlaying = isPlayTTS
 
         if isPlayTTS {
             print("[WATCH] 재생")
@@ -38,19 +38,5 @@ class ExpositionViewModel: ObservableObject {
         print("[WATCH] from iOS: \(newValue)")
         isPlayTTS = newValue
     }
-    
-    //    func toggleState() {
-    //        isPlayTTS.toggle()
-    //        watchConnectivityManager.isPlayTTS = isPlayTTS
-    //
-    //        if isPlayTTS == true {
-    //            print("재생")
-    //            watchConnectivityManager.sendStageExpositionWithResume()
-    //        } else {
-    //            watchConnectivityManager.sendStageExpositionWithPause()
-    //            print("일시정지")
-    //        }
-    //
-    //    }
 
 }

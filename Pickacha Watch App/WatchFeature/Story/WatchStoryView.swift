@@ -25,10 +25,10 @@ struct WatchStoryView: View {
     // TODO: 컴포넌트로 분리 - 로직 수정
     var body: some View {
         VStack {
-            contentView(for: connectManager.stage)
-                .id(connectManager.stage)
+            contentView(for: connectManager.currentStage)
+                .id(connectManager.currentStage)
         }
-        .onReceive(connectManager.$stage) { newStage in
+        .onReceive(connectManager.$currentStage) { newStage in
             print("[VIEW] stage updated to '\(newStage)'")
         }
     }

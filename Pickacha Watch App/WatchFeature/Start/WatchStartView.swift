@@ -48,7 +48,7 @@ struct WatchStartView: View {
             }
         }
         // TODO: ViewModel에서 처리하도록 변경
-        .onChange(of: connectManager.startContent) { newValue in
+        .onChange(of: connectManager.hasStartedContent) { newValue in
             watchStartViewModel.isStart = newValue
         }
     }
