@@ -8,17 +8,18 @@
 import Foundation
 
 class WatchNavigationCoordinator: ObservableObject {
-    @Published var paths: [WatchRoute] = []
+
+    @Published var path: [WatchRoute] = []
 
     func push(_ path: WatchRoute) {
-        paths.append(path)
+        self.path.append(path)
     }
 
     func pop() {
-        paths.removeLast()
+        self.path.removeLast()
     }
 
     func popToRoot() {
-        paths.removeAll()
+        self.path.removeAll()
     }
 }
