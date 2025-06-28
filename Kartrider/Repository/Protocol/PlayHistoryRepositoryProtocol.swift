@@ -11,7 +11,7 @@ import SwiftData
 protocol PlayHistoryRepositoryProtocol {
     func saveTournamentHistory(
         context: ModelContext,
-        tournamentId: UUID,
+        tournament: Tournament,
         winner: Candidate,
         matchHistory: [TournamentStepData]
     ) throws

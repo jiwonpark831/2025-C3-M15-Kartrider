@@ -27,10 +27,7 @@ struct TournamentView: View {
 
     // TODO: init 제거
     init(content: ContentMeta) {
-        guard let tournamentId = content.tournament?.id else {
-            fatalError("Tournament ID가 없습니다")
-        }
-        _viewModel = StateObject(wrappedValue: TournamentViewModel(tournamentId: tournamentId))
+        _viewModel = StateObject(wrappedValue: TournamentViewModel(content: content))
         self.title = content.title
         self.id = content.id
     }
