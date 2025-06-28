@@ -15,21 +15,17 @@ struct WatchStoryView: View {
     // TODO: 컴포넌트로 분리 - 로직 수정
     var body: some View {
         VStack {
-            contentView(for: watchStoryViewModel.currentStage)
-        }.id(watchStoryViewModel.currentStage)
-    }
-
-    // TODO: ViewBuilder 제거, 컴포넌트로 분리
-    @ViewBuilder
-    func contentView(for stage: String) -> some View {
-        switch stage {
-        case "exposition": ExpositionView()
-        case "decision": DecisionView()
-        case "ending":
-            Color.clear.onAppear {
-                coordinator.push(.outro)
+            switch watchStoryViewModel.currentStage {
+            case "exposition":
+                ExpositionView()
+            case "decision":
+                DecisionView()
+            case "ending":
+                Color.clear.onAppear {
+                    coordinator.push(.outro)
+                }
+            default: Text("Loading...")
             }
-        default: Text("Loading...")
-        }
+        }.id(watchStoryViewModel.currentStage)
     }
 }

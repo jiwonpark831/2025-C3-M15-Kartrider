@@ -129,7 +129,6 @@ class DecisionViewModel: ObservableObject {
         }
     }
 
-    // TODO: 기능 단위로 조금 쪼개자.
     func makeChoice() {
 
         guard motionManager.isDeviceMotionAvailable else {
@@ -168,11 +167,11 @@ class DecisionViewModel: ObservableObject {
 
             let value = roll - self.middle
 
-            self.evalLR(value)
+            self.evalLOrR(value)
         }
     }
 
-    func evalLR(_ value: Double) {
+    func evalLOrR(_ value: Double) {
         if value > 0.6 {
             self.choice = "B"
             choiceDone()
