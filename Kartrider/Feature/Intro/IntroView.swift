@@ -15,7 +15,7 @@ struct IntroView: View {
     @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var viewModel: IntroViewModel
 
-    // TODO: init 제거
+    // TODO: init 제거 -> 어떻게 제거해요? content를 넘겨줘야하는데!!!
     init(content: ContentMeta) {
         _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
     }
@@ -48,8 +48,7 @@ struct IntroView: View {
                         }
                     case .tournament:
                         if let id = viewModel.content.tournament?.id {
-                            coordinator.push(
-                                Route.tournament(viewModel.content.title, id))
+                            coordinator.push(Route.tournament(viewModel.content))
                         } else {
                             print("[ERROR] 토너먼트가 존재하지 않음")
                         }

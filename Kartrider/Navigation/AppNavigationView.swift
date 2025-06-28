@@ -25,8 +25,8 @@ struct AppNavigationView: View {
                         IntroView(content: content)
                     case .story(let title, let id):
                         StoryView(title: title, id: id)
-                    case .tournament(let title, let id):
-                        TournamentView(title: title, id: id)
+                    case .tournament(let content):
+                        TournamentView(content: content)
                     case .outro:
                         OutroView()
                     case .contentLibrary:

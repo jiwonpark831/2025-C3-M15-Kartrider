@@ -26,11 +26,13 @@ struct TournamentView: View {
     let id: UUID
 
     // TODO: init 제거
-    init(title: String, id: UUID) {
-        _viewModel = StateObject(
-            wrappedValue: TournamentViewModel(tournamentId: id))
-        self.title = title
-        self.id = id
+    init(content: ContentMeta) {
+        guard let tournamentId = content.tournament?.id else {
+            fatalError("Tournament ID가 없습니다")
+        }
+        _viewModel = StateObject(wrappedValue: TournamentViewModel(tournamentId: tournamentId))
+        self.title = content.title
+        self.id = content.id
     }
 
     var body: some View {
@@ -212,5 +214,14 @@ extension TournamentView {
 }
 
 #Preview {
-    TournamentView(title: "타이틀 확인중", id: UUID())
+    
+    let sample = ContentMeta(
+        title: "눈 떠보니 내가 T1 페이커?!",
+        summary: "2025 월즈가 코 앞인데 아이언인 내가 어느날 눈 떠보니 페이커 몸에 들어와버렸다.",
+        type: .story,
+        hashtags: ["빙의", "LOL", "고트"],
+        thumbnailName: nil
+    )
+    
+    TournamentView(content: sample)
 }
