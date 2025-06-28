@@ -5,18 +5,22 @@
 //  Created by jiwon on 6/1/25.
 //
 
+import Combine
 import Foundation
 
 class WatchStoryViewModel: ObservableObject {
-    @Published var watchConnectivityManager: WatchConnectManager
+
+    let connectManager = WatchConnectManager.shared
     // MARK: 시간되면 ENUM 타입으로 변경
-    @Published var storyType: String = "idle"
 
-    init(watchConnectivityManager: WatchConnectManager) {
-        self.watchConnectivityManager = watchConnectivityManager
-    }
+    private var cancellable = Set<AnyCancellable>()
 
-    func updateStage() {
-        self.storyType = watchConnectivityManager.currentStage
+    @Published var currentStage: String = "idle"
+
+    init() {
+        connectManager.$currentStage
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.currentStage, on: self)
+            .store(in: &cancellable)
     }
 }

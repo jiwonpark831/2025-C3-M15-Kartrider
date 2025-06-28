@@ -10,18 +10,11 @@ import WatchConnectivity
 
 class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
+    static let shared = WatchConnectManager()
+
     var session: WCSession
 
-    @Published var message: [String: Any] = [:]
-    @Published var currentStage: String = ""
-    @Published var hasStartedContent: Bool = false
-    @Published var isTimerRunning: Bool = false
-    @Published var isTTSPlaying: Bool = true
-    @Published var decisionIndex: Int = 0
-    @Published var isFirstRequest: Bool = false
-    @Published var isInterrupted: Bool = false
-
-    init(session: WCSession = .default) {
+    private init(session: WCSession = .default) {
         self.session = session
         super.init()
         if WCSession.isSupported() {
@@ -31,6 +24,15 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             print("[ERROR] WCSession not supported")
         }
     }
+
+    @Published var message: [String: Any] = [:]
+    @Published var currentStage: String = ""
+    @Published var hasStartedContent: Bool = false
+    @Published var isTimerRunning: Bool = false
+    @Published var isTTSPlaying: Bool = true
+    @Published var decisionIndex: Int = 0
+    @Published var isFirstRequest: Bool = false
+    @Published var isInterrupted: Bool = false
 
     func session(
         _ session: WCSession,

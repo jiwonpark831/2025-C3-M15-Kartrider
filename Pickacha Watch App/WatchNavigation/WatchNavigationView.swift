@@ -9,29 +9,23 @@ import SwiftUI
 
 struct WatchNavigationView: View {
 
-    // TODO: EnvironmentObject인데, 파라미터로 넘겨야 하나
-    @EnvironmentObject private var watchConnectManager: WatchConnectManager
     @StateObject private var coordinator = WatchNavigationCoordinator()
 
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            WatchStartView(connectManager: watchConnectManager)
+            WatchStartView()
                 .navigationDestination(for: WatchRoute.self) {
                     route in
                     switch route {
                     case .start:
-                        WatchStartView(connectManager: watchConnectManager)
+                        WatchStartView()
                     case .story:
-                        WatchStoryView(connectManager: watchConnectManager)
+                        WatchStoryView()
                     case .outro:
-                        WatchOutroView(connectManager: watchConnectManager)
+                        WatchOutroView()
                     }
                 }
         }
         .environmentObject(coordinator)
     }
-}
-
-#Preview {
-    WatchNavigationView()
 }

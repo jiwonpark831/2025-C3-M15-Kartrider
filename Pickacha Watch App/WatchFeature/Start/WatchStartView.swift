@@ -9,21 +9,13 @@ import AVFoundation
 import SwiftUI
 
 struct WatchStartView: View {
-    // TODO: connectManager -> 객체를 분리하자
-    @EnvironmentObject private var connectManager: WatchConnectManager
+
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-    @StateObject private var watchStartViewModel: WatchStartViewModel
-    
-    // TODO: init 제거
-    init(connectManager: WatchConnectManager) {
-        _watchStartViewModel = StateObject(
-            wrappedValue: WatchStartViewModel(
-                watchConnectivityManager: connectManager))
-    }
-    
+    @StateObject private var watchStartViewModel = WatchStartViewModel()
+
     var body: some View {
         VStack {
-            if !watchStartViewModel.isStart {
+            if !watchStartViewModel.hasStartedContent {
                 VStack {
                     Image(systemName: "book.fill")
                         .font(.system(.headline))
@@ -43,13 +35,9 @@ struct WatchStartView: View {
             } else {
                 Color.clear
                     .onAppear {
-                    coordinator.push(.story)
-                }
+                        coordinator.push(.story)
+                    }
             }
-        }
-        // TODO: ViewModel에서 처리하도록 변경
-        .onChange(of: connectManager.hasStartedContent) { newValue in
-            watchStartViewModel.isStart = newValue
         }
     }
 }

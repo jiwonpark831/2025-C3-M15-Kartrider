@@ -11,19 +11,11 @@ import SwiftUI
 struct WatchOutroView: View {
 
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-    @EnvironmentObject private var connectManager: WatchConnectManager
-    @StateObject private var watchOutroViewModel: WatchOutroViewModel
-
-    init(connectManager: WatchConnectManager) {
-        _watchOutroViewModel = StateObject(
-            wrappedValue: WatchOutroViewModel(
-                connectManager: connectManager))
-
-    }
+    @StateObject private var watchOutroViewModel = WatchOutroViewModel()
 
     var body: some View {
         Group {
-            if watchOutroViewModel.isTimerStart {
+            if watchOutroViewModel.isTimerRunning {
                 VStack {
                     ZStack {
                         Circle()
@@ -63,16 +55,6 @@ struct WatchOutroView: View {
                             .multilineTextAlignment(.center)
                     }
                 }
-            }
-        }.onChange(of: connectManager.isTimerRunning) { newValue in
-            print("[View] timer state change: \(newValue)")
-            if newValue {
-                watchOutroViewModel.startTimer()
-            }
-        }
-        .onAppear {
-            if connectManager.isTimerRunning {
-                watchOutroViewModel.startTimer()
             }
         }
     }
