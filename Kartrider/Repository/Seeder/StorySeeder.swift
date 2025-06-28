@@ -49,7 +49,7 @@ struct StorySeeder {
     
     static func seed(context: ModelContext) async {
         // TODO: Constant 파일로 분리
-        guard let jsonData = StoryJSONParser.loadJSON(named: "dummy_chimpis") else {
+        guard let jsonData = StoryJSONParser.loadJSON(named: "story_dummy") else {
             print("[ERROR] JSON 파일 로드 실패")
             return
         }

@@ -16,7 +16,7 @@ struct TournamentSeeder {
     }
 
     static func seed(context: ModelContext) async {
-        guard let jsonData = TournamentJSONParser.loadJSON(named: "dummy_tournament") else {
+        guard let jsonData = TournamentJSONParser.loadJSON(named: "tournament_dummy") else {
             print("[ERROR] Tournament JSON 파일 로드 실패")
             return
         }
