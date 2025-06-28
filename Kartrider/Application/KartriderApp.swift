@@ -11,7 +11,6 @@ import SwiftUI
 @main
 struct KartriderApp: App {
 
-    @StateObject private var iosConnectManager = IosConnectManager()
     @StateObject private var seedManager = SeedManager()
 
     var body: some Scene {
