@@ -42,46 +42,32 @@ class SeedManager: ObservableObject {
     
     func seedIfNeeded() async {
         let context = container.mainContext
-        let resetKey = "hasSeededOnce"
         let isInMemory = container.configurations.first?.isStoredInMemoryOnly == true
         
-        #if DEBUG
-        if ProcessInfo.processInfo.environment["RESET_DB"] == "true" { // TODO: - 배포할 때 스키마 RESET_DB = false로 변경
-            print("[DEBUG] RESET_DB 환경 변수 감지")
-            await Seeder<StoryJSON>.deleteAll(context: context)
-            await Seeder<TournamentJSON>.deleteAll(context: context)
-            UserDefaults.standard.removeObject(forKey: resetKey)
-        }
-        #endif
-        
-        if isInMemory {
-            print("[DEBUG] 인메모리 모드 -> 무조건 시드")
+        if isInMemory { // 인메모리일 경우, 무조건 시드
             await performSeeding(context: context)
             isReady = true
             return
         }
         
-        let hasSeeded = UserDefaults.standard.bool(forKey: resetKey)
-        print("[DEBUG] hasSeededOnce 값: \(hasSeeded)")
+        let hasSeeded = UserDefaults.standard.bool(forKey: Constants.Seed.resetKey)
         
         guard !hasSeeded else {
-            print("[DEBUG] 이미 시드 완료됨 -> 종료")
+            // UserDefaults에 true -> 종료
             isReady = true
             return
         }
         
-        print("[INFO] 최초 실행 → 시드 시작")
+        // UserDefaults가 false일 때만 실행
+        await Seeder.deleteAll(context: context)
+        
         await performSeeding(context: context)
-        UserDefaults.standard.set(true, forKey: resetKey)
+        UserDefaults.standard.set(true, forKey: Constants.Seed.resetKey)
         isReady = true
     }
 
     private func performSeeding(context: ModelContext) async {
-        await Seeder<StoryJSON>.seedAll(context: context)
-        await Seeder<TournamentJSON>.seedAll(context: context)
-
-        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초
-        isReady = true
+        await Seeder.seedAll(context: context)
         
         print("[DEBUG] 시드 완료 → isReady = true")
     }

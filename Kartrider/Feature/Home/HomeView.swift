@@ -21,7 +21,6 @@ struct HomeView: View {
             Divider()
             
             VStack(spacing: 12) {
-                
                 HomeHeaderView()
                     .padding(.bottom, 8)
                     .padding(.vertical, 6)

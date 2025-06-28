@@ -9,19 +9,19 @@ import Foundation
 import SwiftData
 
 @MainActor
-struct Seeder<T: JSONInsertable> {
+struct Seeder {
     static func seedAll(context: ModelContext) async {
         await deleteAll(context: context)
         
         do {
-            try JSONParser<StoryJSON>(fileName: "story_dummy").insertData(into: context)
+            try JSONParser<StoryJSON>(fileName: Constants.JSONFileName.storyDummy).insertData(into: context)
             print("[INFO] Story 시드 완료")
         } catch {
             print("[ERROR] Story 파싱 실패: \(error)")
         }
         
         do {
-            try JSONParser<TournamentJSON>(fileName: "tournament_dummy").insertData(into: context)
+            try JSONParser<TournamentJSON>(fileName: Constants.JSONFileName.tournamentDummy).insertData(into: context)
             print("[INFO] Tournament 시드 완료")
         } catch {
             print("[ERROR] Tournament 파싱 실패: \(error)")
