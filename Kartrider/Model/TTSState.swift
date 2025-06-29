@@ -6,7 +6,7 @@
 //
 
 enum TTSState {
-    case idle // TODO: Fix me~
+    case inactive
     case playing
     case paused
     case finished

@@ -14,19 +14,15 @@ struct StoryView: View {
     @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var storyViewModel: StoryViewModel
 
-    // TODO: ViewModel로 분리
-    let title: String
-
-    // TODO: Init 없애기 - Id, title을 ViewModel로 분리
-    init(title: String, id: String) {
+    init(content: ContentMeta) {
         _storyViewModel = StateObject(
-            wrappedValue: StoryViewModel(title: title, id: id))
-        self.title = title
+            wrappedValue: StoryViewModel(content: content)
+        )
     }
 
     var body: some View {
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.play(title: title),
+            navStyle: NavigationBarStyle.play(title: storyViewModel.content.title),
             onTapLeft: {
                 storyViewModel.ttsManager.pause()
                 coordinator.pop()
@@ -150,5 +146,12 @@ struct StoryView: View {
 }
 
 #Preview {
-    StoryView(title: "임시 타이틀인데요", id: "")
+    let contentSample = ContentMeta(
+        title: "title sample",
+        summary: "summary sample",
+        type: .story,
+        hashtags: ["test", "test2"],
+        thumbnailName: nil
+    )
+    StoryView(content: contentSample)
 }

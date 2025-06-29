@@ -82,7 +82,8 @@ struct IntroView: View {
             case .story:
                 if let startNodeId = viewModel.content.story?.startNodeId {
                     coordinator.push(
-                        Route.story(viewModel.content.title, startNodeId))
+                        Route.story(viewModel.content)
+                    )
                 } else {
                     print("[ERROR] 스토리가 존재하지 않음")
                 }

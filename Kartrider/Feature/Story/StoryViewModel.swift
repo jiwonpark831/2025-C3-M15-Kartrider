@@ -8,8 +8,8 @@ import Foundation
 import SwiftData
 
 class StoryViewModel: ObservableObject {
-    let title: String
-    let id: String
+    let content: ContentMeta
+    let startNodeId: String
     private let contentRepository: ContentRepositoryProtocol
     private var lastToggleTime: Date = .distantPast
 
@@ -34,11 +34,11 @@ class StoryViewModel: ObservableObject {
 
     init(
         repository: ContentRepositoryProtocol = ContentRepository(),
-        title: String, id: String
+        content: ContentMeta
     ) {
         self.contentRepository = repository
-        self.title = title
-        self.id = id
+        self.content = content
+        self.startNodeId = content.story?.startNodeId ?? ""
 
         ttsManager.didSpeakingStateChanged = { [weak self] speaking in
             DispatchQueue.main.async {
@@ -55,8 +55,8 @@ class StoryViewModel: ObservableObject {
         errorMessage = nil
         do {
             if let story = try contentRepository.fetchStory(
-                by: title, context: context),
-                let node = story.nodes.first(where: { $0.id == id })
+                by: content.title, context: context),
+                let node = story.nodes.first(where: { $0.id == startNodeId })
             {
                 currentNode = node
                 await handleStoryNode(node, context: context)
@@ -115,7 +115,7 @@ class StoryViewModel: ObservableObject {
 
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
-            await goToEndingNode(title: title, toId: endingId, context: context)
+            await goToEndingNode(title: content.title, toId: endingId, context: context)
 
         } else if node.type == .exposition {
             iosConnectManager?.sendStageExpositionWithResume()

@@ -12,7 +12,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     private var currentContinuation: CheckedContinuation<Void, Never>?
 
-    @MainActor @Published private(set) var state: TTSState = .idle
+    @MainActor @Published private(set) var state: TTSState = .inactive
     var didSpeakingStateChanged: ((Bool) -> Void)?
 
     private var lastUtteranceText: String?
@@ -32,7 +32,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
         }
 
         let currentState = await self.state
-        guard currentState == .idle else {
+        guard currentState == .inactive else {
             print("[WARN] 현재 state=\(currentState), speakSequentially는 무시됨")
             return
         }
@@ -91,7 +91,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
         currentContinuation = nil
 
         Task { @MainActor in
-            self.state = .idle
+            self.state = .inactive
             self.didSpeakingStateChanged?(false)
         }
     }
@@ -104,7 +104,7 @@ final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
                 self.pause()
             case .paused:
                 self.resume()
-            case .idle:
+            case .inactive:
                 // idle인데 마지막 텍스트가 있다면 다시 시작
                 if let last = self.lastUtteranceText {
                     print("[INFO] toggleSpeaking - idle 상태에서 마지막 텍스트 재생 시작")
@@ -148,7 +148,7 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
-            self.state = .idle
+            self.state = .inactive
             self.didSpeakingStateChanged?(false)
             print("[DEBUG] didFinish")
         }
@@ -159,7 +159,7 @@ extension TTSManager: AVSpeechSynthesizerDelegate {
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
-            self.state = .idle
+            self.state = .inactive
             self.didSpeakingStateChanged?(false)
             print("[DEBUG] didCancel")
         }
