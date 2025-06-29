@@ -41,7 +41,12 @@ struct StoryView: View {
 
                             DescriptionBoxView(text: storyNode.text)
 
-                            nodeTypeView(for: storyNode)
+                            StoryNodeContentView(
+                                storyNode: storyNode,
+                                isDisabled: storyViewModel.isSequenceInProgress,
+                                selectChoice: storyViewModel.selectChoice(toId:),
+                                title: storyViewModel.content.title
+                            )
 
                             Spacer()
 
@@ -108,42 +113,6 @@ struct StoryView: View {
             storyViewModel.handleTimeout(newValue)
         }
     }
-
-    // TODO: ViewBuilder 제거, 컴포넌트로 분리
-    @ViewBuilder
-    private func nodeTypeView(for storyNode: StoryNode) -> some View {
-        switch storyNode.type {
-        case .exposition:
-            EmptyView()
-        case .decision:
-            VStack(spacing: 12) {
-                if let choiceA = storyNode.choiceA,
-                    let choiceB = storyNode.choiceB
-                {
-                    DecisionBoxView(
-                        text: choiceA.text,
-                        storyChoiceOption: .a,
-                        action: {
-                            storyViewModel.selectChoice(toId: choiceA.toId)
-                        }
-                    )
-                    .disabled(storyViewModel.isSequenceInProgress)
-
-                    DecisionBoxView(
-                        text: choiceB.text,
-                        storyChoiceOption: .b,
-                        action: {
-                            storyViewModel.selectChoice(toId: choiceB.toId)
-                        }
-                    )
-                    .disabled(storyViewModel.isSequenceInProgress)
-                }
-            }
-        case .ending:
-            Text("엔딩입니다.").font(.title)
-        }
-    }
-}
 
 #Preview {
     let contentSample = ContentMeta(
