@@ -8,19 +8,18 @@
 import Foundation
 
 class NavigationCoordinator: ObservableObject {
-    // MARK: - 왜 paths죠?
-    @Published var paths: [Route] = []
+
+    @Published var path: [Route] = []
 
     func push(_ path: Route) {
-        paths.append(path)
+        self.path.append(path)
     }
 
     func pop() {
-        paths.removeLast()
+        self.path.removeLast()
     }
 
     func popToRoot() {
-        paths.removeAll()
+        self.path.removeAll()
     }
 }
-// MARK: 제발 개행에 신경을써

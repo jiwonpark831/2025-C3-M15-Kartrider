@@ -5,52 +5,34 @@
 //  Created by jiwon on 6/3/25.
 //
 
+import Combine
 import Foundation
 
 class ExpositionViewModel: ObservableObject {
-    @Published var watchConnectivityManager: WatchConnectManager
-    @Published var isPlayTTS = true
 
-    init(watchConnectivityManager: WatchConnectManager) {
-        self.watchConnectivityManager = watchConnectivityManager
-        self.isPlayTTS = watchConnectivityManager.isPlayTTS
-    }
+    let connectManager = WatchConnectManager.shared
 
-    func syncTTSState() {
-        isPlayTTS = watchConnectivityManager.isPlayTTS
+    private var cancellable = Set<AnyCancellable>()
+
+    @Published var isTTSPlaying = true
+
+    init() {
+        connectManager.$isTTSPlaying
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isTTSPlaying, on: self)
+            .store(in: &cancellable)
     }
 
     func toggleStateWatch() {
-        isPlayTTS.toggle()
-        watchConnectivityManager.isPlayTTS = isPlayTTS
+        isTTSPlaying.toggle()
+        connectManager.isTTSPlaying = isTTSPlaying
 
-        if isPlayTTS {
+        if isTTSPlaying {
             print("[WATCH] 재생")
-            watchConnectivityManager.sendStageExpositionWithResume()
+            connectManager.sendStageExpositionWithResume()
         } else {
             print("[WATCH] 일시정지")
-            watchConnectivityManager.sendStageExpositionWithPause()
+            connectManager.sendStageExpositionWithPause()
         }
     }
-
-    func updateStateByIos(_ newValue: Bool) {
-        guard newValue != isPlayTTS else { return }
-        print("[WATCH] from iOS: \(newValue)")
-        isPlayTTS = newValue
-    }
-    
-    //    func toggleState() {
-    //        isPlayTTS.toggle()
-    //        watchConnectivityManager.isPlayTTS = isPlayTTS
-    //
-    //        if isPlayTTS == true {
-    //            print("재생")
-    //            watchConnectivityManager.sendStageExpositionWithResume()
-    //        } else {
-    //            watchConnectivityManager.sendStageExpositionWithPause()
-    //            print("일시정지")
-    //        }
-    //
-    //    }
-
 }

@@ -5,26 +5,33 @@
 //  Created by jiwon on 6/1/25.
 //
 
+import Combine
 import Foundation
 import WatchKit
 
 class WatchOutroViewModel: ObservableObject {
+
+    let connectManager = WatchConnectManager.shared
+
+    private var cancellable = Set<AnyCancellable>()
+
     @Published var time = 10
     @Published var progress: CGFloat = 1.0
-    @Published var isTimerStart = false
-
-    private var connectManager: WatchConnectManager
-
+    @Published var isTimerRunning = false
     private var timer: Timer?
 
-    init(connectManager: WatchConnectManager) {
-        self.connectManager = connectManager
+    init() {
+        connectManager.$isTimerRunning
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isTimerRunning, on: self)
+            .store(in: &cancellable)
     }
 
     func startTimer() {
-        guard !isTimerStart else { return }
-        isTimerStart = true
-        connectManager.timerStarted = true
+        guard !isTimerRunning else { return }
+
+        isTimerRunning = true
+        connectManager.isTimerRunning = true
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             if self.time > 0 {

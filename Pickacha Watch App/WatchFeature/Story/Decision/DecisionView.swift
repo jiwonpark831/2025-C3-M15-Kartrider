@@ -8,19 +8,12 @@
 import SwiftUI
 
 struct DecisionView: View {
-    @EnvironmentObject private var connectManager: WatchConnectManager
-    @StateObject private var decisionViewModel: DecisionViewModel
 
-    init(connectManager: WatchConnectManager) {
-        _decisionViewModel = StateObject(
-            wrappedValue: DecisionViewModel(
-                watchConnectivityManager: connectManager))
-
-    }
+    @StateObject private var decisionViewModel = DecisionViewModel()
 
     var body: some View {
         Group {
-            if decisionViewModel.isStartTimer == true {
+            if decisionViewModel.isTimerRunning {
                 VStack {
                     Text("손목을 돌려서 선택")
                         .font(.system(.footnote))
@@ -101,31 +94,6 @@ struct DecisionView: View {
                         }
                     }
                 }
-            }
-        }
-        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
-        .onChange(of: connectManager.timerStarted) { newValue in
-            if newValue && connectManager.stage == "decision" {
-                decisionViewModel.resetState()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    decisionViewModel.makeChoice()
-                }
-            }
-        }
-        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
-        .onChange(of: connectManager.decisionIndex) { newValue in
-            decisionViewModel.decisionIndex = newValue
-            decisionViewModel.resetState()
-        }
-        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
-        .onChange(of: connectManager.isFirstRequest) { newValue in
-            decisionViewModel.isFirstRequest = newValue
-            decisionViewModel.resetState()
-        }
-        // TODO: onChange 제거 : ViewModel로 분리, Deprecated 신경쓰기
-        .onChange(of: connectManager.isInterrupt) { newValue in
-            if newValue {
-                decisionViewModel.interruptByPhone()
             }
         }
         .navigationBarBackButtonHidden(true)

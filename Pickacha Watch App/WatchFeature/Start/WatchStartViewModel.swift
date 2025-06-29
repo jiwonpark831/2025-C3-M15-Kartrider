@@ -6,16 +6,23 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 
 class WatchStartViewModel: ObservableObject {
-    @Published var watchConnectivityManager: WatchConnectManager
-    @Published var isStart = false
-    private let synthesizer = AVSpeechSynthesizer()
 
-    init(watchConnectivityManager: WatchConnectManager) {
-        self.watchConnectivityManager = watchConnectivityManager
-        self.isStart = watchConnectivityManager.startContent
+    let connectManager = WatchConnectManager.shared
+
+    private let synthesizer = AVSpeechSynthesizer()
+    private var cancellable = Set<AnyCancellable>()
+
+    @Published var hasStartedContent = false
+
+    init() {
+        connectManager.$hasStartedContent
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.hasStartedContent, on: self)
+            .store(in: &cancellable)
     }
 
     func speak(_ text: String) {

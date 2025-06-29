@@ -10,19 +10,11 @@ import WatchConnectivity
 
 class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
-    @Published var msg: [String: Any] = [:]
-
-    @Published var stage: String = ""
-    @Published var startContent: Bool = false
-    @Published var timerStarted: Bool = false
-    @Published var isPlayTTS: Bool = true
-    @Published var decisionIndex: Int = 0
-    @Published var isFirstRequest: Bool = false
-    @Published var isInterrupt: Bool = false
+    static let shared = WatchConnectManager()
 
     var session: WCSession
 
-    init(session: WCSession = .default) {
+    private init(session: WCSession = .default) {
         self.session = session
         super.init()
         if WCSession.isSupported() {
@@ -32,6 +24,15 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             print("[ERROR] WCSession not supported")
         }
     }
+
+    @Published var message: [String: Any] = [:]
+    @Published var currentStage: String = ""
+    @Published var hasStartedContent: Bool = false
+    @Published var isTimerRunning: Bool = false
+    @Published var isTTSPlaying: Bool = true
+    @Published var decisionIndex: Int = 0
+    @Published var isFirstRequest: Bool = false
+    @Published var isInterrupted: Bool = false
 
     func session(
         _ session: WCSession,
@@ -45,22 +46,22 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
     {
         DispatchQueue.main.async {
             print("[DEBUG] Received message: \(message)")
-            guard let stage = message["stage"] as? String else {
+            guard let currentStage = message["stage"] as? String else {
                 print("[ERROR] stage is nil")
                 return
             }
             print(
-                "[DEBUG] stage raw value: '\(stage)' (type: \(type(of: stage)))"
+                "[DEBUG] stage raw value: '\(currentStage)' (type: \(type(of: currentStage)))"
             )
 
-            if let startContent = message["startContent"] as? Bool {
-                self.startContent = startContent
+            if let hasStartedContent = message["startContent"] as? Bool {
+                self.hasStartedContent = hasStartedContent
             }
-            if let timerStarted = message["timerStarted"] as? Bool {
-                self.timerStarted = timerStarted
+            if let isTimerRunning = message["timerStarted"] as? Bool {
+                self.isTimerRunning = isTimerRunning
             }
-            if let isPlayTTS = message["isPlayTTS"] as? Bool {
-                self.isPlayTTS = isPlayTTS
+            if let isTTSPlaying = message["isPlayTTS"] as? Bool {
+                self.isTTSPlaying = isTTSPlaying
             }
             if let decisionIndex = message["decisionIndex"] as? Int {
                 self.decisionIndex = decisionIndex
@@ -68,40 +69,42 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
             if let isFirstRequest = message["isFirstRequest"] as? Bool {
                 self.isFirstRequest = isFirstRequest
             }
-            if let isInterrupt = message["isInterrupt"] as? Bool {
-                self.isInterrupt = isInterrupt
+            if let isInterrupted = message["isInterrupt"] as? Bool {
+                self.isInterrupted = isInterrupted
             }
 
-            print("[STAGE] stage: \(stage)")
+            print("[STAGE] stage: \(currentStage)")
 
-            print(
-                "[DEBUG] stage will change from '\(self.stage)' to '\(stage)'")
-            self.stage = stage
-            print("[DEBUG] stage did change to '\(self.stage)'")
+            self.currentStage = currentStage
+            print("[DEBUG] stage did change to '\(self.currentStage)'")
 
-            switch stage {
+            switch currentStage {
             case "idle":
-                print("[IDLE] startContent: \(self.startContent)")
-                self.msg = ["stage": "idle", "startContent": self.startContent]
+                print("[IDLE] startContent: \(self.hasStartedContent)")
+                self.message = [
+                    "stage": "idle", "startContent": self.hasStartedContent,
+                ]
             case "exposition":
-                print("[EXPOSITION] isPlayTTS: \(self.isPlayTTS)")
-                self.msg = ["stage": "exposition", "isPlayTTS": self.isPlayTTS]
+                print("[EXPOSITION] isPlayTTS: \(self.isTTSPlaying)")
+                self.message = [
+                    "stage": "exposition", "isPlayTTS": self.isTTSPlaying,
+                ]
             case "decision":
                 print(
-                    "[DECISION] timerStarted: \(self.timerStarted), decisionIndex: \(self.decisionIndex), isFirstRequest: \(self.isFirstRequest)"
+                    "[DECISION] timerStarted: \(self.isTimerRunning), decisionIndex: \(self.decisionIndex), isFirstRequest: \(self.isFirstRequest)"
                 )
-                self.msg = [
-                    "stage": "decision", "timerStarted": self.timerStarted,
+                self.message = [
+                    "stage": "decision", "timerStarted": self.isTimerRunning,
                     "decisionIndex": self.decisionIndex,
                     "isFirstRequest": self.isFirstRequest,
                 ]
             case "ending":
-                print("[ENDING] timerStarted: \(self.timerStarted)")
-                self.msg = [
-                    "stage": "ending", "timerStarted": self.timerStarted,
+                print("[ENDING] timerStarted: \(self.isTimerRunning)")
+                self.message = [
+                    "stage": "ending", "timerStarted": self.isTimerRunning,
                 ]
             default:
-                print("[ERROR] wrong stage: \(stage)")
+                print("[ERROR] wrong stage: \(currentStage)")
             }
         }
     }
@@ -152,11 +155,11 @@ class WatchConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         session.sendMessage(message, replyHandler: nil)
     }
 
-    func scheduleFirstTimeout(_ decisionIndex: Int) {
+    func sendFirstTimeout(_ decisionIndex: Int) {
         sendTimeoutToIos(decisionIndex, isFirstRequest: true)
     }
 
-    func scheduleSecondTimeout(_ decisionIndex: Int) {
+    func sendSecondTimeout(_ decisionIndex: Int) {
         sendTimeoutToIos(decisionIndex, isFirstRequest: false)
     }
 }

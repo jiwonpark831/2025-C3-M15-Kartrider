@@ -8,42 +8,24 @@
 import SwiftUI
 
 struct WatchStoryView: View {
-    // TODO: connectManager : 객체를 분리하자
-    @EnvironmentObject private var connectManager: WatchConnectManager
+
     @EnvironmentObject private var coordinator: WatchNavigationCoordinator
-    @StateObject private var watchStoryViewModel: WatchStoryViewModel
+    @StateObject private var watchStoryViewModel = WatchStoryViewModel()
 
-    // TODO: init 제거
-    init(connectManager: WatchConnectManager) {
-        _watchStoryViewModel = StateObject(
-            wrappedValue: WatchStoryViewModel(
-                watchConnectivityManager: connectManager
-            )
-        )
-    }
-
-    // TODO: 컴포넌트로 분리 - 로직 수정
+    // TODO: 컴포넌트로 분리 - 로직 수정 -> Gigi: 컴포넌트.. 어떤 거를 만들어야 하나요..?
     var body: some View {
         VStack {
-            contentView(for: connectManager.stage)
-                .id(connectManager.stage)
-        }
-        .onReceive(connectManager.$stage) { newStage in
-            print("[VIEW] stage updated to '\(newStage)'")
-        }
-    }
-
-    // TODO: ViewBuilder 제거, 컴포넌트로 분리
-    @ViewBuilder
-    func contentView(for stage: String) -> some View {
-        switch stage {
-        case "exposition": ExpositionView(connectManager: connectManager)
-        case "decision": DecisionView(connectManager: connectManager)
-        case "ending":
-            Color.clear.onAppear {
-                coordinator.push(.outro)
+            switch watchStoryViewModel.currentStage {
+            case "exposition":
+                ExpositionView()
+            case "decision":
+                DecisionView()
+            case "ending":
+                Color.clear.onAppear {
+                    coordinator.push(.outro)
+                }
+            default: Text("Loading...")
             }
-        default: Text("Loading...")
-        }
+        }.id(watchStoryViewModel.currentStage)
     }
 }

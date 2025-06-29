@@ -9,13 +9,13 @@ import SwiftUI
 
 // MARK: 제발 개행을 신경써!!!!!
 struct AppNavigationView: View {
-    
+
     @StateObject var coordinator = NavigationCoordinator()
     @StateObject private var ttsManager = TTSManager()
     @EnvironmentObject private var iosConnectManager: IosConnectManager
-    
+
     var body: some View {
-        NavigationStack(path: $coordinator.paths) {
+        NavigationStack(path: $coordinator.path) {
             HomeView()
                 .navigationDestination(for: Route.self) { route in
                     switch route {
