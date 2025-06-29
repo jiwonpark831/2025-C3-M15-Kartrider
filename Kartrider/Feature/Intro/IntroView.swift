@@ -15,7 +15,7 @@ struct IntroView: View {
     @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var viewModel: IntroViewModel
 
-    // TODO: init 제거
+    // TODO: init 제거 -> 어떻게 제거해요? content를 넘겨줘야하는데!!!
     init(content: ContentMeta) {
         _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
     }
@@ -27,75 +27,36 @@ struct IntroView: View {
         ) {
             VStack(spacing: 16) {
 
-                thumbnailSection
+                IntroThumbnailView(content: viewModel.content)
 
                 Divider()
                     .frame(width: 360)
 
-                descriptionSection
+                IntroDescriptionView(content: viewModel.content)
 
-                actionSection
+                OrangeButton(title: "이야기 시작하기") { // TODO: - 로직 vm으로 옮기기
+
+                    iosConnectManager.sendStageIdle()
+
+                    switch viewModel.content.type {
+                    case .story:
+                        if let startNodeId = viewModel.content.story?.startNodeId {
+                            coordinator.push(
+                                Route.story(viewModel.content.title, startNodeId))
+                        } else {
+                            print("[ERROR] 스토리가 존재하지 않음")
+                        }
+                    case .tournament:
+                        if let id = viewModel.content.tournament?.id {
+                            coordinator.push(Route.tournament(viewModel.content))
+                        } else {
+                            print("[ERROR] 토너먼트가 존재하지 않음")
+                        }
+                    }
+                }
+                .padding(.vertical, 20)
             }
         }
-    }
-
-    // TODO: 컴포넌트 분리
-    private var thumbnailSection: some View {
-        ContentCardView(
-            content: viewModel.content, showsTags: false, imageHeight: 435,
-            aspectRatio: 320.0 / 435.0)
-    }
-
-    // TODO: 컴포넌트 분리
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(viewModel.content.title)
-                .font(.title2)
-                .bold()
-                .foregroundColor(Color.textPrimary)
-
-            Text(viewModel.content.summary.insertLineBreak(every: 32))
-                .font(.footnote)
-                .foregroundColor(Color.textSecondary)
-                .multilineTextAlignment(.leading)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack(spacing: 8) {
-                ForEach(viewModel.content.hashtags, id: \.self) { tag in
-                    TagBadgeView(text: tag, style: .secondary)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 20)
-    }
-
-    // TODO: 컴포넌트 분리
-    private var actionSection: some View {
-        OrangeButton(title: "이야기 시작하기") {
-            print("시작버튼 눌림")
-
-            iosConnectManager.sendStageIdle()
-
-            switch viewModel.content.type {
-            case .story:
-                if let startNodeId = viewModel.content.story?.startNodeId {
-                    coordinator.push(
-                        Route.story(viewModel.content.title, startNodeId))
-                } else {
-                    print("[ERROR] 스토리가 존재하지 않음")
-                }
-            case .tournament:
-                if let id = viewModel.content.tournament?.id {
-                    coordinator.push(
-                        Route.tournament(viewModel.content.title, id))
-                } else {
-                    print("[ERROR] 토너먼트가 존재하지 않음")
-                }
-            }
-        }
-        .padding(.vertical, 20)
     }
 }
 

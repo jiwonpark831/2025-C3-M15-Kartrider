@@ -26,11 +26,13 @@ struct TournamentView: View {
     let id: UUID
 
     // TODO: init 제거
-    init(title: String, id: UUID) {
-        _viewModel = StateObject(
-            wrappedValue: TournamentViewModel(tournamentId: id))
-        self.title = title
-        self.id = id
+    init(content: ContentMeta) {
+        guard let tournamentId = content.tournament?.id else {
+            fatalError("Tournament ID가 없습니다")
+        }
+        _viewModel = StateObject(wrappedValue: TournamentViewModel(tournamentId: tournamentId))
+        self.title = content.title
+        self.id = content.id
     }
 
     var body: some View {
@@ -42,7 +44,40 @@ struct TournamentView: View {
         ) {
             VStack(spacing: 16) {
                 Divider()
-                contentBody
+                
+                if viewModel.isFinished, let winner = viewModel.winner {
+                    TournamentResultView(winner: winner.name) {
+                        coordinator.popToRoot()
+                    }
+                    .task(id: viewModel.winner?.id) {
+                        iosConnectManager.sendStageEndingTTS()
+                        guard let name = viewModel.winner?.name else { return }
+                        // TODO: ttsManager.stop : Async함수 아님
+                        await ttsManager.stop()
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
+                        iosConnectManager.sendStageEndingTimer()
+                    }
+                    // TODO: a, b 이렇게 쓰지 말고, 알기 쉬운 변수명으로 변경
+                } else if let (a, b) = viewModel.currentCandidates {
+                    TournamentMatchView(
+                        roundDescription: viewModel.currentRoundDescription,
+                        a: a.name,
+                        b: b.name,
+                        onSelectA: {
+                            selectedOption = .a
+                            handleSelection(a)
+                        },
+                        onSelectB: {
+                            selectedOption = .b
+                            handleSelection(b)
+                        },
+                        buttonDisabled: ttsManager.state == .playing,
+                        selectedOption: selectedOption
+                    )
+                } else {
+                    ProgressView()
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -79,55 +114,6 @@ struct TournamentView: View {
         .onChange(of: iosConnectManager.timeout) { newValue in
             handleTimeout(newValue)
         }
-    }
-
-    // MARK: - View Sections
-    @ViewBuilder
-    private var contentBody: some View {
-        if viewModel.isFinished, let winner = viewModel.winner {
-            TournamentResultView(winner: winner.name) {
-                coordinator.popToRoot()
-            }
-            .task(id: viewModel.winner?.id) {
-                iosConnectManager.sendStageEndingTTS()
-                guard let name = viewModel.winner?.name else { return }
-                // TODO: ttsManager.stop : Async함수 아님
-                await ttsManager.stop()
-                try? await Task.sleep(nanoseconds: 300_000_000)
-                await ttsManager.speakSequentially("최종 우승자는 \(winner.name)입니다")
-                iosConnectManager.sendStageEndingTimer()
-            }
-            // TODO: a, b 이렇게 쓰지 말고, 알기 쉬운 변수명으로 변경
-        } else if let (a, b) = viewModel.currentCandidates {
-            TournamentMatchView(
-                roundDescription: viewModel.currentRoundDescription,
-                a: a.name,
-                b: b.name,
-                onSelectA: {
-                    selectedOption = .a
-                    handleSelection(a)
-                },
-                onSelectB: {
-                    selectedOption = .b
-                    handleSelection(b)
-                },
-                buttonDisabled: ttsManager.state == .playing,
-                selectedOption: selectedOption
-            )
-        } else {
-            ProgressView()
-        }
-    }
-
-    private var statusIndicator: some View {
-        Text(ttsManager.state == .playing ? "읽는 중..." : "정지됨")
-            .font(.caption)
-            .foregroundColor(.gray)
-    }
-
-    private var retryButton: some View {
-        Button("선택지 다시 듣기", action: speakOnlyChoices)
-            .padding(.top, 8)
     }
 }
 
@@ -228,5 +214,14 @@ extension TournamentView {
 }
 
 #Preview {
-    TournamentView(title: "타이틀 확인중", id: UUID())
+    
+    let sample = ContentMeta(
+        title: "눈 떠보니 내가 T1 페이커?!",
+        summary: "2025 월즈가 코 앞인데 아이언인 내가 어느날 눈 떠보니 페이커 몸에 들어와버렸다.",
+        type: .story,
+        hashtags: ["빙의", "LOL", "고트"],
+        thumbnailName: nil
+    )
+    
+    TournamentView(content: sample)
 }

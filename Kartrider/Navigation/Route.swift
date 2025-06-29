@@ -11,7 +11,7 @@ enum Route: Hashable {
     case home
     case intro(ContentMeta)
     case story(String, String)
-    case tournament(String, UUID)
+    case tournament(ContentMeta)
     case outro
     case contentLibrary
     case contentSummary
