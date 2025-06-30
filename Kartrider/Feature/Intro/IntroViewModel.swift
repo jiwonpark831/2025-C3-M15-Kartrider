@@ -8,6 +8,7 @@
 import Foundation
 
 class IntroViewModel: ObservableObject {
+
     let connectManager = IosConnectManager.shared
 
     @Published var content: ContentMeta
@@ -19,8 +20,8 @@ class IntroViewModel: ObservableObject {
             "[DEBUG] IntroViewModel 초기화 - 제목 : \(content.title), 타입 : \(content.type)"
         )
     }
-    
-    func sendStageIdle(){
+
+    func sendStageIdle() {
         connectManager.sendStageIdle()
     }
 }

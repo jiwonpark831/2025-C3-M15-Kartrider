@@ -29,7 +29,6 @@ struct StoryView: View {
         ) {
             VStack(spacing: 16) {
                 Divider()
-                //                Group {
                 if storyViewModel.isLoading {
                     DescriptionBoxView(
                         text: storyViewModel.currentNode?.text ?? "")
