@@ -7,7 +7,6 @@
 import Foundation
 import AVFoundation
 
-// TODO: 니카가 차근차근 리팩토링 해보기!
 final class TTSManager: NSObject, @unchecked Sendable, ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     private var currentContinuation: CheckedContinuation<Void, Never>?

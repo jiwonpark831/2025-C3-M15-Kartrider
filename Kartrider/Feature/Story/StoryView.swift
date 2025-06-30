@@ -13,13 +13,13 @@ struct StoryView: View {
     // TODO: iosConnectManager 단일 객체로 관리하기
     @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var storyViewModel: StoryViewModel
-
+    
     init(content: ContentMeta) {
         _storyViewModel = StateObject(
             wrappedValue: StoryViewModel(content: content)
         )
     }
-
+    
     var body: some View {
         NavigationBarWrapper(
             navStyle: NavigationBarStyle.play(title: storyViewModel.content.title),
@@ -38,25 +38,25 @@ struct StoryView: View {
                         Text(errorMessage)
                     } else if let storyNode = storyViewModel.currentNode {
                         VStack {
-
+                            
                             DescriptionBoxView(text: storyNode.text)
-
+                            
                             StoryNodeContentView(
                                 storyNode: storyNode,
                                 isDisabled: storyViewModel.isSequenceInProgress,
                                 selectChoice: storyViewModel.selectChoice(toId:),
                                 title: storyViewModel.content.title
                             )
-
+                            
                             Spacer()
-
+                            
                             TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
                                 storyViewModel.toggleSpeaking()
                             }
                             // TODO: ViewModel로 분리
                             .disabled(
                                 storyViewModel.isTransitioningTTS
-                                    || storyViewModel.isTogglingTTS)
+                                || storyViewModel.isTogglingTTS)
                         }
                         .contentShape(Rectangle())
                     }
@@ -76,19 +76,19 @@ struct StoryView: View {
         // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let selected = newOption else { return }
-
+            
             print("[DEBUG] 워치 선택 감지: \(selected.rawValue)")
             storyViewModel.handleWatchChoice(option: selected)
-
+            
             iosConnectManager.selectedOption = nil
-
+            
         }
         // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.isPlayTTS) { newValue in
             if newValue == storyViewModel.isSpeaking {
                 return
             }
-
+            
             if newValue {
                 storyViewModel.ttsManager.resume()
             } else {
@@ -99,7 +99,7 @@ struct StoryView: View {
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
             guard !storyViewModel.isSequenceInProgress else { return }
-
+            
             Task {
                 await MainActor.run {
                     storyViewModel.isSequenceInProgress = true
@@ -113,14 +113,15 @@ struct StoryView: View {
             storyViewModel.handleTimeout(newValue)
         }
     }
-
-#Preview {
-    let contentSample = ContentMeta(
-        title: "title sample",
-        summary: "summary sample",
-        type: .story,
-        hashtags: ["test", "test2"],
-        thumbnailName: nil
-    )
-    StoryView(content: contentSample)
+    
+    #Preview {
+        let contentSample = ContentMeta(
+            title: "title sample",
+            summary: "summary sample",
+            type: .story,
+            hashtags: ["test", "test2"],
+            thumbnailName: nil
+        )
+        StoryView(content: contentSample)
+    }
 }
