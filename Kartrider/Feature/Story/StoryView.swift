@@ -13,20 +13,16 @@ struct StoryView: View {
     // TODO: iosConnectManager 단일 객체로 관리하기
     @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var storyViewModel: StoryViewModel
-
-    // TODO: ViewModel로 분리
-    let title: String
-
-    // TODO: Init 없애기 - Id, title을 ViewModel로 분리
-    init(title: String, id: String) {
+    
+    init(content: ContentMeta) {
         _storyViewModel = StateObject(
-            wrappedValue: StoryViewModel(title: title, id: id))
-        self.title = title
+            wrappedValue: StoryViewModel(content: content)
+        )
     }
-
+    
     var body: some View {
         NavigationBarWrapper(
-            navStyle: NavigationBarStyle.play(title: title),
+            navStyle: NavigationBarStyle.play(title: storyViewModel.content.title),
             onTapLeft: {
                 storyViewModel.ttsManager.pause()
                 coordinator.pop()
@@ -42,20 +38,25 @@ struct StoryView: View {
                         Text(errorMessage)
                     } else if let storyNode = storyViewModel.currentNode {
                         VStack {
-
+                            
                             DescriptionBoxView(text: storyNode.text)
-
-                            nodeTypeView(for: storyNode)
-
+                            
+                            StoryNodeContentView(
+                                storyNode: storyNode,
+                                isDisabled: storyViewModel.isSequenceInProgress,
+                                selectChoice: storyViewModel.selectChoice(toId:),
+                                title: storyViewModel.content.title
+                            )
+                            
                             Spacer()
-
+                            
                             TTSControlButton(isSpeaking: storyViewModel.isSpeaking) {
                                 storyViewModel.toggleSpeaking()
                             }
                             // TODO: ViewModel로 분리
                             .disabled(
                                 storyViewModel.isTransitioningTTS
-                                    || storyViewModel.isTogglingTTS)
+                                || storyViewModel.isTogglingTTS)
                         }
                         .contentShape(Rectangle())
                     }
@@ -75,19 +76,19 @@ struct StoryView: View {
         // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.selectedOption) { newOption in
             guard let selected = newOption else { return }
-
+            
             print("[DEBUG] 워치 선택 감지: \(selected.rawValue)")
             storyViewModel.handleWatchChoice(option: selected)
-
+            
             iosConnectManager.selectedOption = nil
-
+            
         }
         // TODO: 곧 망함. or Combine을 활용해보자!
         .onChange(of: iosConnectManager.isPlayTTS) { newValue in
             if newValue == storyViewModel.isSpeaking {
                 return
             }
-
+            
             if newValue {
                 storyViewModel.ttsManager.resume()
             } else {
@@ -98,7 +99,7 @@ struct StoryView: View {
         .onChange(of: storyViewModel.currentNode) { _, newNode in
             guard let storyNode = newNode else { return }
             guard !storyViewModel.isSequenceInProgress else { return }
-
+            
             Task {
                 await MainActor.run {
                     storyViewModel.isSequenceInProgress = true
@@ -112,43 +113,15 @@ struct StoryView: View {
             storyViewModel.handleTimeout(newValue)
         }
     }
-
-    // TODO: ViewBuilder 제거, 컴포넌트로 분리
-    @ViewBuilder
-    private func nodeTypeView(for storyNode: StoryNode) -> some View {
-        switch storyNode.type {
-        case .exposition:
-            EmptyView()
-        case .decision:
-            VStack(spacing: 12) {
-                if let choiceA = storyNode.choiceA,
-                    let choiceB = storyNode.choiceB
-                {
-                    DecisionBoxView(
-                        text: choiceA.text,
-                        storyChoiceOption: .a,
-                        action: {
-                            storyViewModel.selectChoice(toId: choiceA.toId)
-                        }
-                    )
-                    .disabled(storyViewModel.isSequenceInProgress)
-
-                    DecisionBoxView(
-                        text: choiceB.text,
-                        storyChoiceOption: .b,
-                        action: {
-                            storyViewModel.selectChoice(toId: choiceB.toId)
-                        }
-                    )
-                    .disabled(storyViewModel.isSequenceInProgress)
-                }
-            }
-        case .ending:
-            Text("엔딩입니다.").font(.title)
-        }
+    
+    #Preview {
+        let contentSample = ContentMeta(
+            title: "title sample",
+            summary: "summary sample",
+            type: .story,
+            hashtags: ["test", "test2"],
+            thumbnailName: nil
+        )
+        StoryView(content: contentSample)
     }
-}
-
-#Preview {
-    StoryView(title: "임시 타이틀인데요", id: "")
 }

@@ -23,8 +23,8 @@ struct AppNavigationView: View {
                         HomeView()
                     case .intro(let content):
                         IntroView(content: content)
-                    case .story(let title, let id):
-                        StoryView(title: title, id: id)
+                    case .story(let content):
+                        StoryView(content: content)
                     case .tournament(let content):
                         TournamentView(content: content)
                     case .outro:
