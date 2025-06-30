@@ -11,7 +11,7 @@ import SwiftUI
 struct AppNavigationView: View {
 
     @StateObject var coordinator = NavigationCoordinator()
-    var ttsManager = TTSManager()
+    @Stateobject private var ttsManager = TTSManager()
     @EnvironmentObject private var iosConnectManager: IosConnectManager
 
     var body: some View {
