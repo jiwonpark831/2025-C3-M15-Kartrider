@@ -18,10 +18,9 @@ struct KartriderApp: App {
             if seedManager.isReady {
                 AppNavigationView()
                     .modelContainer(seedManager.container)
-                    .environmentObject(iosConnectManager)
             } else {
                 LaunchView()
-                    .task{
+                    .task {
                         await seedManager.seedIfNeeded()
                     }
             }

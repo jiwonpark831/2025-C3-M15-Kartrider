@@ -12,7 +12,6 @@ struct IntroView: View {
     
     @EnvironmentObject private var coordinator: NavigationCoordinator
     // TODO: 객체 ViewModel에서 생성
-    @EnvironmentObject private var iosConnectManager: IosConnectManager
     @StateObject private var viewModel: IntroViewModel
 
     // TODO: init 제거 -> 어떻게 제거해요? content를 넘겨줘야하는데!!!
@@ -36,7 +35,7 @@ struct IntroView: View {
 
                 OrangeButton(title: "이야기 시작하기") { // TODO: - 로직 vm으로 옮기기
 
-                    iosConnectManager.sendStageIdle()
+                    viewModel.sendStageIdle()
 
                     switch viewModel.content.type {
                     case .story:
