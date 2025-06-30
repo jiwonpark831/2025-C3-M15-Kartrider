@@ -34,11 +34,12 @@ class TournamentViewModel: ObservableObject {
     }
     
     init(
-        tournamentId: UUID,
+        content: ContentMeta,
         contentRepository: ContentRepositoryProtocol = ContentRepository(),
         historyRepository: PlayHistoryRepositoryProtocol = PlayHistoryRepository()
     ) {
-        self.tournamentId = tournamentId
+        self.tournament = content.tournament
+        self.tournamentId = content.tournament!.id
         self.contentRepository = contentRepository
         self.historyRepository = historyRepository
     }
@@ -116,7 +117,7 @@ class TournamentViewModel: ObservableObject {
         do {
             try historyRepository.saveTournamentHistory(
                 context: context,
-                tournamentId: tournamentId,
+                tournament: tournament!,
                 winner: winner,
                 matchHistory: matchHistory
             )
