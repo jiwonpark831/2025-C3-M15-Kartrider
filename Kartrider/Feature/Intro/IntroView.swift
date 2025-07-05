@@ -9,15 +9,15 @@ import SwiftUI
 // TODO: 컴포넌트 분리
 struct IntroView: View {
     @Environment(\.modelContext) private var context
-    
+
     @EnvironmentObject private var coordinator: NavigationCoordinator
     // TODO: 객체 ViewModel에서 생성
-    @EnvironmentObject private var iosConnectManager: IosConnectManager
-    @StateObject private var viewModel: IntroViewModel
+    @StateObject private var introViewModel: IntroViewModel
 
     // TODO: init 제거 -> 어떻게 제거해요? content를 넘겨줘야하는데!!!
     init(content: ContentMeta) {
-        _viewModel = StateObject(wrappedValue: IntroViewModel(content: content))
+        _introViewModel = StateObject(
+            wrappedValue: IntroViewModel(content: content))
     }
 
     var body: some View {
@@ -27,28 +27,31 @@ struct IntroView: View {
         ) {
             VStack(spacing: 16) {
 
-                IntroThumbnailView(content: viewModel.content)
+                IntroThumbnailView(content: introViewModel.content)
 
                 Divider()
                     .frame(width: 360)
 
-                IntroDescriptionView(content: viewModel.content)
+                IntroDescriptionView(content: introViewModel.content)
 
-                OrangeButton(title: "이야기 시작하기") { // TODO: - 로직 vm으로 옮기기
+                OrangeButton(title: "이야기 시작하기") {  // TODO: - 로직 vm으로 옮기기
 
-                    iosConnectManager.sendStageIdle()
+                    introViewModel.sendStageIdle()
 
-                    switch viewModel.content.type {
+                    switch introViewModel.content.type {
                     case .story:
-                        if let startNodeId = viewModel.content.story?.startNodeId {
+                        if let startNodeId = introViewModel.content.story?
+                            .startNodeId
+                        {
                             coordinator.push(
-                                Route.story(viewModel.content))
+                                Route.story(introViewModel.content))
                         } else {
                             print("[ERROR] 스토리가 존재하지 않음")
                         }
                     case .tournament:
-                        if let id = viewModel.content.tournament?.id {
-                            coordinator.push(Route.tournament(viewModel.content))
+                        if let id = introViewModel.content.tournament?.id {
+                            coordinator.push(
+                                Route.tournament(introViewModel.content))
                         } else {
                             print("[ERROR] 토너먼트가 존재하지 않음")
                         }

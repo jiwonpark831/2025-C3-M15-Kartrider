@@ -1,3 +1,4 @@
+import Combine
 //
 //  StoryViewModel.swift
 //  Kartrider
@@ -8,13 +9,15 @@ import Foundation
 import SwiftData
 
 class StoryViewModel: ObservableObject {
+
+    let connectManager = IosConnectManager.shared
+
+    private var cancellable = Set<AnyCancellable>()
+
     let content: ContentMeta
     let startNodeId: String
     private let contentRepository: ContentRepositoryProtocol
     private var lastToggleTime: Date = .distantPast
-
-    // TODO: iOSConnectManager 사용 안함 (여기서 생성한 적이 없음)
-    @Published var iosConnectManager: IosConnectManager?
 
     @Published var isLoading: Bool = true
     @Published var errorMessage: String?
@@ -22,7 +25,7 @@ class StoryViewModel: ObservableObject {
     @Published var isSequenceInProgress = false
     @Published var selectedPath: [StoryChoiceOption] = []
     @Published var endingId: String = ""
-    @Published var isSpeaking = false
+    @Published var isTTSPlaying = false
     @Published var isTogglingTTS = false
     @Published var isTransitioningTTS = false
 
@@ -42,11 +45,43 @@ class StoryViewModel: ObservableObject {
 
         ttsManager.didSpeakingStateChanged = { [weak self] speaking in
             DispatchQueue.main.async {
-                self?.isSpeaking = speaking
+                self?.isTTSPlaying = speaking
                 self?.isTogglingTTS = false
             }
         }
 
+        connectManager.$isTTSPlaying
+            .receive(on: DispatchQueue.main)
+            .sink { newValue in
+                if newValue == self.isTTSPlaying {
+                    return
+                }
+
+                if newValue {
+                    self.ttsManager.resume()
+                } else {
+                    self.ttsManager.pause()
+                }
+                self.isTTSPlaying = newValue
+            }
+            .store(in: &cancellable)
+
+        connectManager.$selectedOption
+            .receive(on: DispatchQueue.main)
+            .sink { newValue in
+                guard let selected = newValue else { return }
+                print("[DEBUG] 워치 선택 감지: \(selected.rawValue)")
+                self.handleWatchChoice(option: selected)
+                self.connectManager.selectedOption = nil
+            }
+            .store(in: &cancellable)
+
+        connectManager.$isTimeout
+            .receive(on: DispatchQueue.main)
+            .sink { newValue in
+                self.handleTimeout(newValue)
+            }
+            .store(in: &cancellable)
     }
 
     @MainActor
@@ -71,8 +106,9 @@ class StoryViewModel: ObservableObject {
 
     func goToNextNode(from currentNode: StoryNode) {
         guard let nextId = currentNode.nextId,
-              let story = currentNode.story,
-              let nextNode = story.nodes.first(where: {$0.id == nextId}) else {
+            let story = currentNode.story,
+            let nextNode = story.nodes.first(where: { $0.id == nextId })
+        else {
             errorMessage = "다음 스토리 노드를 찾을 수 없습니다"
             return
         }
@@ -84,8 +120,9 @@ class StoryViewModel: ObservableObject {
 
     func selectChoice(toId: String) {
         guard let currentNode = currentNode,
-              let story = currentNode.story,
-              let nextNode = story.nodes.first(where: { $0.id == toId }) else {
+            let story = currentNode.story,
+            let nextNode = story.nodes.first(where: { $0.id == toId })
+        else {
             errorMessage = "선택한 노드를 찾을 수 없습니다"
             return
         }
@@ -107,18 +144,18 @@ class StoryViewModel: ObservableObject {
         self.isSequenceInProgress = true
 
         if node.type == .decision {
-            // TODO: iosConnectManager : 아직 값이 없음.
-            iosConnectManager?.timeout = false
-            iosConnectManager?.isFirstRequest = true
+            connectManager.isTimeout = false
+            connectManager.isFirstRequest = true
             secPlayed = false
             firstDecision(node: node)
 
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
-            await goToEndingNode(title: content.title, toId: endingId, context: context)
+            await goToEndingNode(
+                title: content.title, toId: endingId, context: context)
 
         } else if node.type == .exposition {
-            iosConnectManager?.sendStageExpositionWithResume()
+            connectManager.sendStageExpositionWithResume()
             await ttsManager.speakSequentially(node.text)
             self.goToNextNode(from: node)
         }
@@ -148,13 +185,11 @@ class StoryViewModel: ObservableObject {
                 let endingNode = story.nodes.first(where: { $0.id == toId })
             {
                 currentNode = endingNode
-                // TODO: 아직 값이 없음.
-                iosConnectManager?.sendStageEndingTTS()
+                connectManager.sendStageEndingTTS()
                 if !endingNode.text.isEmpty {
                     await ttsManager.speakSequentially(endingNode.text)
                 }
-                // TODO: 아직 값이 없음.
-                iosConnectManager?.sendStageEndingTimer()
+                connectManager.sendStageEndingTimer()
             } else {
                 errorMessage = "해당 결말을 찾을 수 없습니다"
             }
@@ -171,10 +206,10 @@ class StoryViewModel: ObservableObject {
         }
         isTogglingTTS = true
 
-        if isSpeaking {
-            iosConnectManager?.sendStageExpositionWithPause()
+        if isTTSPlaying {
+            connectManager.sendStageExpositionWithPause()
         } else {
-            iosConnectManager?.sendStageExpositionWithResume()
+            connectManager.sendStageExpositionWithResume()
         }
 
         ttsManager.toggleSpeaking()
@@ -184,7 +219,7 @@ class StoryViewModel: ObservableObject {
     }
     func handleWatchChoice(option: StoryChoiceOption) {
         guard let currentNode = currentNode else { return }
-        iosConnectManager?.sendChoiceInterrupt()
+        connectManager.sendChoiceInterrupt()
 
         switch option {
         case .a:
@@ -197,14 +232,11 @@ class StoryViewModel: ObservableObject {
             }
         }
     }
-    private func estimateDuration(for text: String) -> UInt64 {
-        return UInt64(Double(text.count) * 0.1 * 1_000_000_000)
-    }
 
     func firstDecision(node: StoryNode) {
         decisionTask?.cancel()
         decisionTask = Task {
-            iosConnectManager?.sendStageDecisionWithFirstTTS(decisionIndex)
+            connectManager.sendStageDecisionWithFirstTTS(decisionIndex)
             if !node.text.isEmpty {
                 await ttsManager.speakSequentially(node.text)
             }
@@ -213,7 +245,7 @@ class StoryViewModel: ObservableObject {
             await ttsManager.speakSequentially("B")
             await ttsManager.speakSequentially(node.choiceB?.text ?? "")
 
-            iosConnectManager?.sendStageDecisionWithFirstTimer(decisionIndex)
+            connectManager.sendStageDecisionWithFirstTimer(decisionIndex)
         }
     }
 
@@ -229,32 +261,28 @@ class StoryViewModel: ObservableObject {
 
         decisionTask = Task {
             secPlayed = true
-            iosConnectManager?.sendStageDecisionWithSecTTS(decisionIndex)
+            connectManager.sendStageDecisionWithSecTTS(decisionIndex)
             for text in texts { await ttsManager.speakSequentially(text) }
-            let totalDelay =
-                texts.map { estimateDuration(for: $0) }.reduce(0, +)
-                + 200_000_000
-            try? await Task.sleep(nanoseconds: totalDelay)
-            iosConnectManager?.sendStageDecisionWithSecTimer(decisionIndex)
+            connectManager.sendStageDecisionWithSecTimer(decisionIndex)
         }
     }
 
     func handleTimeout(_ newValue: Bool?) {
         let isTimeout = newValue == true
-        let noSelection = iosConnectManager?.selectedOption == nil
+        let noSelection = connectManager.selectedOption == nil
         guard isTimeout, noSelection,
             let node = currentNode, node.type == .decision
         else { return }
 
-        if iosConnectManager?.isFirstRequest == true {
+        if connectManager.isFirstRequest == true {
             playSecDecisionTTS(node: node)
-            iosConnectManager?.isFirstRequest = false
+            connectManager.isFirstRequest = false
         } else {
             if let toId = node.choiceA?.toId {
                 selectChoice(toId: toId)
             }
         }
-        iosConnectManager?.timeout = false
+        connectManager.isTimeout = false
     }
 
 }
