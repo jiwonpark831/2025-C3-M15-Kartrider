@@ -177,7 +177,7 @@
             "summary": "지금 당장 한 잔 하고 싶게 만드는 최고의 안주는?",
             "type": "tournament",
             "hashtags": ["술이당기는선택", "최애안주찾기", "월드컵"],
-            "thumbnailName": "thumb_default"
+            "thumbnailName": "thumb_anzoo"
         },
         "candidates": [
             { "name": "소금구이 삼겹살" },
@@ -220,7 +220,7 @@
             "summary": "공감 200% 폭팔하는 그 말! 당신이 제일 싫어하는 꼰대어는?",
             "type": "tournament",
             "hashtags": ["말한마디로정뚝떨", "꼰대어그만", "월드컵"],
-            "thumbnailName": "thumb_default"
+            "thumbnailName": "thumb_ccondae"
         },
         "candidates": [
             { "name": "내가 너 때는 말이야…" },
@@ -263,7 +263,7 @@
             "summary": "쓸모는 모르겠지만 이상하게 갖고 싶은 능력은?",
             "type": "tournament",
             "hashtags": ["애매한초능력", "일상판타지", "월드컵"],
-            "thumbnailName": "thumb_default"
+            "thumbnailName": "thumb_superpower"
         },
         "candidates": [
             { "name": "언제든 머릿속에서 딱 맞는 단어가 떠오름" },
@@ -306,7 +306,7 @@
             "summary": "연애할 때 꼭 지켜야 할 나만의 기준, 딱 하나만 골라보자!",
             "type": "tournament",
             "hashtags": ["연애기준", "사랑할때이건꼭", "월드컵"],
-            "thumbnailName": "thumb_default"
+            "thumbnailName": "thumb_value"
         },
         "candidates": [
             { "name": "첫인상부터 계속 설레게 만드는 비주얼의 중요성" },
