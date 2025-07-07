@@ -14,7 +14,7 @@ struct Seeder {
         await deleteAll(context: context)
         
         do {
-            try JSONParser<StoryJSON>(fileName: Constants.JSONFileName.storyData).insertData(into: context)
+            try JSONParser<StoryJSON>(fileName: Constants.JSONFileName.storyEmpty).insertData(into: context)
             print("[INFO] Story 시드 완료")
         } catch {
             print("[ERROR] Story 파싱 실패: \(error)")
