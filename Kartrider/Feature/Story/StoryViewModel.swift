@@ -89,8 +89,9 @@ class StoryViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         do {
-            if let story = try contentRepository.fetchStory(
-                by: content.title, context: context),
+            if let storyId = content.story?.id,
+               let story = try contentRepository.fetchStory(
+                by: storyId, context: context),
                 let node = story.nodes.first(where: { $0.id == startNodeId })
             {
                 currentNode = node
@@ -151,8 +152,7 @@ class StoryViewModel: ObservableObject {
 
         } else if node.nextId == nil {
             endingId = checkEndingCondition()
-            await goToEndingNode(
-                title: content.title, toId: endingId, context: context)
+            await goToEndingNode(toId: endingId, context: context)
 
         } else if node.type == .exposition {
             connectManager.sendStageExpositionWithResume()
@@ -175,13 +175,11 @@ class StoryViewModel: ObservableObject {
     }
 
     @MainActor
-    private func goToEndingNode(
-        title: String, toId: String, context: ModelContext
-    ) async {
+    private func goToEndingNode(toId: String, context: ModelContext) async {
         isLoading = true
         do {
-            if let story = try contentRepository.fetchStory(
-                by: title, context: context),
+            if let storyId = content.story?.id,
+               let story = try contentRepository.fetchStory(by: storyId, context: context),
                 let endingNode = story.nodes.first(where: { $0.id == toId })
             {
                 currentNode = endingNode
