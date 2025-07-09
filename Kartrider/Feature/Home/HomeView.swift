@@ -34,8 +34,10 @@ struct HomeView: View {
                 }
             }
         }
-        .task {
-            viewModel.loadContents(context: context)
+        .onAppear {
+            DispatchQueue.main.async {
+                viewModel.loadContents(context: context)
+            }
         }
     }
 }
