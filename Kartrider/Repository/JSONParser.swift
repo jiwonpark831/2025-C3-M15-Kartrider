@@ -30,7 +30,6 @@ struct JSONParser<T: JSONInsertable> {
     }
 
     func insertData(into context: ModelContext) throws {
-        // MARK: 이름 바꾸고 싶은데 뭐가 좋을지 모르겠다. 일단 parseAndInsert.. -> insertData
         let decodedList = try decode()
         
         for content in decodedList {
@@ -42,7 +41,6 @@ struct JSONParser<T: JSONInsertable> {
                 thumbnailName: content.meta.thumbnailName
             )
             context.insert(meta)
-            
             try content.insert(into: context, meta: meta)
         }
         
