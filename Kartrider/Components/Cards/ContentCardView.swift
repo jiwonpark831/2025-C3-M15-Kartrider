@@ -38,7 +38,7 @@ struct ContentCardView: View {
             if showsTags {
                 HStack(spacing: 8) {
                     ForEach(content.hashtags, id:\.self ) { tag in
-                        TagBadgeView(text: tag, style: .primary)
+                        TagBadgeView(text: tag.value, style: .primary)
                     }
                 }
                 .padding(16)
@@ -49,6 +49,16 @@ struct ContentCardView: View {
 }
 
 #Preview {
-    ContentCardView(content: ContentMeta(title: "눈 떠보니 내가 T1 페이커?!", summary: "오늘이 MSI 결승인데, 아이언인 내가 페이커 몸에 들어와버림", type: .story, hashtags: ["페이커", "빙의", "큰일남"], thumbnailName: ""))
+    ContentCardView(content: ContentMeta(
+        title: "눈 떠보니 내가 T1 페이커?!",
+        summary: "오늘이 MSI 결승인데, 아이언인 내가 페이커 몸에 들어와버림",
+        type: .story,
+        hashtags: [
+            Hashtag(value: "침착맨"),
+            Hashtag(value: "원피스"),
+            Hashtag(value: "취향저격")
+        ],
+        thumbnailName: "")
+    )
     .padding()
 }

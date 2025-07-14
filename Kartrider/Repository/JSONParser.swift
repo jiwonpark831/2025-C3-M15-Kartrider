@@ -33,11 +33,14 @@ struct JSONParser<T: JSONInsertable> {
         let decodedList = try decode()
         
         for content in decodedList {
+            
+            let hashtagModels = content.meta.hashtags.map { Hashtag(value: $0) }
+            
             let meta = ContentMeta(
                 title: content.meta.title,
                 summary: content.meta.summary,
                 type: ContentType(rawValue: content.meta.type) ?? .story,
-                hashtags: content.meta.hashtags,
+                hashtags: hashtagModels,
                 thumbnailName: content.meta.thumbnailName
             )
             context.insert(meta)
