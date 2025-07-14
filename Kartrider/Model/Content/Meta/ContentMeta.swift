@@ -14,13 +14,13 @@ class ContentMeta {
     var title: String
     var summary: String
     var type: ContentType
-    var hashtags: [String]
     var thumbnailName: String?
     
+    @Relationship(deleteRule: .cascade) var hashtags: [Hashtag]
     @Relationship(deleteRule: .cascade) var story: Story?
     @Relationship(deleteRule: .cascade) var tournament: Tournament?
     
-    init(title: String, summary: String, type: ContentType, hashtags: [String], thumbnailName: String? = nil) {
+    init(title: String, summary: String, type: ContentType, hashtags: [Hashtag], thumbnailName: String? = nil) {
         self.id = UUID()
         self.title = title
         self.summary = summary
@@ -29,3 +29,4 @@ class ContentMeta {
         self.thumbnailName = thumbnailName
     }
 }
+

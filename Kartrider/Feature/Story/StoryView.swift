@@ -88,7 +88,10 @@ struct StoryView: View {
             title: "title sample",
             summary: "summary sample",
             type: .story,
-            hashtags: ["test", "test2"],
+            hashtags: [
+                Hashtag(value: "빙의"),
+                Hashtag(value: "LOL"),
+            ],
             thumbnailName: nil
         )
         StoryView(content: contentSample)
