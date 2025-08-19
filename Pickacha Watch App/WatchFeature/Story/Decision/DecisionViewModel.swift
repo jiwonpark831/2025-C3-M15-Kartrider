@@ -32,25 +32,19 @@ class DecisionViewModel: ObservableObject {
     private var middle: Double = 0.0
 
     init() {
-        connectManager.$isTimerRunning
+        connectManager.$timerEnd
             .receive(on: DispatchQueue.main)
-            .sink {
-                newValue in
-                if self.connectManager.currentStage == Stage.decision.rawValue {
-                    if newValue {
-                        self.resetState()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            self.isTimerRunning = true  // 타이머 화면이 2번 그려지는데(0.0001초 동안 타이머->선택지재생->타이머) 약간의 로직 수정이 필요합니다
-                            self.makeChoice()
-                        }
-                    } else {
-                        self.isTimerRunning = false
+            .sink { newValue in
+                if newValue != nil {
+                    self.resetState()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self.isTimerRunning = true
+                        self.makeChoice(endDate: newValue!)
                     }
-                    print("[DECISION] isTimerRunning: \(self.isTimerRunning)")
                 } else {
-
-                    self.isTimerRunning = false
+                    self.stopTimer()
                 }
+                print("[DECISION] isTimerRunning: \(self.isTimerRunning)")
             }
             .store(in: &cancellable)
 
@@ -85,7 +79,6 @@ class DecisionViewModel: ObservableObject {
         choice = nil
         time = 10
         progress = 1.0
-        motionManager.stopDeviceMotionUpdates()
         middle = 0.0
         isSetMiddle = false
     }
@@ -94,6 +87,7 @@ class DecisionViewModel: ObservableObject {
         timer?.invalidate()
         timer = nil
         isTimerRunning = false
+        motionManager.stopDeviceMotionUpdates()
     }
 
     func timeOut() {
@@ -102,6 +96,10 @@ class DecisionViewModel: ObservableObject {
         time = 0
         progress = 0.0
         motionManager.stopDeviceMotionUpdates()
+        self.connectManager.sendTimeoutToIos(
+            self.decisionIndex,
+            isFirstRequest: self.isFirstRequest
+        )
     }
 
     func choiceDone() {
@@ -109,7 +107,7 @@ class DecisionViewModel: ObservableObject {
         self.motionManager.stopDeviceMotionUpdates()
     }
 
-    func startTimer() {
+    func startTimer(endDate: Date) {
         stopTimer()
 
         DispatchQueue.main.async {
@@ -126,58 +124,56 @@ class DecisionViewModel: ObservableObject {
                 if !self.isTimeOut {
                     self.timeOut()
                     print("[DECISION] Time Out")
-
-                    self.connectManager.sendTimeoutToIos(
-                        self.decisionIndex,
-                        isFirstRequest: self.isFirstRequest
-                    )
                 }
             }
         }
     }
 
-    func makeChoice() {
-
-        guard motionManager.isDeviceMotionAvailable else {
-            print("unavailable")
-            return
-        }
-
-        if motionManager.isDeviceMotionActive { return }
-
-        motionManager.deviceMotionUpdateInterval = 0.1
-        isSetMiddle = false
-        middle = 0.0
-
-        motionManager.startDeviceMotionUpdates(to: .main) { data, error in
-            guard let data = data, error == nil else {
-                print(
-                    "Motion data error: \(error?.localizedDescription ?? "Unknown")"
-                )
+    func makeChoice(endDate: Date) {
+        #if targetEnvironment(simulator)
+            self.startTimer(endDate: endDate)
+        #else
+            guard motionManager.isDeviceMotionAvailable else {
+                print("unavailable")
                 return
             }
 
-            guard self.choice == nil else { return }
+            if motionManager.isDeviceMotionActive { return }
 
-            guard self.isTimerRunning else { return }
+            motionManager.deviceMotionUpdateInterval = 0.1
+            isSetMiddle = false
+            middle = 0.0
 
-            let roll = data.attitude.roll
-
-            if !self.isSetMiddle {
-                self.middle = roll
-                self.isSetMiddle = true
-                print("[MOTION] middle set: \(roll)")
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.startTimer()
+            motionManager.startDeviceMotionUpdates(to: .main) { data, error in
+                guard let data = data, error == nil else {
+                    print(
+                        "Motion data error: \(error?.localizedDescription ?? "Unknown")"
+                    )
+                    return
                 }
-                return
+
+                guard self.choice == nil else { return }
+
+                guard self.isTimerRunning else { return }
+
+                let roll = data.attitude.roll
+
+                if !self.isSetMiddle {
+                    self.middle = roll
+                    self.isSetMiddle = true
+                    print("[MOTION] middle set: \(roll)")
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.startTimer()
+                    }
+                    return
+                }
+
+                let value = roll - self.middle
+
+                self.evalLOrR(value)
             }
-
-            let value = roll - self.middle
-
-            self.evalLOrR(value)
-        }
+        #endif
     }
 
     func evalLOrR(_ value: Double) {

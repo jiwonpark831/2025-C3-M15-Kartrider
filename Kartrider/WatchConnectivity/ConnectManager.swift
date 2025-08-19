@@ -24,6 +24,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         @Published var decisionIndex: Int = 0
         @Published var decisionCount: Int = 0
         @Published var selectedChoice: String = ""
+    @Published var timerEnd: Date? = nil
         @Published var selectedOption: StoryChoiceOption? = nil
         @Published var isTimeout: Bool? = false
         @Published var isFirstRequest: Bool = true
@@ -33,6 +34,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         @Published var message: [String: Any] = [:]
         @Published var currentStage: String = ""
         @Published var hasStartedContent: Bool = false
+        @Published var timerEnd: Date? = nil
         @Published var isTimerRunning: Bool = false
         @Published var isTTSPlaying: Bool = true
         @Published var decisionIndex: Int = 0
@@ -47,6 +49,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         case isFirstRequest
 
         case hasStartedContent
+        case timerEnd
         case isTimerRunning
         case isInterrupted
         case decisionCount
@@ -135,12 +138,20 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
                 ] as? Bool {
                     self.hasStartedContent = hasStartedContent
                 }
+                if let timerEnd = message[messageKey.timerEnd.rawValue] as? Date
+                {
+                    self.timerEnd = timerEnd
+                }
+
                 if let isTimerRunning = message[
                     messageKey.isTimerRunning.rawValue
                 ]
                     as? Bool
                 {
                     self.isTimerRunning = isTimerRunning
+                    if !isTimerRunning {
+                        self.timerEnd = nil
+                    }
                 }
                 if let isTTSPlaying = message[
                     messageKey.isTTSPlaying.rawValue
@@ -257,6 +268,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
 
         func sendStageDecisionWithFirstTTS(_ decisionIndex: Int) {
+                        
             let message: [String: Any] = [
                 "currentStage": "decision",
                 "isTimerRunning": false,
@@ -270,9 +282,13 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
 
         func sendStageDecisionWithFirstTimer(_ decisionIndex: Int) {
+            let endTime = Date().addingTimeInterval(10)
+            self.timerEnd = endTime
+
             let message: [String: Any] = [
                 "currentStage": "decision",
                 "isTimerRunning": true,
+                "timerEnd": endTime,
                 "decisionIndex": decisionIndex,
                 "isFirstRequest": true,
             ]
@@ -296,9 +312,13 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
 
         func sendStageDecisionWithSecTimer(_ decisionIndex: Int) {
+            let endTime = Date().addingTimeInterval(10)
+            self.timerEnd = endTime
+
             let message: [String: Any] = [
                 "currentStage": "decision",
                 "isTimerRunning": true,
+                "timerEnd": endTime,
                 "decisionIndex": decisionIndex,
                 "isFirstRequest": false,
             ]
@@ -333,9 +353,13 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
 
         func sendStageEndingTimer() {
+            let endTime = Date().addingTimeInterval(10)
+            self.timerEnd = endTime
+
             let message: [String: Any] = [
                 "currentStage": "ending",
                 "isTimerRunning": true,
+                "timerEnd": endTime,
             ]
             let session = WCSession.default
             if session.isReachable {

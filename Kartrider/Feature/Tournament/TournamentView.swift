@@ -11,12 +11,13 @@ import SwiftUI
 struct TournamentView: View {
     @EnvironmentObject private var coordinator: NavigationCoordinator
     @Environment(\.modelContext) private var context
-    
+
     @StateObject private var tournamentViewModel: TournamentViewModel
 
     init(content: ContentMeta) {
         _tournamentViewModel = StateObject(
-            wrappedValue: TournamentViewModel(content: content))
+            wrappedValue: TournamentViewModel(content: content)
+        )
     }
 
     var body: some View {
@@ -28,16 +29,19 @@ struct TournamentView: View {
         ) {
             VStack(spacing: 16) {
                 Divider()
-
+                iOSTimer()
                 if tournamentViewModel.isFinished,
                     let winner = tournamentViewModel.winner
                 {
                     TournamentResultView(winner: winner.name) {
                         coordinator.popToRoot()
                     }
-                } else if let (firstCandidate, secondCandiate) = tournamentViewModel.currentCandidates {
+                } else if let (firstCandidate, secondCandiate) =
+                    tournamentViewModel.currentCandidates
+                {
                     TournamentMatchView(
-                        roundDescription: tournamentViewModel.currentRoundDescription,
+                        roundDescription: tournamentViewModel
+                            .currentRoundDescription,
                         a: firstCandidate.name,
                         b: secondCandiate.name,
                         onSelectA: {
@@ -65,7 +69,6 @@ struct TournamentView: View {
     }
 }
 
-
 #Preview {
 
     let sample = ContentMeta(
@@ -75,7 +78,7 @@ struct TournamentView: View {
         hashtags: [
             Hashtag(value: "빙의"),
             Hashtag(value: "LOL"),
-            Hashtag(value: "고트")
+            Hashtag(value: "고트"),
         ],
         thumbnailName: nil
     )
