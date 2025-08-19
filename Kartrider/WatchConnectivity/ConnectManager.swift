@@ -24,7 +24,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         @Published var decisionIndex: Int = 0
         @Published var decisionCount: Int = 0
         @Published var selectedChoice: String = ""
-    @Published var timerEnd: Date? = nil
+        @Published var timerEnd: Date? = nil
         @Published var selectedOption: StoryChoiceOption? = nil
         @Published var isTimeout: Bool? = false
         @Published var isFirstRequest: Bool = true
@@ -268,7 +268,7 @@ class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
         }
 
         func sendStageDecisionWithFirstTTS(_ decisionIndex: Int) {
-                        
+
             let message: [String: Any] = [
                 "currentStage": "decision",
                 "isTimerRunning": false,

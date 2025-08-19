@@ -174,6 +174,7 @@ class TournamentViewModel: ObservableObject {
         matchHistory.append(step)
         nextRoundCandidates.append(selected)
         currentMatchIndex += 1
+        connectManager.timerEnd = nil
         prepareNextMatch()
         selectedOption = nil
     }

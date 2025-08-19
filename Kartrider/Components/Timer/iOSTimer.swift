@@ -5,13 +5,13 @@
 //  Created by jiwon on 8/19/25.
 //
 
-import SwiftUI
-import Foundation
 import Combine
+import Foundation
+import SwiftUI
 
 struct iOSTimer: View {
     @StateObject private var iOSTimerViewModel = IOSTimerViewModel()
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -19,7 +19,9 @@ struct iOSTimer: View {
                 .stroke(
                     Color.orange,
                     style: StrokeStyle(
-                        lineWidth: 2, lineCap: .round)
+                        lineWidth: 2,
+                        lineCap: .round
+                    )
                 )
                 .rotationEffect(.degrees(-90))
                 .frame(width: 73, height: 73)
@@ -31,7 +33,7 @@ struct iOSTimer: View {
                 .font(.system(.title))
         }
     }
-    
+
 }
 
 #Preview {
@@ -77,21 +79,29 @@ class IOSTimerViewModel: ObservableObject {
         timer?.invalidate()
         timer = nil
         isTimerRunning = false
+        resetState()
     }
 
     func startTimer(endDate: Date) {
-        stopTimer()
+        timer?.invalidate()
+        timer = nil
 
         DispatchQueue.main.async {
             self.isTimerRunning = true
         }
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            print("[TIMER] \(self.time)")
-            if self.time > 0 {
-                self.time -= 1
-                self.progress = CGFloat(self.time) / 10.0
+
+            let remainTime = endDate.timeIntervalSinceNow
+
+            if remainTime > 0 {
+                // 올림, Int로
+                let timeCountdown = Int(ceil(remainTime))
+                print("[TIMER] \(timeCountdown)")
+                self.time = timeCountdown
+                self.progress = CGFloat(remainTime) / 10.0
             } else {
+                self.stopTimer()
                 self.connectManager.timerEnd = nil
             }
         }

@@ -121,7 +121,7 @@ class DecisionViewModel: ObservableObject {
             if remainTime > 0 {
                 // 올림, Int로
                 let timeCountdown = Int(ceil(remainTime))
-                print("[TIMER] \(remainTime)")
+                print("[TIMER] \(timeCountdown)")
                 self.time = timeCountdown
                 self.progress = CGFloat(remainTime) / 10.0
                 WKInterfaceDevice.current().play(.start)
