@@ -9,7 +9,7 @@ import Foundation
 
 class IntroViewModel: ObservableObject {
 
-    let connectManager = IosConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     @Published var content: ContentMeta
     @Published var hasSentIdle: Bool = false

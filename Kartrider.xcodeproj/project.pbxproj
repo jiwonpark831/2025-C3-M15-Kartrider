@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		806707A72DF68A05003B9739 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 806707A62DF68A05003B9739 /* Lottie */; };
 		87D65E852DE6B6BB00F15CA1 /* Pickacha Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 87D65E782DE6B6BB00F15CA1 /* Pickacha Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		87D65EA52DE6B70500F15CA1 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D65EA42DE6B70500F15CA1 /* WatchConnectivity.framework */; };
-		87D65EA72DE6B79100F15CA1 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D65EA62DE6B79100F15CA1 /* WatchConnectivity.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,6 +22,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		87AD550E2E536A5E00E04C55 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87AD553A2E53776000E04C55 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		87D65E862DE6B6BB00F15CA1 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -40,8 +58,6 @@
 /* Begin PBXFileReference section */
 		87465C9C2DE568840010DAC7 /* Kartrider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kartrider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		87D65E782DE6B6BB00F15CA1 /* Pickacha Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pickacha Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87D65EA42DE6B70500F15CA1 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
-		87D65EA62DE6B79100F15CA1 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.2.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -52,6 +68,13 @@
 			);
 			target = 87465C9B2DE568840010DAC7 /* Kartrider */;
 		};
+		87AD5A052E537D5D00E04C55 /* Exceptions for "Kartrider" folder in "Pickacha Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				WatchConnectivity/ConnectManager.swift,
+			);
+			target = 87D65E772DE6B6BB00F15CA1 /* Pickacha Watch App */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -59,6 +82,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				8704608B2E1B913B00B082A2 /* Exceptions for "Kartrider" folder in "Kartrider" target */,
+				87AD5A052E537D5D00E04C55 /* Exceptions for "Kartrider" folder in "Pickacha Watch App" target */,
 			);
 			path = Kartrider;
 			sourceTree = "<group>";
@@ -75,7 +99,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D65EA52DE6B70500F15CA1 /* WatchConnectivity.framework in Frameworks */,
 				806707A72DF68A05003B9739 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +107,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D65EA72DE6B79100F15CA1 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,8 +135,6 @@
 		87D65EA32DE6B70500F15CA1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				87D65EA62DE6B79100F15CA1 /* WatchConnectivity.framework */,
-				87D65EA42DE6B70500F15CA1 /* WatchConnectivity.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,6 +150,7 @@
 				87465C992DE568840010DAC7 /* Frameworks */,
 				87465C9A2DE568840010DAC7 /* Resources */,
 				87D65E862DE6B6BB00F15CA1 /* Embed Watch Content */,
+				87AD550E2E536A5E00E04C55 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -154,6 +175,7 @@
 				87D65E742DE6B6BB00F15CA1 /* Sources */,
 				87D65E752DE6B6BB00F15CA1 /* Frameworks */,
 				87D65E762DE6B6BB00F15CA1 /* Resources */,
+				87AD553A2E53776000E04C55 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -176,7 +198,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					87465C9B2DE568840010DAC7 = {

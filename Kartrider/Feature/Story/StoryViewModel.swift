@@ -10,7 +10,7 @@ import SwiftData
 
 class StoryViewModel: ObservableObject {
 
-    let connectManager = IosConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private var cancellable = Set<AnyCancellable>()
 

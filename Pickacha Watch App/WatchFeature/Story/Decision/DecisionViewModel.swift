@@ -12,7 +12,7 @@ import WatchKit
 
 class DecisionViewModel: ObservableObject {
 
-    let connectManager = WatchConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private var cancellable = Set<AnyCancellable>()
 
@@ -128,7 +128,9 @@ class DecisionViewModel: ObservableObject {
                     print("[DECISION] Time Out")
 
                     self.connectManager.sendTimeoutToIos(
-                        self.decisionIndex, isFirstRequest: self.isFirstRequest)
+                        self.decisionIndex,
+                        isFirstRequest: self.isFirstRequest
+                    )
                 }
             }
         }
@@ -185,10 +187,14 @@ class DecisionViewModel: ObservableObject {
             print("[CHOICE] B")
             if self.isFirstRequest {
                 self.connectManager.sendFirstChoiceToIos(
-                    self.decisionIndex, "B")
+                    self.decisionIndex,
+                    "B"
+                )
             } else {
                 self.connectManager.sendSecChoiceToIos(
-                    self.decisionIndex, "B")
+                    self.decisionIndex,
+                    "B"
+                )
             }
         } else if value < -0.6 {
             self.choice = "A"
@@ -196,10 +202,14 @@ class DecisionViewModel: ObservableObject {
             print("[CHOICE] A")
             if self.isFirstRequest {
                 self.connectManager.sendFirstChoiceToIos(
-                    self.decisionIndex, "A")
+                    self.decisionIndex,
+                    "A"
+                )
             } else {
                 self.connectManager.sendSecChoiceToIos(
-                    self.decisionIndex, "A")
+                    self.decisionIndex,
+                    "A"
+                )
             }
         }
     }
