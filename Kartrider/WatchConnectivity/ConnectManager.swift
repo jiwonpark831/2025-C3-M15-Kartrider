@@ -12,9 +12,9 @@ import WatchConnectivity
     import WatchKit
 #endif
 
-class SharedConnectManager: NSObject, WCSessionDelegate, ObservableObject {
+class ConnectManager: NSObject, WCSessionDelegate, ObservableObject {
 
-    static let shared = SharedConnectManager()
+    static let shared = ConnectManager()
 
     var session: WCSession
 

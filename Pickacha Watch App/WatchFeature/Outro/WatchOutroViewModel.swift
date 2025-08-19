@@ -11,7 +11,7 @@ import WatchKit
 
 class WatchOutroViewModel: ObservableObject {
 
-    let connectManager = WatchConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private var cancellable = Set<AnyCancellable>()
 

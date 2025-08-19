@@ -11,7 +11,7 @@ import SwiftData
 
 class TournamentViewModel: ObservableObject {
 
-    let connectManager = IosConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private var cancellable = Set<AnyCancellable>()
     private var context: ModelContext?
@@ -26,14 +26,14 @@ class TournamentViewModel: ObservableObject {
             connectManager.isFirstRequest = true
         }
     }
-    
+
     @Published var isFinished = false {
         didSet {
             guard isFinished, let context = context else { return }
             finishTournamentAndSave(context: context)
         }
     }
-    
+
     @Published var winner: Candidate? {
         didSet {
             Task {
@@ -41,7 +41,7 @@ class TournamentViewModel: ObservableObject {
             }
         }
     }
-    
+
     private let contentRepository: ContentRepositoryProtocol
     private let historyRepository: PlayHistoryRepositoryProtocol
     private let tournamentId: UUID
@@ -59,7 +59,7 @@ class TournamentViewModel: ObservableObject {
         let totalMatches = count / 2
         return "\(roundText)\n\(totalMatches)개의 경기 중 \(matchNumber)번째 경기"
     }
-    
+
     @Published var selectedOption: StoryChoiceOption? = nil
     @Published var decisionIndex = 0
     @Published var decisionTask: Task<Void, Never>? = nil
@@ -103,7 +103,7 @@ class TournamentViewModel: ObservableObject {
             .store(in: &cancellable)
 
     }
-    
+
     func setContext(_ context: ModelContext) {
         self.context = context
     }
@@ -113,7 +113,9 @@ class TournamentViewModel: ObservableObject {
         do {
             guard
                 let tournament = try contentRepository.fetchTournament(
-                    by: tournamentId, context: context)
+                    by: tournamentId,
+                    context: context
+                )
             else {
                 print("[ERROR] 토너먼트 찾을 수 없음")
                 return
@@ -156,7 +158,7 @@ class TournamentViewModel: ObservableObject {
         let b = currentRound[currentMatchIndex * 2 + 1]
         currentCandidates = (a, b)
     }
-    
+
     @MainActor
     func select(_ selected: Candidate) {
         guard let (a, b) = currentCandidates else { return }
@@ -209,7 +211,7 @@ class TournamentViewModel: ObservableObject {
             await speakCurrentMatch()
         }
     }
-    
+
     @MainActor
     func speakCurrentMatch() {
         guard let (a, b) = currentCandidates else { return }
@@ -221,18 +223,20 @@ class TournamentViewModel: ObservableObject {
 
         decisionTask = Task {
             connectManager.sendStageDecisionWithFirstTTS(
-                decisionIndex)
+                decisionIndex
+            )
             await MainActor.run { self.isTTSPlaying = true }
             await ttsManager.speakSequentially(currentRoundDescription)
             await ttsManager.speakSequentially("A. \(a.name)")
             await ttsManager.speakSequentially("B. \(b.name)")
             await MainActor.run { self.isTTSPlaying = false }
             connectManager.sendStageDecisionWithFirstTimer(
-                decisionIndex)
+                decisionIndex
+            )
         }
     }
 
-    func playSecondTTS() { 
+    func playSecondTTS() {
         guard let (a, b) = currentCandidates else { return }
         decisionTask?.cancel()
 
@@ -276,9 +280,9 @@ class TournamentViewModel: ObservableObject {
     @MainActor
     func handleTournamentEndingTTS() async {
         connectManager.sendStageEndingTTS()
-        
+
         guard let winner = self.winner else { return }
-        
+
         isTTSPlaying = true
         ttsManager.stop()
         try? await Task.sleep(nanoseconds: 300_000_000)

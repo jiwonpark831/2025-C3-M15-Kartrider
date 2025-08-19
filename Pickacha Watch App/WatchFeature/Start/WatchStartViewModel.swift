@@ -11,7 +11,7 @@ import Foundation
 
 class WatchStartViewModel: ObservableObject {
 
-    let connectManager = WatchConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private let synthesizer = AVSpeechSynthesizer()
     private var cancellable = Set<AnyCancellable>()

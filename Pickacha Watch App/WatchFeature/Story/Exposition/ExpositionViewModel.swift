@@ -10,7 +10,7 @@ import Foundation
 
 class ExpositionViewModel: ObservableObject {
 
-    let connectManager = WatchConnectManager.shared
+    let connectManager = ConnectManager.shared
 
     private var cancellable = Set<AnyCancellable>()
 
