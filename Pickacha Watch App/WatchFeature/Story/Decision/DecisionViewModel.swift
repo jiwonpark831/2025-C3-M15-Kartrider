@@ -116,13 +116,14 @@ class DecisionViewModel: ObservableObject {
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
 
-            let remainingTime = endDate.timeIntervalSinceNow
+            let remainTime = endDate.timeIntervalSinceNow
 
-            print("[TIMER] \(remainingTime)")
-            if remainingTime > 0 {
-                let newTime = Int(ceil(remainingTime))
-                self.time = newTime
-                self.progress = CGFloat(remainingTime) / 10.0
+            if remainTime > 0 {
+                // 올림, Int로
+                let timeCountdown = Int(ceil(remainTime))
+                print("[TIMER] \(remainTime)")
+                self.time = timeCountdown
+                self.progress = CGFloat(remainTime) / 10.0
                 WKInterfaceDevice.current().play(.start)
             } else {
                 if !self.isTimeOut {
